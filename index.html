@@ -19,7 +19,30 @@ button{touch-action:manipulation}
   .modalbox{width:calc(100vw - 18px)!important;max-height:90vh;overflow:auto;padding:14px!important}
   details.card summary{min-height:44px;display:flex;align-items:center}
 }
-</style></head><body>
+</style>
+<style id="v26-mobile-fixes">
+#helpFab{
+  width:auto!important;
+  min-width:0!important;
+  min-height:44px!important;
+  max-width:116px!important;
+  padding:10px 14px!important;
+  font-size:14px!important;
+  right:14px!important;
+  bottom:72px!important;
+  border-radius:999px!important;
+}
+@media(max-width:700px){
+  #helpFab{
+    width:auto!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  #globalJobBar button{width:auto!important;min-width:150px}
+}
+</style>
+</head><body>
 <div id="pilotBugModal" class="modal hide" role="dialog" aria-modal="true"><div class="modalbox">
 <div class="row"><div><div class="tiny">PILOT FEEDBACK</div><h2>What stopped or slowed you down?</h2><div class="sub">CarbTune captures the current screen/job automatically.</div></div><button type="button" class="secondary" onclick="closePilotBug()">Close</button></div>
 <div class="grid" style="margin-top:12px"><div><label>Severity</label><select id="bugSeverity"><option>Annoying but usable</option><option>Slows the job</option><option>Blocks the job</option><option>Safety concern</option></select></div><div><label>Area</label><select id="bugArea"><option>Navigation</option><option>Data entry</option><option>Recommendation</option><option>Comparison / graph</option><option>Training / help</option><option>Report</option><option>App / display problem</option></select></div></div>
@@ -39,8 +62,8 @@ button{touch-action:manipulation}
   </div>
   <div class="btnrow" style="margin-top:12px"><button type="button" onclick="createQuickJob()">Start Baseline</button><button type="button" class="secondary" onclick="createQuickJob(true)">Save & Identify Components</button></div>
  </div>
-</div><div class="app"><header><div class="row"><div><h1>CarbTune Pro <span class="tiny">Preview v25.0 • Pilot Data</span></h1><div class="sub" id="crumb">Garage</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="pill" id="activeTechBadge">Shop Technician • Beginner</span><button type="button" class="secondary no-print" onclick="openAccountPanel()">Account</button><span class="pill" id="saveState">Local session storage</span></div></div></header>
-<div id="globalJobBar" class="card no-print" style="margin-top:10px"><div class="row"><div><b id="globalVehicle">1982 Oldsmobile Cutlass Supreme</b><div class="tiny" id="globalJobContext">DEMO-001 • Baseline & Tune • Autosaved</div></div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="pill" id="globalGuidance">Beginner</span><span class="pill good" id="globalSave">Saved</span><button type="button" class="secondary" onclick="resumeSmart()">Resume Job</button></div></div></div><section id="welcome" class="screen active">
+</div><div class="app"><header><div class="row"><div><h1>CarbTune Pro <span class="tiny">Preview v26.0 • iPhone Fix</span></h1><div class="sub" id="crumb">Garage</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="pill" id="activeTechBadge">Shop Technician • Beginner</span><button type="button" class="secondary no-print" onclick="openAccountPanel()">Account</button><span class="pill" id="saveState">Local session storage</span></div></div></header>
+<div id="globalJobBar" class="card no-print" style="margin-top:10px"><div class="row"><div><b id="globalVehicle">1982 Oldsmobile Cutlass Supreme</b><div class="tiny" id="globalJobContext">DEMO-001 • Baseline & Tune • Autosaved</div></div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="pill" id="globalGuidance">Beginner</span><span class="pill good" id="globalSave">Saved</span><button type="button" class="secondary" onclick="resumeJobNow(event)">Resume Job</button></div></div></div><section id="welcome" class="screen active">
 <span class="pill good">Testable</span></div>
 <div class="grid3" style="margin-top:10px"><div class="metric"><span class="tiny">Workflow</span><b>Connected</b></div><div class="metric"><span class="tiny">Learning</span><b>Connected</b></div><div class="metric"><span class="tiny">Feedback loop</span><b>Connected</b></div></div></div><div class="mutedbox no-print"><div class="row"><div><b>Job data saved on this device</b><div class="tiny" id="saveStatusText">CarbTune autosaves prototype job progress locally. Export a Pilot Data Package from Settings for a portable backup.</div></div><span class="pill good" id="saveStatusPill">Saved</span></div></div><div class="card no-print"><div class="row"><div><div class="tiny">FAST ACCESS</div><h3>Get back to work</h3></div><span class="pill good">1 tap</span></div>
 <div class="grid3" style="margin-top:10px">
@@ -1929,6 +1952,47 @@ function importPilotPackage(input){
  r.readAsText(file);
 }
 
+
+function resumeJobNow(evt){
+  if(evt){evt.preventDefault();evt.stopPropagation();}
+  const valid = new Set(["vehicle","tune","step1","step2","step3","step4","step5","step6","step7","correction","verifyChange","summary","lookup","history"]);
+  let id="vehicle";
+  try{id=localStorage.getItem(LAST_SCREEN_KEY)||"vehicle"}catch(e){}
+  if(id==="welcome"||id==="garage"||!valid.has(id)) id="vehicle";
+  try{
+    const target=document.getElementById(id);
+    if(!target) throw new Error("Missing screen "+id);
+    document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
+    target.classList.add("active");
+    if(typeof el==="function" && el("crumb")){
+      const labels={vehicle:"Garage / Cutlass",tune:"Tuning Session",step1:"Tune / Pre-Tune",step2:"Tune / Fuel System",step3:"Tune / Ignition & Timing",step4:"Tune / Idle & Vacuum",step5:"Tune / Road Calibration",summary:"Tune / Final Summary",lookup:"Carburetor Lookup",history:"History"};
+      el("crumb").textContent=labels[id]||id;
+    }
+    document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("on"));
+    const nav=document.getElementById("n"+id); if(nav) nav.classList.add("on");
+    try{localStorage.setItem(LAST_SCREEN_KEY,id)}catch(e){}
+    window.scrollTo({top:0,left:0,behavior:"instant"});
+    const save=document.getElementById("globalSave");
+    if(save){save.textContent="Resumed";save.className="pill good";setTimeout(()=>{save.textContent="Saved";},900);}
+    try{
+      if(id==="vehicle"){loadProProfile();loadContext();renderVision();}
+      if(id==="tune"){renderWorkflow();renderTechStatus();}
+    }catch(e){}
+    return true;
+  }catch(err){
+    try{
+      const v=document.getElementById("vehicle");
+      if(v){
+        document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
+        v.classList.add("active");
+        window.scrollTo(0,0);
+        return true;
+      }
+    }catch(e){}
+    alert("CarbTune could not resume this job. Open Vehicle from the bottom navigation.");
+    return false;
+  }
+}
 </script><div id="safetyAck" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:9999;padding:20px;overflow:auto"><div class="card" style="max-width:620px;margin:8vh auto;background:var(--panel)"><div class="tiny">FIRST-USE SAFETY ACKNOWLEDGMENT</div><h2>Professional Diagnostic & Tuning Tool</h2><p>CarbTune provides diagnostic and calibration guidance from the vehicle information, measurements and observations supplied to it. Vehicle condition and component configuration must still be verified by the technician.</p><p class="tiny">CarbTune guidance does not replace appropriate mechanical inspection, testing, safe work practices or technician judgment. Safety hard-stops remain active at every guidance level.</p><div class="btnrow"><button type="button" onclick="acceptSafetyAck()">I Understand & Continue</button><button type="button" class="secondary" onclick="closeSafetyAck()">Not Now</button></div></div></div><button id="helpFab" type="button" onclick="openAcademy('context')" style="position:fixed;right:18px;bottom:18px;z-index:900;border-radius:999px;padding:12px 16px;box-shadow:0 8px 28px rgba(0,0,0,.25)">? Help</button><div id="mobileActionDock" class="no-print" style="position:fixed;left:8px;right:8px;bottom:8px;z-index:80;display:none;gap:6px;padding:7px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.18)">
 <button type="button" onclick="resumeSmart()">Resume</button><button type="button" class="secondary" onclick="openQuickStart()">New Job</button><button type="button" class="secondary" onclick="openAcademy('context')">Help</button><button type="button" class="secondary" onclick="openPilotBug()">Problem</button>
 </div></body></html>
