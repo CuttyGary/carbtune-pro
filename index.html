@@ -45,45 +45,22 @@ button{touch-action:manipulation}
 
 
 
-<style id="v28-layout-fix">
-html,body{min-height:100%;height:auto!important}
-body{display:block!important}
-.app{
-  display:block!important;
-  min-height:100vh!important;
-  height:auto!important;
-}
-#globalJobBar{
-  position:relative!important;
-  top:auto!important;
-  min-height:0!important;
-  height:auto!important;
-  margin-bottom:0!important;
-}
-.screen{
-  position:relative!important;
-  top:auto!important;
-  left:auto!important;
-  min-height:0!important;
-  height:auto!important;
-  margin-top:0!important;
-  padding-top:14px!important;
-  align-items:initial!important;
-  justify-content:initial!important;
-}
+
+
+<style id="v29-clean-layout">
+html,body{min-height:100%;height:auto}
+body{display:block}
+.app{max-width:1180px!important;margin:0 auto!important;min-height:100vh;padding-bottom:78px}
+#globalJobBar{margin:10px 18px 0!important;position:relative!important}
+.screen{display:none;padding:14px 18px 18px!important;min-height:0!important;height:auto!important;margin:0!important}
 .screen.active{display:block!important}
-#vehicle.active,#tune.active,#garage.active,#lookup.active,#history.active,#summary.active{
-  margin-top:0!important;
-}
-@media(min-width:701px){
-  .app{max-width:1180px!important}
-  header{padding-left:18px!important;padding-right:18px!important}
-  .screen{padding-left:18px!important;padding-right:18px!important}
-  .navin{width:min(1180px,100%)!important}
-}
+#welcome>.card,#welcome>details{margin-top:0}
+.navin{width:min(1180px,100%)!important}
 @media(max-width:700px){
+  .app{max-width:none!important;padding-bottom:82px}
   #globalJobBar{margin:8px 10px 0!important}
-  .screen{padding-top:10px!important}
+  .screen{padding:10px!important}
+  #welcome .grid3{grid-template-columns:1fr!important}
 }
 </style>
 </head><body>
@@ -106,40 +83,76 @@ body{display:block!important}
   </div>
   <div class="btnrow" style="margin-top:12px"><button type="button" onclick="createQuickJob()">Start Baseline</button><button type="button" class="secondary" onclick="createQuickJob(true)">Save & Identify Components</button></div>
  </div>
-</div><div class="app"><header><div class="row"><div><h1>CarbTune Pro <span class="tiny">Preview v28.0 • Layout & Navigation Fix</span></h1><div class="sub" id="crumb">Garage</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="pill" id="activeTechBadge">Shop Technician • Beginner</span><button type="button" class="secondary no-print" onclick="openAccountPanel()">Account</button><span class="pill" id="saveState">Local session storage</span></div></div></header>
-<div id="globalJobBar" class="card no-print" style="margin-top:10px"><div class="row"><div><b id="globalVehicle">1982 Oldsmobile Cutlass Supreme</b><div class="tiny" id="globalJobContext">DEMO-001 • Baseline & Tune • Autosaved</div></div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="pill" id="globalGuidance">Beginner</span><span class="pill good" id="globalSave">Saved</span><button type="button" class="secondary" id="resumeJobBtn">Resume Job</button></div></div></div><section id="welcome" class="screen active">
-<span class="pill good">Testable</span></div>
-<div class="grid3" style="margin-top:10px"><div class="metric"><span class="tiny">Workflow</span><b>Connected</b></div><div class="metric"><span class="tiny">Learning</span><b>Connected</b></div><div class="metric"><span class="tiny">Feedback loop</span><b>Connected</b></div></div></div><div class="mutedbox no-print"><div class="row"><div><b>Job data saved on this device</b><div class="tiny" id="saveStatusText">CarbTune autosaves prototype job progress locally. Export a Pilot Data Package from Settings for a portable backup.</div></div><span class="pill good" id="saveStatusPill">Saved</span></div></div><div class="card no-print"><div class="row"><div><div class="tiny">FAST ACCESS</div><h3>Get back to work</h3></div><span class="pill good">1 tap</span></div>
-<div class="grid3" style="margin-top:10px">
-<button type="button" id="welcomeContinueBtn" style="min-height:72px"><b>Continue</b><div class="tiny">open active vehicle</div></button>
-<button type="button" class="secondary" onclick="openQuickStart()" style="min-height:72px"><b>New Job</b><div class="tiny">6-field quick intake</div></button>
-<button type="button" class="secondary" onclick="toggleRecentJobs()" style="min-height:72px"><b>History</b><div class="tiny">paused / completed</div></button>
-</div></div><div class="card" id="currentJobCompact">
-  <div class="row">
-    <div><div class="tiny">CURRENT JOB</div><h3>1982 Oldsmobile Cutlass Supreme</h3><div class="sub" id="compactJobMeta">Baseline / Tune • current phase: Baseline</div></div>
-    <span class="pill warn" id="compactJobState">In progress</span>
+</div><div class="app"><header><div class="row"><div><h1>CarbTune Pro <span class="tiny">Preview v29.0 • Clean Home Fix</span></h1><div class="sub" id="crumb">Garage</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="pill" id="activeTechBadge">Shop Technician • Beginner</span><button type="button" class="secondary no-print" onclick="openAccountPanel()">Account</button><span class="pill" id="saveState">Local session storage</span></div></div></header>
+<div id="globalJobBar" class="card no-print" style="margin-top:10px"><div class="row"><div><b id="globalVehicle">1982 Oldsmobile Cutlass Supreme</b><div class="tiny" id="globalJobContext">DEMO-001 • Baseline & Tune • Autosaved</div></div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="pill" id="globalGuidance">Beginner</span><span class="pill good" id="globalSave">Saved</span><button type="button" class="secondary" id="resumeJobBtn" onclick="go('vehicle')">Resume Job</button></div></div></div>
+<section id="welcome" class="screen active">
+  <div class="card">
+    <div class="row">
+      <div>
+        <div class="tiny">TECHNICIAN HOME</div>
+        <h2>Get back to work</h2>
+        <div class="sub">Current job first. No sales fluff, no scrolling hunt.</div>
+      </div>
+      <span class="pill good">Ready</span>
+    </div>
+    <div class="grid3" style="margin-top:12px">
+      <div class="metric"><span class="tiny">Current job</span><b>1982 Cutlass</b><span class="tiny">Baseline & Tune</span></div>
+      <div class="metric"><span class="tiny">Guidance</span><b id="homeGuidance">Beginner</b><span class="tiny">technician profile</span></div>
+      <div class="metric"><span class="tiny">Save state</span><b class="good">Saved</b><span class="tiny">local pilot session</span></div>
+    </div>
+    <div class="btnrow" style="margin-top:12px">
+      <button type="button" onclick="go('vehicle')">Resume Job</button>
+      <button type="button" class="secondary" onclick="openQuickStart()">New Job</button>
+      <button type="button" class="secondary" onclick="toggleRecentJobs()">Recent Jobs</button>
+    </div>
   </div>
-  <div class="btnrow" style="margin-top:10px">
-    <button type="button" onclick="resumeSmart()">Continue</button>
-    <button type="button" class="secondary" onclick="go('vehicle')">Vehicle</button>
-    <button type="button" class="secondary" onclick="openAcademy('context')">Help</button>
-  </div>
-</div>
 
-<div class="card hide" id="recentJobsPanel">
-  <div class="row"><div><h3>Recent Jobs</h3><div class="sub">Paused and completed CarbTune work.</div></div><button type="button" class="secondary" onclick="toggleRecentJobs()">Close</button></div>
-  <div class="visionrow"><div><b>1982 Oldsmobile Cutlass Supreme</b><div class="tiny">Current • Vortec 350 • BR-67255</div></div><span class="pill warn">Active</span><button type="button" class="secondary" onclick="resumeSmart()">Resume</button></div>
-  <div class="visionrow"><div><b>Example Completed Vehicle</b><div class="tiny">Completed tune report</div></div><span class="pill good">Completed</span><button type="button" class="secondary" onclick="go('summary')">View</button></div>
-</div>
-
-<details class="card">
-  <summary style="cursor:pointer;font-weight:750">More</summary>
-  <div class="grid3" style="margin-top:12px">
-    <button type="button" class="secondary" onclick="go('garage')">Garage / Job Queue</button>
-    <button type="button" class="secondary" onclick="openAccountPanel()">Technician Profile</button>
-    <button type="button" class="secondary" onclick="openAcademy('context')">CarbTune Academy</button>
+  <div class="card" id="currentJobCompact">
+    <div class="row">
+      <div>
+        <div class="tiny">CURRENT JOB</div>
+        <h3>1982 Oldsmobile Cutlass Supreme</h3>
+        <div class="sub" id="compactJobMeta">DEMO-001 • Baseline / Tune • current phase: Vehicle / Baseline</div>
+      </div>
+      <span class="pill warn" id="compactJobState">In progress</span>
+    </div>
+    <div class="grid3" style="margin-top:10px">
+      <div class="metric"><span class="tiny">Engine</span><b>Vortec 350</b></div>
+      <div class="metric"><span class="tiny">Carburetor</span><b>BR-67255</b></div>
+      <div class="metric"><span class="tiny">Next</span><b>Baseline</b></div>
+    </div>
+    <div class="btnrow" style="margin-top:12px">
+      <button type="button" onclick="go('vehicle')">Open Vehicle</button>
+      <button type="button" class="secondary" onclick="go('tune')">Open Tune</button>
+      <button type="button" class="secondary" onclick="openAcademy('context')">Help</button>
+    </div>
   </div>
-</details>
+
+  <div class="card hide" id="recentJobsPanel">
+    <div class="row">
+      <div><h3>Recent Jobs</h3><div class="sub">Paused and completed CarbTune work.</div></div>
+      <button type="button" class="secondary" onclick="toggleRecentJobs()">Close</button>
+    </div>
+    <div class="visionrow">
+      <div><b>1982 Oldsmobile Cutlass Supreme</b><div class="tiny">Current • Vortec 350 • BR-67255</div></div>
+      <span class="pill warn">Active</span>
+      <button type="button" class="secondary" onclick="go('vehicle')">Resume</button>
+    </div>
+    <div class="visionrow">
+      <div><b>Example Completed Vehicle</b><div class="tiny">Completed tune report</div></div>
+      <span class="pill good">Completed</span>
+      <button type="button" class="secondary" onclick="go('summary')">View</button>
+    </div>
+  </div>
+
+  <details class="card">
+    <summary style="cursor:pointer;font-weight:750">More</summary>
+    <div class="grid3" style="margin-top:12px">
+      <button type="button" class="secondary" onclick="go('garage')">Garage / Job Queue</button>
+      <button type="button" class="secondary" onclick="openAccountPanel()">Technician Profile</button>
+      <button type="button" class="secondary" onclick="openAcademy('context')">CarbTune Academy</button>
+    </div>
+  </details>
 </section>
 <section id="garage" class="screen"><div class="card"><div class="row"><div><div class="tiny">SHOP ADMINISTRATION</div><h3>Pilot & Release Readiness</h3><div class="sub">Product/pilot status belongs in administration, not the technician landing page.</div></div><span class="pill good">Pilot</span></div>
 <div class="grid3" style="margin-top:10px"><div class="metric"><span class="tiny">Core workflow</span><b>Connected</b></div><div class="metric"><span class="tiny">Learning network</span><b>Connected</b></div><div class="metric"><span class="tiny">Feedback loop</span><b>Connected</b></div></div></div>
@@ -2039,63 +2052,6 @@ function resumeJobNow(evt){
 }
 
 
-(function(){
-  function openScreen(id){
-    const target=document.getElementById(id);
-    if(!target) return false;
-    document.querySelectorAll(".screen").forEach(s=>{
-      s.classList.remove("active");
-      s.style.display="none";
-    });
-    target.classList.add("active");
-    target.style.display="block";
-    try{
-      history.replaceState(null,"",location.pathname+location.search);
-      localStorage.setItem("ctLastScreenV1",id);
-    }catch(e){}
-    const crumb=document.getElementById("crumb");
-    if(crumb){
-      const names={welcome:"Garage",vehicle:"Garage / Cutlass",garage:"Garage",lookup:"Carburetor Lookup",tune:"Tuning Session",history:"History",summary:"Final Summary"};
-      crumb.textContent=names[id]||id;
-    }
-    document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("on"));
-    const nav=document.getElementById("n"+id); if(nav) nav.classList.add("on");
-    window.scrollTo(0,0);
-    return true;
-  }
-
-  window.ctOpenScreen=openScreen;
-
-  const resume=document.getElementById("resumeJobBtn");
-  if(resume) resume.addEventListener("click",function(){
-    let target="vehicle";
-    try{
-      const saved=localStorage.getItem("ctLastScreenV1");
-      const allowed=["vehicle","lookup","tune","step1","step2","step3","step4","step5","step6","step7","correction","verifyChange","summary","history"];
-      if(saved && allowed.includes(saved)) target=saved;
-    }catch(e){}
-    if(!openScreen(target)) openScreen("vehicle");
-  });
-
-  const cont=document.getElementById("welcomeContinueBtn");
-  if(cont) cont.addEventListener("click",()=>openScreen("vehicle"));
-
-  // Harden bottom navigation even if an older handler elsewhere fails.
-  const navMap={nGarage:"garage",nLookup:"lookup",nTune:"tune",nHistory:"history"};
-  Object.entries(navMap).forEach(([bid,sid])=>{
-    const b=document.getElementById(bid);
-    if(b) b.addEventListener("click",function(ev){
-      ev.preventDefault(); ev.stopPropagation(); openScreen(sid);
-    },true);
-  });
-
-  // If an old hash is still in the address bar from v27, clear it and show the vehicle cleanly.
-  if(location.hash){
-    const id=location.hash.slice(1);
-    history.replaceState(null,"",location.pathname+location.search);
-    if(document.getElementById(id)) openScreen(id);
-  }
-})();
 </script><div id="safetyAck" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:9999;padding:20px;overflow:auto"><div class="card" style="max-width:620px;margin:8vh auto;background:var(--panel)"><div class="tiny">FIRST-USE SAFETY ACKNOWLEDGMENT</div><h2>Professional Diagnostic & Tuning Tool</h2><p>CarbTune provides diagnostic and calibration guidance from the vehicle information, measurements and observations supplied to it. Vehicle condition and component configuration must still be verified by the technician.</p><p class="tiny">CarbTune guidance does not replace appropriate mechanical inspection, testing, safe work practices or technician judgment. Safety hard-stops remain active at every guidance level.</p><div class="btnrow"><button type="button" onclick="acceptSafetyAck()">I Understand & Continue</button><button type="button" class="secondary" onclick="closeSafetyAck()">Not Now</button></div></div></div><button id="helpFab" type="button" onclick="openAcademy('context')" style="position:fixed;right:18px;bottom:18px;z-index:900;border-radius:999px;padding:12px 16px;box-shadow:0 8px 28px rgba(0,0,0,.25)">? Help</button><div id="mobileActionDock" class="no-print" style="position:fixed;left:8px;right:8px;bottom:8px;z-index:80;display:none;gap:6px;padding:7px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.18)">
 <button type="button" onclick="resumeSmart()">Resume</button><button type="button" class="secondary" onclick="openQuickStart()">New Job</button><button type="button" class="secondary" onclick="openAcademy('context')">Help</button><button type="button" class="secondary" onclick="openPilotBug()">Problem</button>
 </div></body></html>
