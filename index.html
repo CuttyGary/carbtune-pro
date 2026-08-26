@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0f14">
+<title>CarbTune Pro</title>
+<style>
+:root{--bg:#0b0f14;--panel:#151a21;--panel2:#0f141a;--line:#2b323c;--txt:#f2f5f8;--muted:#97a2af;--accent:#2f81f7;--good:#45c46a;--warn:#e3ad3b;--bad:#ff6b73;--shadow:0 8px 28px #0005}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{padding-bottom:72px}.app{max-width:1180px;margin:0 auto}header{position:sticky;top:0;z-index:50;background:#0b0f14f2;backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 18px}.row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}h1{font-size:22px;margin:0}h2{font-size:21px;margin:0 0 5px}h3{font-size:17px;margin:0 0 6px}.sub,.tiny{color:var(--muted)}.sub{font-size:13px;line-height:1.4}.tiny{font-size:12px;line-height:1.35}.pill{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:5px 9px;font-size:12px;color:var(--muted);white-space:nowrap}.pill.good{color:var(--good);border-color:#285b38}.pill.warn{color:var(--warn);border-color:#71591f}.pill.bad{color:var(--bad);border-color:#78323a}.screen{display:none;padding:14px 18px 18px}.screen.active{display:block}.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:15px;margin-bottom:12px;box-shadow:var(--shadow)}.box,.metric{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:10px}.metric b{display:block;font-size:17px;margin-top:2px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}button{border:0;border-radius:10px;min-height:44px;padding:10px 13px;background:var(--accent);color:white;font-weight:750;font-size:14px;cursor:pointer;touch-action:manipulation}button.secondary{background:#21262d;border:1px solid var(--line)}button.danger{background:#6b2424}.actions button{flex:0 0 auto}label{display:block;color:var(--muted);font-size:12px;font-weight:650;margin:0 0 4px}input,select,textarea{width:100%;min-height:44px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;color:var(--txt);padding:9px 10px;font-size:16px;margin:0 0 10px}textarea{min-height:80px;resize:vertical}.jobbar{margin:10px 18px 0}.steps{display:flex;gap:6px;overflow-x:auto;padding:2px 0}.step{white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:5px 8px;font-size:11px;color:var(--muted)}.step.done{color:var(--good)}.step.now{color:#fff;background:var(--accent);border-color:var(--accent)}.notice{background:var(--panel2);border:1px dashed var(--line);border-radius:11px;padding:11px}.compare-row{padding:9px 0;border-bottom:1px solid var(--line)}.compare-row:last-child{border-bottom:0}.bar{height:9px;background:#252d37;border-radius:999px;position:relative;overflow:hidden;margin-top:6px}.bar .mine{height:100%;background:var(--accent);border-radius:999px}.bar .match{position:absolute;top:0;bottom:0;width:4px;background:var(--good)}.nav{position:fixed;left:0;right:0;bottom:0;z-index:60;background:#151a21f7;border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}.navin{width:min(1180px,100%);display:grid;grid-template-columns:repeat(5,1fr)}.nav button{background:transparent;color:var(--muted);border-radius:0;min-height:52px;font-size:12px;padding:8px 3px}.nav button.on{color:#fff;border-top:2px solid var(--accent)}#helpFab{position:fixed;right:15px;bottom:70px;z-index:70;width:auto;min-width:0;min-height:42px;padding:9px 13px;border-radius:999px;box-shadow:0 8px 24px #0008}.hide{display:none!important}.divider{height:1px;background:var(--line);margin:10px 0}.value-good{color:var(--good)}.value-warn{color:var(--warn)}.value-bad{color:var(--bad)}
+@media(max-width:700px){body{padding-bottom:78px}.app{max-width:none}header{padding:11px 10px}.jobbar{margin:8px 10px 0}.screen{padding:10px}.card{padding:12px;margin-bottom:10px}.grid,.grid3{grid-template-columns:1fr}.actions{display:grid;grid-template-columns:1fr}.actions button{width:100%}.row{align-items:flex-start}.nav button{font-size:11px}#helpFab{right:11px;bottom:68px}h1{font-size:20px}h2{font-size:19px}}
+
+/* Build 31: complaint triage + duplicate-safe job management */
+.triage-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.triage-choice{position:relative}
+.triage-choice input{position:absolute;opacity:0;pointer-events:none}
+.triage-choice label{
+  display:flex;align-items:center;gap:9px;min-height:50px;margin:0;padding:10px 11px;
+  border:1px solid var(--line);border-radius:11px;background:var(--panel2);
+  color:var(--txt);font-size:13px;font-weight:700;cursor:pointer
+}
+.triage-choice label:before{
+  content:"";width:17px;height:17px;flex:0 0 17px;border:1px solid #596474;border-radius:5px;background:#0b0f14
+}
+.triage-choice input:checked+label{border-color:var(--accent);background:#142238;box-shadow:inset 0 0 0 1px #2f81f766}
+.triage-choice input:checked+label:before{
+  content:"✓";display:grid;place-items:center;background:var(--accent);border-color:var(--accent);font-size:12px
+}
+.triage-results{display:grid;gap:10px;margin-top:10px}
+.cause-card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.cause-card.strong{border-left:4px solid var(--good)}
+.cause-card.priority{border-left:4px solid var(--warn)}
+.cause-card.ruled{opacity:.58;border-left:4px solid var(--muted)}
+.cause-card .rank{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.checkfix{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:9px}
+.checkfix>div{border:1px solid var(--line);border-radius:9px;padding:9px;background:#0b0f14}
+.checkfix ul{margin:6px 0 0;padding-left:18px;color:var(--muted);font-size:12px;line-height:1.48}
+.matchline{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.triage-empty{padding:14px;border:1px dashed var(--line);border-radius:11px;color:var(--muted);font-size:13px}
+.modal{position:fixed;inset:0;z-index:200;background:#000b;display:none;align-items:center;justify-content:center;padding:14px}
+.modal.open{display:flex}
+.modalbox{width:min(720px,100%);max-height:92vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:0 18px 60px #000c}
+.duplicate-card{background:#211b0d;border:1px solid #71591f;border-radius:11px;padding:11px;margin-top:8px}
+.job-row{padding:11px 0;border-bottom:1px solid var(--line)}
+.job-row:last-child{border-bottom:0}
+.job-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.merge-pair{padding:11px;border:1px solid #71591f;border-radius:11px;background:#211b0d;margin-top:9px}
+.inline-note{padding:9px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);font-size:12px;color:var(--muted)}
+@media(max-width:800px){.triage-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.triage-grid,.checkfix{grid-template-columns:1fr}.modal{padding:8px}.modalbox{max-height:96vh}}
+
+
+.delete-confirm-name{font-size:18px;font-weight:800;margin:8px 0}
+.delete-warning{padding:10px;border-radius:10px;background:#2a1111;border:1px solid #6b2424;color:#ffb7b7;font-size:13px;line-height:1.45}
+
+.job-delete-card{border-color:#5b2b2b!important;background:#181315!important}
+.job-delete-card .danger{min-width:118px}
+button.danger{background:#7a2929!important;border:1px solid #a84b4b!important}
+button.danger:hover{background:#8e3030!important}
+@media(max-width:560px){.job-delete-card .danger{width:100%}}
+
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="row"><div><h1>CarbTune Pro <span class="tiny">Build 33 • Visible Job Controls</span></h1><div class="sub" id="crumb">Home</div></div><div class="row"><span class="pill" id="techBadge">Shop Technician • Beginner</span><span class="pill good" id="saveBadge">Saved</span></div></div></header>
+
+<div class="card jobbar"><div class="row"><div><b id="globalVehicle">1982 Oldsmobile Cutlass Supreme</b><div class="tiny" id="globalJob">DEMO-001 • Baseline & Tune • Autosaved</div></div><div class="row"><span class="pill" id="globalGuidance">Beginner</span><button type="button" class="secondary" data-action="resume">Resume Job</button></div></div></div>
+
+<section class="screen active" data-screen="home">
+  <div class="card"><div class="row"><div><div class="tiny">TECHNICIAN HOME</div><h2>Get back to work</h2><div class="sub">Current job first. No sales fluff and no hunt for where you left off.</div></div><span class="pill good">Ready</span></div>
+    <div class="grid3" style="margin-top:10px"><div class="metric"><span class="tiny">Current job</span><b id="homeVehicle">1982 Cutlass</b><span class="tiny" id="homeConcern">Baseline & Tune</span></div><div class="metric"><span class="tiny">Phase</span><b id="homePhase">Vehicle</b><span class="tiny">active workflow</span></div><div class="metric"><span class="tiny">Next action</span><b id="homeNext">Confirm build</b><span class="tiny">CarbTune guided</span></div></div>
+    <div class="actions"><button type="button" data-action="resume">Resume Current Job</button><button type="button" class="secondary" data-action="new-job">Start New Job</button><button type="button" class="secondary" data-go="history">Recent Jobs</button></div>
+  </div>
+  <div class="card"><div class="row"><div><div class="tiny">CURRENT JOB</div><h3 id="homeCurrentVehicle">1982 Oldsmobile Cutlass Supreme</h3><div class="sub" id="homeBuild">350 CID • Brawler BR-67255 • baseline/tune</div></div><span class="pill warn">In progress</span></div><div class="grid3" style="margin-top:10px"><div class="metric"><span class="tiny">Engine</span><b id="homeEngine">350 CID</b></div><div class="metric"><span class="tiny">Carburetor</span><b id="homeCarb">BR-67255</b></div><div class="metric"><span class="tiny">Evidence</span><b id="homeEvidence">Developing</b></div></div><div class="actions"><button type="button" data-go="vehicle">Open Vehicle</button><button type="button" class="secondary" data-go="tune">Open Tune</button><button type="button" class="secondary" data-go="compare">Live Compare</button><button type="button" class="danger" data-action="delete-active-job">Delete Job</button></div></div>
+</section>
+
+<section class="screen" data-screen="vehicle">
+ <div class="card"><div class="row"><div><div class="tiny">VEHICLE RECORD</div><h2>Build Configuration</h2><div class="sub">Capture what matters now; unknown parts can be filled in later.</div></div><span class="pill good">Autosaved</span></div></div>
+ <div class="card"><h3>Engine & Fueling</h3><div class="grid"><div><label>RO / Job #</label><input id="jobNo" value="DEMO-001"></div><div><label>Vehicle</label><input id="vehicleName" value="1982 Oldsmobile Cutlass Supreme"></div><div><label>Engine CID</label><input id="cid" type="number" value="350"></div><div><label>Carburetor</label><input id="carb" value="Brawler BR-67255"></div><div><label>Fuel</label><select id="fuel"><option>93 octane pump gas</option><option>91 octane pump gas</option><option>E85</option><option>Race fuel</option></select></div><div><label>Transmission</label><select id="trans"><option>Automatic</option><option>Manual</option></select></div></div></div>
+ <div class="card"><div class="row"><div><h3>Valvetrain</h3><div class="sub">Important for RPM capability, vacuum characteristics and performance expectations.</div></div><span class="pill">Optional until relevant</span></div><div class="grid"><div><label>Camshaft</label><input id="cam" placeholder="Manufacturer / part number / unknown"></div><div><label>Lifter type</label><select id="lifter"><option>Unknown</option><option>Hydraulic flat tappet</option><option>Hydraulic roller</option><option>Solid flat tappet</option><option>Solid roller</option></select></div><div><label>Rocker ratio</label><select id="rocker"><option>Unknown</option><option>1.5</option><option>1.6</option><option>1.7</option></select></div><div><label>Preload / lash</label><input id="lash" placeholder="Unknown"></div></div></div>
+ 
+<div class="card" id="complaintTriageCard">
+ <div class="row">
+  <div><div class="tiny">COMPLAINT TRIAGE</div><h3>Select every complaint that applies</h3>
+   <div class="sub">Multiple symptoms can point to the same root cause. CarbTune ranks causes that explain the combination.</div>
+  </div>
+  <span class="pill" id="triageCount">0 selected</span>
+ </div>
+ <div class="triage-grid" id="triageChoices">
+  <div class="triage-choice"><input type="checkbox" id="c-rough-idle" value="rough-idle"><label for="c-rough-idle">Rough / unstable idle</label></div>
+  <div class="triage-choice"><input type="checkbox" id="c-dies-gear" value="dies-gear"><label for="c-dies-gear">Dies when put in gear</label></div>
+  <div class="triage-choice"><input type="checkbox" id="c-hard-cold" value="hard-cold"><label for="c-hard-cold">Hard cold start</label></div>
+  <div class="triage-choice"><input type="checkbox" id="c-hard-hot" value="hard-hot"><label for="c-hard-hot">Hard hot restart</label></div>
+  <div class="triage-choice"><input type="checkbox" id="c-rich" value="rich"><label for="c-rich">Fuel smell / black smoke / rich</label></div>
+  <div class="triage-choice"><input type="checkbox" id="c-lean-surge" value="lean-surge"><label for="c-lean-surge">Lean surge / cruise buck</label></div>
+  <div class="triage-choice"><input type="checkbox" id="c-tipin" value="tipin"><label for="c-tipin">Off-idle stumble / hesitation</label></div>
+  <div class="triage-choice"><input type="checkbox" id="c-bog" value="bog"><label for="c-bog">Bog on hard acceleration</label></div>
+  <div class="triage-choice"><input type="checkbox" id="c-carb-pop" value="carb-pop"><label for="c-carb-pop">Backfire / pop through carb</label></div>
+  <div class="triage-choice"><input type="checkbox" id="c-exhaust-pop" value="exhaust-pop"><label for="c-exhaust-pop">Exhaust popping / backfire</label></div>
+  <div class="triage-choice"><input type="checkbox" id="c-low-power" value="low-power"><label for="c-low-power">Low power / lazy response</label></div>
+  <div class="triage-choice"><input type="checkbox" id="c-flooding" value="flooding"><label for="c-flooding">Flooding / booster dripping</label></div>
+  <div class="triage-choice"><input type="checkbox" id="c-high-idle" value="high-idle"><label for="c-high-idle">High idle / won't return</label></div>
+  <div class="triage-choice"><input type="checkbox" id="c-poor-mpg" value="poor-mpg"><label for="c-poor-mpg">Poor fuel economy</label></div>
+  <div class="triage-choice"><input type="checkbox" id="c-cold-stall" value="cold-stall"><label for="c-cold-stall">Stalls until warmed up</label></div>
+ </div>
+ <div class="actions">
+  <button type="button" data-action="run-triage">Render Likely Causes</button>
+  <button type="button" class="secondary" data-action="reset-triage">Reset Ruled-Out Causes</button>
+  <button type="button" class="secondary" data-go="tune">Continue to Baseline</button>
+ </div>
+</div>
+<div class="card">
+ <div class="row"><div><div class="tiny">TRIAGE RESULTS</div><h3>Likely causes, checks & fixes</h3>
+  <div class="sub">This is a ranked diagnostic path, not a parts cannon. Fixes are shown only as the next step if the cause is confirmed.</div></div>
+  <span class="pill warn" id="triageStatus">Waiting for complaints</span>
+ </div>
+ <div id="triageResults" class="triage-results">
+  <div class="triage-empty">Select one or more complaints above. CarbTune will rank shared causes and render what to check and what to correct if confirmed.</div>
+ </div>
+</div>
+
+ <div class="card job-delete-card">
+  <div class="row">
+   <div>
+    <div class="tiny">JOB MANAGEMENT</div>
+    <h3>Manage this job</h3>
+    <div class="sub">Use Delete only when this is the wrong, duplicate, or unwanted job record.</div>
+   </div>
+   <button type="button" class="danger" data-action="delete-active-job">Delete Job</button>
+  </div>
+ </div>
+</section>
+
+<section class="screen" data-screen="tune">
+ <div class="card"><div class="row"><div><h3>Job Progress</h3><div class="sub">One clear path through the job.</div></div><span class="pill good">Autosaved</span></div><div class="steps" id="steps"></div></div>
+ <div class="card"><div class="row"><div><div class="tiny">BASELINE FUEL SYSTEM</div><h3>Fuel delivery first</h3></div><span class="pill">Required</span></div><div class="grid"><div><label>Idle fuel pressure PSI</label><input id="fp" type="number" step=".1" inputmode="decimal"></div><div><label>2500 RPM pressure PSI</label><input id="fp2" type="number" step=".1" inputmode="decimal"></div><div><label>Primary float level</label><select id="float"><option>Not checked</option><option>Low</option><option>Correct</option><option>High</option></select></div><div><label>Boosters at warm idle</label><select id="boost"><option>Not checked</option><option>Dry</option><option>Dripping</option><option>Not sure</option></select></div></div></div>
+ <div class="card"><div class="row"><div><div class="tiny">IGNITION & IDLE</div><h3>Measured baseline</h3></div><span class="pill">Required</span></div><div class="grid"><div><label>Initial timing °BTDC</label><input id="initial" type="number" step=".5" inputmode="decimal"></div><div><label>Total mechanical timing °</label><input id="total" type="number" step=".5" inputmode="decimal"></div><div><label>Warm idle RPM</label><input id="rpm" type="number" inputmode="numeric"></div><div><label>Manifold vacuum in-Hg</label><input id="vac" type="number" step=".1" inputmode="decimal"></div></div></div>
+ <div class="card"><div class="row"><div><div class="tiny">TUNE CONDITIONS</div><h3>Weather & location context</h3></div><span class="pill">Match weighted</span></div><div class="grid3"><div><label>Temperature °F</label><input id="temp" type="number" value="82"></div><div><label>Humidity %</label><input id="humidity" type="number" value="68"></div><div><label>Elevation ft</label><input id="elevation" type="number" value="590"></div></div></div>
+ <div class="card"><div class="row"><div><div class="tiny">DECISION ENGINE</div><h3 id="decisionTitle">Building baseline</h3><div class="sub" id="decisionText">Enter the measured baseline and CarbTune will choose the safest next action.</div></div><span class="pill warn" id="decisionPill">Gathering</span></div><div class="actions"><button type="button" data-action="analyze">Analyze & Continue</button><button type="button" class="secondary" data-go="academy">How Do I Do This?</button></div></div>
+</section>
+
+<section class="screen" data-screen="correct">
+ <div class="card"><div class="row"><div><div class="tiny">GUIDED CORRECTION</div><h2>Change One Thing</h2><div class="sub">Document one adjustment so the result can actually teach CarbTune something.</div></div><span class="pill warn">One variable</span></div></div>
+ <div class="card"><div class="grid"><div><label>System</label><select id="changeSystem"><option>Idle mixture</option><option>Ignition timing</option><option>Fuel pressure</option><option>Float level</option><option>Accelerator pump</option><option>Primary jet</option><option>Secondary jet</option><option>Power valve</option><option>Valvetrain / mechanical</option></select></div><div><label>Exact change</label><input id="changeExact" placeholder="Example: mixture screws +1/4 turn out"></div><div><label>Reason for test</label><input id="changeReason" placeholder="What symptom or measurement are we testing?"></div><div><label>Expected result</label><select id="expectation"><option>Idle quality improves</option><option>Vacuum improves</option><option>Throttle response improves</option><option>Fuel delivery stabilizes</option><option>Timing response improves</option></select></div></div><div class="actions"><button type="button" data-action="record-change">Record Change & Verify</button><button type="button" class="secondary" data-go="tune">Back to Tune</button></div></div>
+</section>
+
+<section class="screen" data-screen="verify">
+ <div class="card"><div class="row"><div><div class="tiny">VERIFY THE CHANGE</div><h2>Before vs After</h2><div class="sub">CarbTune learns from measured outcomes, not guesses.</div></div><span class="pill good">Evidence step</span></div></div>
+ <div class="card"><div class="grid3"><div><label>After idle RPM</label><input id="afterRpm" type="number"></div><div><label>After vacuum in-Hg</label><input id="afterVac" type="number" step=".1"></div><div><label>After fuel pressure PSI</label><input id="afterFp" type="number" step=".1"></div></div><label>Observed result</label><select id="result"><option>Better</option><option>Same</option><option>Worse</option></select><label>Verification notes</label><textarea id="verifyNotes" placeholder="What actually changed in idle quality, response, smell, AFR or drivability?"></textarea><div class="actions"><button type="button" data-action="save-verify">Save Verified Result</button><button type="button" class="secondary" data-go="compare">Open Live Compare</button></div></div>
+ <div class="card"><h3>Measured Improvement</h3><div id="deltaBox" class="notice">Complete the after measurements to calculate the result.</div></div>
+</section>
+
+<section class="screen" data-screen="compare">
+ <div class="card"><div class="row"><div><div class="tiny">LIVE BUILD COMPARISON</div><h2>My Build vs Best Verified Match</h2><div class="sub">Build + weather/air + location + evidence quality.</div></div><div><b style="font-size:26px" id="matchScore">92%</b><div class="tiny">weighted relevance</div></div></div><div class="grid" style="margin-top:10px"><div class="box"><div class="tiny">MY BUILD</div><b id="myBuild">350 CID • Brawler BR-67255</b><div class="tiny" id="myTune">Waiting for tune values</div></div><div class="box"><div class="tiny">BEST VERIFIED MATCH</div><b>350 CID • Brawler BR-67255</b><div class="tiny">Midwest • similar air • verified improvement</div></div></div></div>
+ <div class="card"><div class="row"><div><h3>Tune Conditions</h3><div class="sub">Environmental context is visible, not hidden.</div></div><span class="pill">Air-density weighted</span></div><div class="grid"><div class="metric"><span class="tiny">My conditions</span><b id="myConditions">82°F • 68% RH</b><span class="tiny" id="myDA">590 ft • estimated DA</span></div><div class="metric"><span class="tiny">Matched conditions</span><b>78°F • 58% RH</b><span class="tiny">600 ft • estimated DA 1,720 ft</span></div></div></div>
+ <div class="card"><div class="row"><div><h3>Live Tune Difference</h3><div class="sub">Current settings compared with the selected successful record.</div></div><span class="pill good">Live</span></div><div id="compareBars"></div><div id="compareInsight" class="notice" style="margin-top:10px">Enter baseline values to compare.</div></div>
+ <div class="card"><h3>Why CarbTune chose this match</h3><div class="grid3"><div class="metric"><span class="tiny">Build / tune</span><b>96%</b></div><div class="metric"><span class="tiny">Weather / air</span><b>91%</b></div><div class="metric"><span class="tiny">Location relevance</span><b>82%</b></div><div class="metric"><span class="tiny">Evidence quality</span><b>95%</b></div><div class="metric"><span class="tiny">Verified cohort</span><b>43</b></div><div class="metric"><span class="tiny">Final relevance</span><b id="relevanceScore">92%</b></div></div><div class="actions"><button type="button" data-go="report">Build Report</button></div></div>
+</section>
+
+
+<section class="screen" data-screen="history">
+ <div class="card">
+  <div class="row">
+   <div><div class="tiny">JOB HISTORY</div><h2>Recent Jobs</h2><div class="sub">Duplicate guard is active when creating jobs. Existing duplicates can be reviewed and merged here.</div></div>
+   <div class="actions" style="margin-top:0"><button type="button" data-action="new-job">New Job</button><button type="button" class="secondary" data-action="scan-duplicates">Find Duplicates</button></div>
+  </div>
+ </div>
+ <div class="card hide" id="duplicateReviewCard">
+  <div class="row"><div><h3>Possible Duplicate Jobs</h3><div class="sub">CarbTune never merges automatically. Review the pair, then merge only if they are the same job.</div></div><span class="pill warn" id="duplicatePairCount">0 pairs</span></div>
+  <div id="duplicatePairs"></div>
+ </div>
+ <div class="card"><div id="jobHistoryList"></div></div>
+</section>
+
+
+<section class="screen" data-screen="academy">
+ <div class="card"><div class="row"><div><div class="tiny">CARBTUNE ACADEMY</div><h2>Contextual Technician Help</h2></div><span class="pill good">Job linked</span></div><div class="grid" style="margin-top:10px"><button type="button" class="secondary" data-help="fuel">Check Fuel Pressure</button><button type="button" class="secondary" data-help="timing">Check Timing Curve</button><button type="button" class="secondary" data-help="float">Set Float Level</button><button type="button" class="secondary" data-help="preload">Set Hydraulic Preload</button></div><div id="helpPanel" class="notice" style="margin-top:10px">Choose a procedure.</div><div class="actions"><button type="button" class="secondary" data-go="tune">Back to Tune</button></div></div>
+</section>
+
+<section class="screen" data-screen="report">
+ <div class="card"><div class="row"><div><div class="tiny">CARBTUNE JOB REPORT</div><h2>What we found & what to do next</h2></div><span class="pill good">Auto-generated</span></div></div>
+ <div class="grid"><div class="card"><h3>Base Tune</h3><div id="reportBase" class="notice">No baseline yet.</div></div><div class="card"><h3>Problem / Priority</h3><div id="reportProblem" class="notice">Not assessed yet.</div></div><div class="card"><h3>Starting Point</h3><div id="reportStart" class="notice">Complete the baseline first.</div></div><div class="card"><h3>Verified Result</h3><div id="reportVerify" class="notice">No verified change yet.</div></div></div>
+ <div class="card"><div class="row"><div><h3>Learning Record</h3><div class="sub">Only verified, privacy-safe outcome data should become network evidence.</div></div><span class="pill" id="evidenceScore">Developing</span></div><div id="learningSummary" class="notice" style="margin-top:10px">Complete baseline, correction and verification to strengthen this record.</div></div>
+</section>
+</div>
+
+
+<div class="modal" id="jobModal" aria-hidden="true">
+ <div class="modalbox" role="dialog" aria-modal="true" aria-labelledby="newJobTitle">
+  <div class="row">
+   <div><div class="tiny">DUPLICATE-SAFE INTAKE</div><h2 id="newJobTitle">Create New Job</h2><div class="sub">Enter what you know. CarbTune checks existing jobs before it creates another record.</div></div>
+   <button type="button" class="secondary" data-action="close-job-modal">Close</button>
+  </div>
+  <div class="grid" style="margin-top:12px">
+   <div><label>RO / Job #</label><input id="newJobNo" placeholder="Example: 7619"></div>
+   <div><label>Vehicle</label><input id="newVehicleName" placeholder="Example: 1982 Oldsmobile Cutlass Supreme"></div>
+   <div><label>Engine CID</label><input id="newCid" type="number" placeholder="350"></div>
+   <div><label>Carburetor</label><input id="newCarb" placeholder="Example: Brawler BR-67255"></div>
+  </div>
+  <div id="duplicateStatus" class="inline-note">Enter a job number or vehicle description to check for duplicates.</div>
+  <div id="duplicateCandidates"></div>
+  <div class="actions">
+   <button type="button" data-action="create-job">Create New Job</button>
+   <button type="button" class="secondary hide" id="forceCreateBtn" data-action="force-create-job">Create Separate Anyway</button>
+  </div>
+ </div>
+</div>
+
+
+<div class="modal" id="deleteJobModal" aria-hidden="true">
+ <div class="modalbox" role="dialog" aria-modal="true">
+  <div class="row">
+   <div><div class="tiny">DELETE JOB</div><h2>Delete this job?</h2></div>
+   <button type="button" class="secondary" data-action="cancel-delete-job">Cancel</button>
+  </div>
+  <div class="delete-confirm-name" id="deleteJobName">Job</div>
+  <div class="delete-warning">This permanently removes the selected job and its stored vehicle, triage, baseline, correction, and verification data from this device.</div>
+  <div class="inline-note" id="deleteJobFallbackNote" style="margin-top:10px"></div>
+  <div class="actions">
+   <button type="button" class="danger" data-action="confirm-delete-job">Delete Permanently</button>
+   <button type="button" class="secondary" data-action="cancel-delete-job">Keep Job</button>
+  </div>
+ </div>
+</div>
+
+<button type="button" id="helpFab" data-go="academy">Help</button>
+<div class="nav"><div class="navin"><button type="button" data-nav="home" class="on">Home</button><button type="button" data-nav="vehicle">Vehicle</button><button type="button" data-nav="tune">Tune</button><button type="button" data-nav="compare">Compare</button><button type="button" data-nav="report">Report</button></div></div>
+
+
+<script>
+(function(){
+'use strict';
+
+const KEY='carbtune.clean.v31';
+const JOBS_KEY='carbtune.jobs.v31';
+const OLD_KEY='carbtune.clean.v30';
+
+const complaintLabels={
+ 'rough-idle':'Rough / unstable idle','dies-gear':'Dies in gear','hard-cold':'Hard cold start',
+ 'hard-hot':'Hard hot restart','rich':'Rich / fuel smell','lean-surge':'Lean surge / cruise buck',
+ 'tipin':'Off-idle stumble','bog':'Bog on hard acceleration','carb-pop':'Pop through carb',
+ 'exhaust-pop':'Exhaust popping','low-power':'Low power','flooding':'Flooding / booster drip',
+ 'high-idle':'High idle','poor-mpg':'Poor fuel economy','cold-stall':'Cold stalling'
+};
+
+const triageLibrary=[
+ {id:'fuel-pressure-high',name:'Fuel pressure too high / poor regulation',system:'Fuel delivery',weight:3,
+  symptoms:['rich','flooding','hard-hot','poor-mpg','rough-idle'],
+  why:'Excess inlet pressure can overpower the needle and seat, raise bowl level, create booster drip and make mixture changes misleading.',
+  checks:['Measure warm idle pressure with a known-good gauge.','Verify pressure does not climb after a hot shutdown.','Inspect regulator routing and return system if equipped.','Do not jet around an unstable or excessive pressure problem.'],
+  fixes:['Correct pump/regulator output to the carburetor manufacturer’s verified range.','Repair a restricted return system if used.','Recheck float level and booster drip after pressure is corrected.']},
+ {id:'float-needle',name:'Float level / needle-and-seat control',system:'Fuel level',weight:3,
+  symptoms:['rich','flooding','hard-hot','rough-idle','poor-mpg'],
+  why:'A high or uncontrolled bowl level enriches several circuits at once and can cause booster drip at idle.',
+  checks:['Verify fuel pressure first.','Check primary and secondary float level using the carburetor-specific reference.','Look for booster drip at warm idle.','Inspect needle/seat for debris, wear or sticking.'],
+  fixes:['Set float level to the verified specification.','Clean or replace a needle/seat that cannot control fuel.','Recheck hot restart and idle mixture after correction.']},
+ {id:'vacuum-leak',name:'Vacuum / unmetered-air leak',system:'Air / vacuum',weight:3,
+  symptoms:['rough-idle','dies-gear','lean-surge','tipin','high-idle','low-power','cold-stall'],
+  why:'Unmetered air can create a lean or unstable idle, excessive throttle opening, cruise surge and poor mixture-screw authority.',
+  checks:['Inspect carb base gasket and intake sealing areas.','Isolate PCV, brake booster and vacuum accessories one circuit at a time.','Verify unused ports are capped and hoses are not split.','Watch manifold vacuum for an abnormally low or unstable reading.'],
+  fixes:['Repair the leaking hose, gasket, accessory or intake seal.','Reset curb idle and mixture only after the leak is corrected.']},
+ {id:'initial-timing',name:'Initial timing / timing-reference problem',system:'Ignition',weight:3,
+  symptoms:['rough-idle','dies-gear','hard-cold','hard-hot','tipin','carb-pop','low-power','poor-mpg'],
+  why:'Incorrect initial timing changes manifold vacuum, throttle position, cranking behavior and how much fuel the engine appears to want.',
+  checks:['Verify true TDC and timing-mark accuracy if readings are suspicious.','Record initial timing with the correct vacuum-advance procedure.','Check total mechanical timing and the RPM where advance stops.','Confirm the distributor is secure and timing is stable.'],
+  fixes:['Correct the timing reference before tuning around it.','Establish a safe initial/total curve appropriate for the verified build.','Reset idle speed and mixture after timing changes.']},
+ {id:'advance-curve',name:'Mechanical / vacuum advance curve',system:'Ignition advance',weight:2.5,
+  symptoms:['lean-surge','tipin','low-power','poor-mpg','exhaust-pop'],
+  why:'A lazy, excessive or unstable advance curve can feel like a carburetor calibration problem during cruise and transition.',
+  checks:['Sweep timing from idle through cruise RPM.','Verify mechanical advance moves smoothly and returns fully.','Test vacuum advance source and canister operation if used.','Compare cruise timing to engine load and fuel octane.'],
+  fixes:['Repair sticking weights, springs or a faulty vacuum canister.','Recurve only after the base timing reference is verified.']},
+ {id:'idle-transition',name:'Idle circuit / transition-slot exposure',system:'Idle & transition',weight:2.8,
+  symptoms:['rough-idle','dies-gear','tipin','rich','poor-mpg','high-idle'],
+  why:'Too much primary throttle opening can expose excessive transition slot, reduce mixture-screw authority and create rich or unstable off-idle behavior.',
+  checks:['Verify ignition timing and vacuum leaks first.','Inspect transfer-slot exposure if the carburetor allows it.','Check whether mixture screws have clear authority over idle quality.','Verify secondary-idle/throttle settings before modifying throttle plates.'],
+  fixes:['Correct prerequisite timing/vacuum issues first.','Reset primary/secondary throttle relationship and curb idle.','Adjust mixture using vacuum/RPM response after throttle position is correct.']},
+ {id:'accelerator-pump',name:'Accelerator-pump delivery / pump-shot timing',system:'Accelerator pump',weight:3.2,
+  symptoms:['tipin','bog','carb-pop'],
+  why:'A delayed, weak or incorrectly shaped pump shot commonly causes an immediate lean stumble or pop when the throttle is opened.',
+  checks:['Engine off: verify discharge begins immediately with throttle movement.','Check pump-arm clearance/slack at idle and full throttle.','Inspect diaphragm, check valves and discharge nozzle for restriction.','Separate an immediate tip-in stumble from a later secondary-opening bog.'],
+  fixes:['Remove lost motion from the pump linkage without binding at WOT.','Repair a weak diaphragm/check valve.','Tune pump cam/nozzle size only after delivery is mechanically correct.']},
+ {id:'fuel-starvation',name:'Fuel supply restriction / pressure drop under demand',system:'Fuel delivery',weight:3.1,
+  symptoms:['bog','lean-surge','low-power','carb-pop'],
+  why:'A supply problem may look normal at idle but fall behind as RPM or load increases.',
+  checks:['Compare idle pressure to 2500-RPM pressure.','Inspect filter, pickup, tank vent and hose condition.','Verify pump capacity and electrical supply if electric.','When safe, monitor pressure during the actual symptom.'],
+  fixes:['Repair the restriction, venting problem or weak pump.','Stabilize fuel supply before changing jets or power-valve calibration.']},
+ {id:'main-metering',name:'Main jet / power enrichment calibration',system:'Main metering',weight:2.1,
+  symptoms:['lean-surge','bog','low-power','rich','poor-mpg'],
+  why:'After fuel level, pressure and ignition are verified, main metering or enrichment calibration can create cruise/load mixture errors.',
+  checks:['Identify whether the complaint occurs at steady cruise, light acceleration or heavy load.','Measure manifold vacuum at cruise/load before selecting a power-valve opening point.','Use plug/AFR evidence when available rather than smell alone.','Confirm primary and secondary jet sizes are known.'],
+  fixes:['Make one metering change at a time and document it.','Choose power-valve timing from measured engine vacuum/load.','Verify the result under the same operating condition.']},
+ {id:'secondary',name:'Secondary opening rate / secondary fuel delivery',system:'Secondary system',weight:2.7,
+  symptoms:['bog','low-power'],
+  why:'A bog that appears as the secondaries enter can be caused by opening too quickly, poor fuel delivery or mismatched enrichment.',
+  checks:['Confirm whether the symptom occurs before or exactly as secondaries open.','Verify linkage or air-valve operation for the carburetor design.','Confirm bowl level and fuel pressure remain stable.','Inspect secondary pump/enrichment where applicable.'],
+  fixes:['Correct mechanical linkage or opening-rate problems.','Tune secondary enrichment only after supply and float control are verified.']},
+ {id:'choke',name:'Choke / cold-enrichment setup',system:'Cold start',weight:3,
+  symptoms:['hard-cold','cold-stall','rich'],
+  why:'Insufficient choke can cause cold stalling; excessive or slow-release choke can create rich running after startup.',
+  checks:['Observe choke blade position on a true cold engine.','Verify fast-idle cam operation.','Confirm choke heat/power and progressive opening.','Make sure the choke is fully open when warm.'],
+  fixes:['Adjust choke closing tension and fast idle to the carburetor procedure.','Repair heater/power/linkage faults.','Do not use warm-engine jetting changes to compensate for a cold-start problem.']},
+ {id:'heat-soak',name:'Heat soak / fuel percolation after shutdown',system:'Hot restart',weight:3,
+  symptoms:['hard-hot','flooding','rich'],
+  why:'Fuel can expand or boil after shutdown, loading the intake with vapor/fuel and causing a flooded hot restart.',
+  checks:['Observe bowl/booster area immediately after hot shutdown.','Check whether fuel pressure rises after shutdown.','Inspect fuel-line routing near heat sources.','Confirm spacer/insulator strategy and underhood heat conditions.'],
+  fixes:['Correct excessive pressure first.','Improve fuel-line heat isolation and carburetor insulation where appropriate.','Verify float level is not high.']},
+ {id:'ignition-misfire',name:'Ignition misfire / secondary ignition fault',system:'Ignition hardware',weight:2.6,
+  symptoms:['rough-idle','carb-pop','exhaust-pop','low-power','bog'],
+  why:'A weak or intermittent spark can mimic rich/lean carburetor symptoms and create both intake and exhaust popping.',
+  checks:['Inspect plugs for fouling, damage and cylinder-to-cylinder differences.','Check wires, cap, rotor, coil and grounds.','Verify spark timing is stable with RPM.','Identify whether the miss is isolated to one cylinder.'],
+  fixes:['Repair the ignition fault before carburetor calibration.','Replace contaminated plugs after the root cause is corrected if needed.']},
+ {id:'valvetrain',name:'Valvetrain / compression / mechanical condition',system:'Mechanical',weight:2.8,
+  symptoms:['rough-idle','carb-pop','exhaust-pop','low-power'],
+  why:'Incorrect lash/preload, valve sealing or a mechanical cylinder problem can create unstable vacuum and symptoms no carburetor adjustment will fix.',
+  checks:['Watch vacuum gauge behavior for rhythmic drops or instability.','Confirm lifter type and preload/lash procedure.','Perform compression or leak-down testing when a cylinder is suspect.','Verify firing order and rocker/valve motion if recent engine work was performed.'],
+  fixes:['Correct preload/lash or mechanical faults to the verified build specification.','Retest carburetor behavior only after mechanical operation is confirmed.']},
+ {id:'throttle-linkage',name:'Throttle / fast-idle / linkage not returning',system:'Throttle control',weight:3,
+  symptoms:['high-idle','poor-mpg'],
+  why:'A mechanical stop, cable, return spring or fast-idle mechanism can hold the throttle open and make mixture adjustments ineffective.',
+  checks:['Engine off: verify linkage returns firmly to the curb-idle stop.','Disconnect suspect external linkage/cable loads if safe and compare.','Verify choke fast-idle cam is fully released warm.','Check secondary throttle plates for full return.'],
+  fixes:['Correct binding, cable adjustment, return springs or fast-idle setup.','Set curb idle only after the throttle closes consistently.']}
+];
+
+function uid(){return 'job-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8)}
+function now(){return new Date().toISOString()}
+function clone(x){return JSON.parse(JSON.stringify(x))}
+function freshState(){
+ return {
+  id:uid(),createdAt:now(),updatedAt:now(),screen:'vehicle',lastWork:'vehicle',
+  vehicle:{jobNo:'',vehicleName:'',cid:null,carb:'',fuel:'93 octane pump gas',trans:'Automatic',cam:'',lifter:'Unknown',rocker:'Unknown',lash:'',concern:'Baseline / Tune'},
+  complaints:[],triage:{ruledOut:[],workingCause:null},
+  baseline:{fp:null,fp2:null,float:'Not checked',boost:'Not checked',initial:null,total:null,rpm:null,vac:null,temp:82,humidity:68,elevation:590},
+  decision:{title:'Building baseline',text:'Enter the measured baseline and CarbTune will choose the safest next action.',start:'Complete the baseline first.'},
+  change:null,verification:null,mergedFrom:[]
+ }
+}
+function demoState(){
+ const s=freshState();
+ s.id='demo-001';s.vehicle={jobNo:'DEMO-001',vehicleName:'1982 Oldsmobile Cutlass Supreme',cid:350,carb:'Brawler BR-67255',fuel:'93 octane pump gas',trans:'Automatic',cam:'',lifter:'Unknown',rocker:'Unknown',lash:'',concern:'Baseline / Tune'};
+ s.screen='home';return s
+}
+function normalizeJob(s){
+ const d=freshState(),x=s||{};
+ return {
+  ...d,...x,
+  vehicle:{...d.vehicle,...(x.vehicle||{})},
+  baseline:{...d.baseline,...(x.baseline||{})},
+  triage:{...d.triage,...(x.triage||{})},
+  complaints:Array.isArray(x.complaints)?x.complaints:[],
+  mergedFrom:Array.isArray(x.mergedFrom)?x.mergedFrom:[]
+ }
+}
+function loadJobs(){try{const a=JSON.parse(localStorage.getItem(JOBS_KEY)||'[]');return Array.isArray(a)?a.map(normalizeJob):[]}catch(e){return []}}
+function loadActive(){
+ try{
+  const raw=JSON.parse(localStorage.getItem(KEY)||'null');
+  if(raw)return normalizeJob(raw);
+  const old=JSON.parse(localStorage.getItem(OLD_KEY)||'null');
+  if(old){const migrated=normalizeJob(old);migrated.id=migrated.id||'migrated-'+Date.now();return migrated}
+ }catch(e){}
+ return demoState()
+}
+let state=loadActive();
+let jobs=loadJobs();
+let pendingDeleteJobId=null;
+if(!jobs.some(j=>j.id===state.id))jobs.push(clone(state));
+
+const $id=id=>document.getElementById(id);
+const v=id=>$id(id)?.value??'';
+const n=id=>{const x=parseFloat(v(id));return Number.isFinite(x)?x:null};
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const norm=s=>String(s??'').toLowerCase().replace(/[^a-z0-9]/g,'');
+const nonempty=x=>x!==null&&x!==undefined&&String(x).trim()!==''&&x!=='Not checked'&&x!=='Unknown';
+
+function flashSaved(){
+ const e=$id('saveBadge');if(!e)return;
+ e.textContent='Saved';e.className='pill good';
+ clearTimeout(flashSaved.t);flashSaved.t=setTimeout(()=>e.textContent='Autosaved',900)
+}
+function upsertJob(){
+ const snap=clone(state);snap.updatedAt=now();state.updatedAt=snap.updatedAt;
+ const i=jobs.findIndex(j=>j.id===state.id);
+ if(i>=0)jobs[i]=snap;else jobs.push(snap);
+}
+function save(){
+ try{
+  upsertJob();
+  localStorage.setItem(KEY,JSON.stringify(state));
+  localStorage.setItem(JOBS_KEY,JSON.stringify(jobs));
+  flashSaved()
+ }catch(e){}
+}
+function titles(id){return ({home:'Home',vehicle:'Vehicle / Triage',tune:'Baseline & Assessment',correct:'Guided Correction',verify:'Verification',compare:'Live Compare',history:'Job History',academy:'CarbTune Academy',report:'Job Report'})[id]||id}
+function go(id,{remember=true}={}){
+ const target=document.querySelector(`[data-screen="${id}"]`);if(!target)return false;
+ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));target.classList.add('active');
+ document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('on',b.dataset.nav===id));
+ $id('crumb').textContent=titles(id);state.screen=id;
+ if(remember&&['vehicle','tune','correct','verify','compare','report'].includes(id))state.lastWork=id;
+ save();render();window.scrollTo(0,0);return true
+}
+function resume(){go(['vehicle','tune','correct','verify','compare','report'].includes(state.lastWork)?state.lastWork:'vehicle')}
+
+function complaintSummary(){
+ const a=state.complaints||[];
+ if(!a.length)return 'Baseline / Tune';
+ const labels=a.map(x=>complaintLabels[x]||x);
+ return labels.length<=2?labels.join(' + '):`${labels.slice(0,2).join(' + ')} +${labels.length-2}`
+}
+function bindFields(){
+ const ids=['jobNo','vehicleName','cid','carb','fuel','trans','cam','lifter','rocker','lash'];
+ ids.forEach(id=>{
+  const e=$id(id);if(!e)return;
+  e.addEventListener('input',()=>{
+   state.vehicle[id]=e.type==='number'?n(id):v(id);
+   save();renderHeader();renderHistory()
+  })
+ });
+ const b=['fp','fp2','float','boost','initial','total','rpm','vac','temp','humidity','elevation'];
+ b.forEach(id=>{
+  const e=$id(id);if(!e)return;
+  e.addEventListener('input',()=>{
+   state.baseline[id]=e.type==='number'?n(id):v(id);
+   save();analyze(false);renderTriage();renderCompare();renderReport()
+  })
+ });
+ document.querySelectorAll('#triageChoices input[type="checkbox"]').forEach(cb=>{
+  cb.addEventListener('change',()=>{
+   state.complaints=[...document.querySelectorAll('#triageChoices input:checked')].map(x=>x.value);
+   state.vehicle.concern=complaintSummary();
+   save();renderHeader();renderTriage();renderReport()
+  })
+ });
+ ['newJobNo','newVehicleName','newCid','newCarb'].forEach(id=>{
+  $id(id)?.addEventListener('input',renderDuplicateCandidates)
+ })
+}
+function fillFields(){
+ const vehicleFields=['jobNo','vehicleName','cid','carb','fuel','trans','cam','lifter','rocker','lash'];
+ vehicleFields.forEach(k=>{const e=$id(k);if(!e)return;const val=state.vehicle[k];e.value=(val===null||val===undefined)?'':val});
+ const baselineFields=['fp','fp2','float','boost','initial','total','rpm','vac','temp','humidity','elevation'];
+ baselineFields.forEach(k=>{const e=$id(k);if(!e)return;const val=state.baseline[k];e.value=(val===null||val===undefined)?'':val});
+ document.querySelectorAll('#triageChoices input[type="checkbox"]').forEach(cb=>cb.checked=(state.complaints||[]).includes(cb.value))
+}
+
+function triageScores(){
+ const selected=state.complaints||[],b=state.baseline||{},ruled=state.triage?.ruledOut||[];
+ return triageLibrary.map(c=>{
+  const hits=c.symptoms.filter(s=>selected.includes(s));
+  let score=hits.length*c.weight;
+  if(hits.length>=2)score+=2.2;
+  if(hits.length>=3)score+=1.6;
+  if(c.id==='fuel-pressure-high'&&b.fp!=null&&b.fp>7)score+=4;
+  if(c.id==='float-needle'&&b.boost==='Dripping')score+=4;
+  if(c.id==='fuel-starvation'&&b.fp!=null&&b.fp2!=null&&(b.fp-b.fp2)>1.2)score+=4;
+  if(c.id==='initial-timing'&&b.initial!=null&&b.initial<8)score+=3;
+  if(c.id==='vacuum-leak'&&b.vac!=null&&b.vac<9)score+=1.5;
+  return {...c,hits,score,ruled:ruled.includes(c.id)}
+ }).filter(x=>x.hits.length||x.score>0).sort((a,b)=>b.score-a.score)
+}
+function renderTriage(){
+ const selected=state.complaints||[];
+ $id('triageCount').textContent=`${selected.length} selected`;
+ const status=$id('triageStatus'),out=$id('triageResults');
+ if(!selected.length){
+  status.textContent='Waiting for complaints';status.className='pill warn';
+  out.innerHTML='<div class="triage-empty">Select one or more complaints above. CarbTune will rank shared causes and render what to check and what to correct if confirmed.</div>';
+  return
+ }
+ const ranked=triageScores();
+ const active=ranked.filter(x=>!x.ruled).slice(0,6);
+ const ruled=ranked.filter(x=>x.ruled).slice(0,3);
+ status.textContent=`${active.length} active causes`;status.className='pill '+(active.length?'good':'warn');
+ const card=(c,i,ruledOut=false)=>`
+  <div class="cause-card ${ruledOut?'ruled':i===0?'strong':i<3?'priority':''}">
+   <div class="rank">${ruledOut?'Ruled out':`Priority ${i+1}`} • ${esc(c.system)} • score ${c.score.toFixed(1)}</div>
+   <h3>${esc(c.name)}</h3>
+   <div class="sub">${esc(c.why)}</div>
+   <div class="matchline">${c.hits.map(h=>`<span class="pill">${esc(complaintLabels[h])}</span>`).join('')}</div>
+   <div class="checkfix">
+    <div><b>What to check</b><ul>${c.checks.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+    <div><b>What to fix if confirmed</b><ul>${c.fixes.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+   </div>
+   <div class="actions">
+    ${ruledOut?`<button type="button" class="secondary" data-cause-restore="${c.id}">Restore Cause</button>`:
+    `<button type="button" data-cause-use="${c.id}">Use as Working Cause</button><button type="button" class="secondary" data-cause-ruleout="${c.id}">Rule Out</button>`}
+   </div>
+  </div>`;
+ out.innerHTML=(active.length?active.map((c,i)=>card(c,i,false)).join(''):'<div class="triage-empty">Every matching cause has been ruled out. Reset ruled-out causes or recheck the complaint selection.</div>')+
+  (ruled.length?`<details class="card" style="margin-top:10px"><summary>Ruled-out causes (${ruled.length})</summary><div style="margin-top:10px">${ruled.map((c,i)=>card(c,i,true)).join('')}</div></details>`:'')
+}
+function useCause(id){
+ const c=triageLibrary.find(x=>x.id===id);if(!c)return;
+ state.triage.workingCause=id;
+ state.decision={title:`Working cause: ${c.name}`,text:`Provisional until confirmed. ${c.why}`,start:c.checks[0]};
+ save();renderDecision();renderReport();go('tune')
+}
+function ruleOut(id){
+ if(!state.triage.ruledOut.includes(id))state.triage.ruledOut.push(id);
+ if(state.triage.workingCause===id)state.triage.workingCause=null;
+ save();renderTriage()
+}
+function restoreCause(id){state.triage.ruledOut=state.triage.ruledOut.filter(x=>x!==id);save();renderTriage()}
+function resetTriage(){state.triage.ruledOut=[];state.triage.workingCause=null;save();renderTriage()}
+
+function analyze(navigate=true){
+ const b=state.baseline;let d;
+ if(b.fp!=null&&(b.fp<3||b.fp>10))d={title:'STOP — verify fuel pressure',text:'Fuel pressure is outside a plausible tuning range. Verify the gauge, regulator and supply before changing calibration.',start:'Correct or verify fuel pressure first.'};
+ else if(b.total!=null&&(b.total<15||b.total>50))d={title:'STOP — verify timing reference',text:'Total timing is outside the plausible tuning envelope. Verify true TDC and the timing reference.',start:'Verify timing reference and remeasure.'};
+ else if(b.boost==='Dripping')d={title:'Correct booster drip first',text:'Fuel entering through a booster at idle can invalidate mixture and jet decisions.',start:'Check pressure, float level, needle/seat control and throttle position.'};
+ else if(b.fp==null)d={title:'Measure fuel pressure',text:'Fuel delivery must be known before CarbTune interprets mixture behavior.',start:'Record warm idle and elevated-RPM fuel pressure.'};
+ else if(b.initial==null||b.total==null)d={title:'Measure ignition timing',text:'Ignition problems can mimic carburetor problems.',start:'Record initial and total mechanical timing.'};
+ else if(b.rpm==null||b.vac==null)d={title:'Record warm idle behavior',text:'Idle RPM and manifold vacuum help CarbTune understand engine demand.',start:'Record warm idle RPM and manifold vacuum.'};
+ else if(b.fp2!=null&&Math.abs(b.fp2-b.fp)>1.5)d={title:'Stabilize fuel delivery',text:'Fuel pressure changes substantially with RPM.',start:'Diagnose fuel supply/regulation before calibration changes.'};
+ else if(b.initial<8)d={title:'Review initial timing',text:'Low initial timing can create poor idle quality and excessive throttle opening.',start:'Establish a verified ignition baseline before changing idle calibration.'};
+ else d={title:'Core baseline usable',text:'No dominant prerequisite failure is currently supported. Continue with one-variable-at-a-time testing.',start:'Proceed to a documented correction and verification.'};
+ state.decision=d;save();renderDecision();renderReport();renderTriage();
+ if(navigate&&d.title==='Core baseline usable')go('correct')
+}
+function renderDecision(){
+ const d=state.decision;$id('decisionTitle').textContent=d.title;$id('decisionText').textContent=d.text;
+ const ready=d.title==='Core baseline usable'||d.title.startsWith('Working cause:');
+ $id('decisionPill').textContent=ready?'Diagnostic path':d.title.startsWith('STOP')?'Stop / verify':'Next prerequisite';
+ $id('decisionPill').className='pill '+(ready?'good':d.title.startsWith('STOP')?'bad':'warn');$id('homeNext').textContent=d.title
+}
+function recordChange(){
+ const exact=v('changeExact').trim();if(!exact){$id('changeExact').focus();return}
+ state.change={system:v('changeSystem'),exact,reason:v('changeReason').trim(),expectation:v('expectation'),at:now()};save();go('verify')
+}
+function saveVerify(){
+ state.verification={result:v('result'),afterRpm:n('afterRpm'),afterVac:n('afterVac'),afterFp:n('afterFp'),notes:v('verifyNotes').trim(),at:now()};
+ save();renderDelta();renderReport();go('compare')
+}
+function renderDelta(){
+ const e=$id('deltaBox'),x=state.verification,b=state.baseline;if(!x){e.textContent='Complete the after measurements to calculate the result.';return}
+ const parts=[];if(x.afterRpm!=null&&b.rpm!=null)parts.push(`Idle ${(x.afterRpm-b.rpm)>=0?'+':''}${x.afterRpm-b.rpm} RPM`);
+ if(x.afterVac!=null&&b.vac!=null)parts.push(`Vacuum ${(x.afterVac-b.vac)>=0?'+':''}${(x.afterVac-b.vac).toFixed(1)} in-Hg`);
+ if(x.afterFp!=null&&b.fp!=null)parts.push(`Fuel pressure ${(x.afterFp-b.fp)>=0?'+':''}${(x.afterFp-b.fp).toFixed(1)} PSI`);
+ e.innerHTML=`<b>${esc(x.result)}</b><div class="tiny">${parts.length?parts.join(' • '):'No quantified delta entered.'}</div>`
+}
+function densityAltitude(){const b=state.baseline;if(b.temp==null||b.elevation==null)return null;const isa=59-(b.elevation/1000)*3.57;return Math.round(b.elevation+120*(b.temp-isa))}
+function renderCompare(){
+ const b=state.baseline,rows=[['Fuel pressure',b.fp,6,10,' PSI'],['Initial timing',b.initial,14,20,'°'],['Idle RPM',b.rpm,825,1200,''],['Vacuum',b.vac,11.8,20,' in-Hg']];
+ $id('myBuild').textContent=`${state.vehicle.cid||'—'} CID • ${state.vehicle.carb||'Carb unknown'}`;
+ $id('myTune').textContent=`Fuel ${b.fp??'—'} PSI • Initial ${b.initial??'—'}° • Idle ${b.rpm??'—'} RPM • Vacuum ${b.vac??'—'} in-Hg`;
+ $id('compareBars').innerHTML=rows.map(r=>{const mine=r[1],match=r[2],max=r[3],mp=mine==null?0:Math.max(0,Math.min(100,mine/max*100)),op=Math.max(0,Math.min(100,match/max*100));return `<div class="compare-row"><div class="row"><b>${r[0]}</b><span class="tiny">Mine ${mine??'—'}${r[4]} • Match ${match}${r[4]}</span></div><div class="bar"><div class="mine" style="width:${mp}%"></div><div class="match" style="left:${op}%"></div></div></div>`}).join('');
+ const diffs=rows.filter(r=>r[1]!=null).map(r=>({n:r[0],d:Math.abs(r[1]-r[2]),m:r[1],o:r[2]})).sort((a,b)=>b.d-a.d);
+ $id('compareInsight').innerHTML=diffs.length?`<b>Live insight</b><div class="tiny">Largest current difference is ${esc(diffs[0].n)}: yours ${diffs[0].m} vs matched build ${diffs[0].o}. Treat this as supporting evidence, not a command to copy the setting.</div>`:'Enter baseline values to compare.';
+ const da=densityAltitude();$id('myConditions').textContent=`${b.temp??'—'}°F • ${b.humidity??'—'}% RH`;$id('myDA').textContent=`${b.elevation??'—'} ft • ${da==null?'DA unavailable':`est. DA ${da} ft`}`
+}
+function renderReport(){
+ const b=state.baseline,d=state.decision;
+ $id('reportBase').textContent=`Fuel ${b.fp??'—'} PSI • Initial ${b.initial??'—'}° • Total ${b.total??'—'}° • Idle ${b.rpm??'—'} RPM • Vacuum ${b.vac??'—'} in-Hg`;
+ const complaints=(state.complaints||[]).map(x=>complaintLabels[x]||x).join(', ');
+ $id('reportProblem').textContent=(complaints?`Complaints: ${complaints}. `:'')+d.title;
+ $id('reportStart').textContent=state.change?`${state.change.system}: ${state.change.exact}`:d.start;
+ $id('reportVerify').textContent=state.verification?`${state.verification.result}${state.verification.notes?' • '+state.verification.notes:''}`:'No verified change yet.';
+ let score=0;if(b.fp!=null)score+=15;if(b.initial!=null&&b.total!=null)score+=20;if(b.rpm!=null&&b.vac!=null)score+=20;if(b.temp!=null&&b.elevation!=null)score+=10;if(state.change)score+=15;if(state.verification)score+=20;
+ $id('evidenceScore').textContent=`${score}% ${score>=80?'Strong':score>=55?'Usable':'Developing'}`;$id('evidenceScore').className='pill '+(score>=80?'good':score>=55?'warn':'');
+ $id('learningSummary').textContent=`Build identified • ${state.complaints.length} complaint(s) triaged • environmental context ${b.temp!=null?'captured':'incomplete'} • ${state.change?'correction documented':'correction missing'} • ${state.verification?'outcome verified':'verification missing'}.`;
+ $id('homeEvidence').textContent=score>=80?'Strong':score>=55?'Usable':'Developing'
+}
+function renderHeader(){
+ const veh=state.vehicle.vehicleName||'Current Vehicle',concern=complaintSummary();
+ state.vehicle.concern=concern;
+ $id('globalVehicle').textContent=veh;$id('globalJob').textContent=`${state.vehicle.jobNo||'Unnumbered'} • ${concern} • Autosaved`;
+ $id('homeVehicle').textContent=veh;$id('homeConcern').textContent=concern;
+ $id('homeCurrentVehicle').textContent=veh;$id('homeEngine').textContent=`${state.vehicle.cid||'—'} CID`;
+ $id('homeCarb').textContent=state.vehicle.carb||'Carb unknown';$id('homeBuild').textContent=`${state.vehicle.cid||'—'} CID • ${state.vehicle.carb||'Carb unknown'} • ${concern}`;
+}
+function renderSteps(){
+ const labels=['Vehicle','Baseline','Assess','Correct','Verify','Compare','Report'],map={vehicle:0,tune:1,correct:3,verify:4,compare:5,report:6},i=map[state.screen]??0;
+ $id('steps').innerHTML=labels.map((x,k)=>`<span class="step ${k<i?'done':k===i?'now':''}">${k<i?'✓ ':''}${x}</span>`).join('');
+ $id('homePhase').textContent=titles(state.lastWork)
+}
+
+/* ---------- Duplicate-safe job management ---------- */
+function jobDraft(){return {jobNo:v('newJobNo').trim(),vehicleName:v('newVehicleName').trim(),cid:n('newCid'),carb:v('newCarb').trim()}}
+function duplicateScore(d,j){
+ let score=0,reasons=[];
+ const dj=norm(d.jobNo),jj=norm(j.vehicle.jobNo),dv=norm(d.vehicleName),jv=norm(j.vehicle.vehicleName),dc=norm(d.carb),jc=norm(j.vehicle.carb);
+ if(dj&&jj&&dj===jj){score+=100;reasons.push('same RO / job number')}
+ if(dv&&jv&&dv===jv){score+=55;reasons.push('same vehicle description')}
+ if(d.cid!=null&&j.vehicle.cid!=null&&Number(d.cid)===Number(j.vehicle.cid)){score+=15;reasons.push('same engine CID')}
+ if(dc&&jc&&dc===jc){score+=20;reasons.push('same carburetor')}
+ return {score,reasons}
+}
+function duplicateCandidates(d,excludeId=null){
+ return jobs.map(j=>({job:j,...duplicateScore(d,j)})).filter(x=>x.job.id!==excludeId&&(x.score>=70||x.score>=100)).sort((a,b)=>b.score-a.score)
+}
+function openNewJob(){
+ ['newJobNo','newVehicleName','newCid','newCarb'].forEach(id=>$id(id).value='');
+ $id('forceCreateBtn').classList.add('hide');$id('duplicateCandidates').innerHTML='';
+ $id('duplicateStatus').textContent='Enter a job number or vehicle description to check for duplicates.';
+ $id('jobModal').classList.add('open');$id('jobModal').setAttribute('aria-hidden','false');setTimeout(()=>$id('newJobNo').focus(),30)
+}
+function closeNewJob(){$id('jobModal').classList.remove('open');$id('jobModal').setAttribute('aria-hidden','true')}
+function renderDuplicateCandidates(){
+ const d=jobDraft(),matches=duplicateCandidates(d);
+ const status=$id('duplicateStatus'),wrap=$id('duplicateCandidates');
+ if(!d.jobNo&&!d.vehicleName){
+  status.textContent='Enter a job number or vehicle description to check for duplicates.';wrap.innerHTML='';$id('forceCreateBtn').classList.add('hide');return
+ }
+ if(!matches.length){
+  status.innerHTML='<span class="value-good">No likely duplicate found.</span> A new job can be created.';wrap.innerHTML='';$id('forceCreateBtn').classList.add('hide');return
+ }
+ status.innerHTML=`<span class="value-warn">${matches.length} possible existing job${matches.length>1?'s':''} found.</span> Review before creating another record.`;
+ wrap.innerHTML=matches.map(x=>`
+  <div class="duplicate-card">
+   <div class="row"><div><b>${esc(x.job.vehicle.vehicleName||'Unnamed vehicle')}</b><div class="tiny">${esc(x.job.vehicle.jobNo||'Unnumbered')} • ${esc(x.job.vehicle.cid||'—')} CID • ${esc(x.job.vehicle.carb||'Carb unknown')}</div></div><span class="pill warn">${x.score} match</span></div>
+   <div class="tiny" style="margin-top:5px">Matched on: ${esc(x.reasons.join(', '))}</div>
+   <div class="actions"><button type="button" data-resume-job="${x.job.id}">Resume Existing</button><button type="button" class="secondary" data-merge-draft="${x.job.id}">Merge New Details Into Existing</button></div>
+  </div>`).join('');
+ $id('forceCreateBtn').classList.remove('hide')
+}
+function createJob(force=false){
+ const d=jobDraft();
+ if(!d.jobNo&&!d.vehicleName){$id('duplicateStatus').innerHTML='<span class="value-bad">Enter at least an RO/job number or vehicle.</span>';return}
+ const matches=duplicateCandidates(d);
+ if(matches.length&&!force){renderDuplicateCandidates();$id('duplicateStatus').innerHTML='<span class="value-warn">Creation paused.</span> Resume or merge the existing record, or choose Create Separate Anyway.';return}
+ save();
+ const s=freshState();s.vehicle.jobNo=d.jobNo;s.vehicle.vehicleName=d.vehicleName;s.vehicle.cid=d.cid;s.vehicle.carb=d.carb;
+ state=s;jobs.push(clone(state));save();closeNewJob();fillFields();render();go('vehicle')
+}
+function loadJob(id){
+ const j=jobs.find(x=>x.id===id);if(!j)return;
+ save();state=normalizeJob(clone(j));localStorage.setItem(KEY,JSON.stringify(state));closeNewJob();fillFields();render();go(state.lastWork||'vehicle',{remember:false})
+}
+function mergeDraftInto(id){
+ const j=jobs.find(x=>x.id===id);if(!j)return;
+ const d=jobDraft();
+ ['jobNo','vehicleName','cid','carb'].forEach(k=>{if(nonempty(d[k])&&!nonempty(j.vehicle[k]))j.vehicle[k]=d[k]});
+ j.updatedAt=now();const idx=jobs.findIndex(x=>x.id===id);jobs[idx]=j;state=normalizeJob(clone(j));save();closeNewJob();fillFields();render();go('vehicle',{remember:false})
+}
+function completeness(j){
+ let s=0;Object.values(j.vehicle||{}).forEach(x=>{if(nonempty(x))s++});Object.values(j.baseline||{}).forEach(x=>{if(nonempty(x))s++});
+ s+=(j.complaints||[]).length*2;if(j.change)s+=4;if(j.verification)s+=5;return s
+}
+function pairScore(a,b){
+ return duplicateScore({jobNo:a.vehicle.jobNo,vehicleName:a.vehicle.vehicleName,cid:a.vehicle.cid,carb:a.vehicle.carb},b)
+}
+function findDuplicatePairs(){
+ const pairs=[];
+ for(let i=0;i<jobs.length;i++)for(let k=i+1;k<jobs.length;k++){
+  const x=pairScore(jobs[i],jobs[k]);if(x.score>=70)pairs.push({a:jobs[i],b:jobs[k],...x})
+ }
+ return pairs.sort((a,b)=>b.score-a.score)
+}
+function findDuplicateGroups(){
+ const pairs=findDuplicatePairs();
+ const adj=new Map(jobs.map(j=>[j.id,new Set()]));
+ pairs.forEach(p=>{adj.get(p.a.id)?.add(p.b.id);adj.get(p.b.id)?.add(p.a.id)});
+ const seen=new Set(),groups=[];
+ for(const j of jobs){
+  if(seen.has(j.id)||!(adj.get(j.id)?.size))continue;
+  const stack=[j.id],ids=[];
+  while(stack.length){
+   const id=stack.pop();if(seen.has(id))continue;seen.add(id);ids.push(id);
+   (adj.get(id)||[]).forEach(n=>{if(!seen.has(n))stack.push(n)})
+  }
+  if(ids.length>1)groups.push(ids.map(id=>jobs.find(j=>j.id===id)).filter(Boolean))
+ }
+ return groups.sort((a,b)=>b.length-a.length)
+}
+function mergeJobGroup(ids){
+ const group=ids.map(id=>jobs.find(j=>j.id===id)).filter(Boolean);
+ if(group.length<2)return;
+ const label=group.map(j=>j.vehicle.jobNo||j.vehicle.vehicleName||'Unnamed').join(', ');
+ if(!confirm(`Merge ${group.length} duplicate records into one job?\\n\\n${label}\\n\\nCarbTune will keep the most complete record and fill its missing fields from the others.`))return;
+ const sorted=[...group].sort((a,b)=>completeness(b)-completeness(a)||String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
+ let primary=clone(sorted[0]);
+ for(const secondary of sorted.slice(1)){
+  primary.vehicle=mergeObjectsPrefer(primary.vehicle,secondary.vehicle);
+  primary.baseline=mergeObjectsPrefer(primary.baseline,secondary.baseline);
+  primary.complaints=[...new Set([...(primary.complaints||[]),...(secondary.complaints||[])])];
+  primary.triage={...secondary.triage,...primary.triage,ruledOut:[...new Set([...(primary.triage?.ruledOut||[]),...(secondary.triage?.ruledOut||[])])]};
+  if(!primary.change&&secondary.change)primary.change=clone(secondary.change);
+  if(!primary.verification&&secondary.verification)primary.verification=clone(secondary.verification);
+  primary.mergedFrom=[...new Set([...(primary.mergedFrom||[]),...(secondary.mergedFrom||[]),secondary.id])];
+ }
+ primary.updatedAt=now();
+ const idsSet=new Set(group.map(j=>j.id));
+ jobs=jobs.filter(j=>!idsSet.has(j.id));jobs.push(primary);
+ if(idsSet.has(state.id))state=normalizeJob(clone(primary));
+ localStorage.setItem(JOBS_KEY,JSON.stringify(jobs));localStorage.setItem(KEY,JSON.stringify(state));
+ fillFields();render();renderDuplicateReview()
+}
+function mergeObjectsPrefer(primary,secondary){
+ const out={...secondary,...primary};
+ Object.keys({...secondary,...primary}).forEach(k=>{if(!nonempty(primary[k])&&nonempty(secondary[k]))out[k]=secondary[k]});
+ return out
+}
+function mergeJobs(id1,id2){
+ let a=jobs.find(x=>x.id===id1),b=jobs.find(x=>x.id===id2);if(!a||!b)return;
+ if(!confirm(`Merge "${a.vehicle.vehicleName||a.vehicle.jobNo}" and "${b.vehicle.vehicleName||b.vehicle.jobNo}" into one job? The secondary duplicate will be removed.`))return;
+ let primary=completeness(a)>=completeness(b)?clone(a):clone(b),secondary=primary.id===a.id?b:a;
+ primary.vehicle=mergeObjectsPrefer(primary.vehicle,secondary.vehicle);
+ primary.baseline=mergeObjectsPrefer(primary.baseline,secondary.baseline);
+ primary.complaints=[...new Set([...(primary.complaints||[]),...(secondary.complaints||[])])];
+ primary.triage={...secondary.triage,...primary.triage,ruledOut:[...new Set([...(primary.triage?.ruledOut||[]),...(secondary.triage?.ruledOut||[])])]};
+ if(!primary.change&&secondary.change)primary.change=clone(secondary.change);
+ if(!primary.verification&&secondary.verification)primary.verification=clone(secondary.verification);
+ primary.mergedFrom=[...new Set([...(primary.mergedFrom||[]),...(secondary.mergedFrom||[]),secondary.id])];
+ primary.updatedAt=now();
+ jobs=jobs.filter(x=>x.id!==a.id&&x.id!==b.id);jobs.push(primary);
+ if(state.id===a.id||state.id===b.id)state=normalizeJob(clone(primary));
+ localStorage.setItem(JOBS_KEY,JSON.stringify(jobs));localStorage.setItem(KEY,JSON.stringify(state));
+ fillFields();render();renderDuplicateReview()
+}
+function requestDeleteJob(id){
+ const j=jobs.find(x=>x.id===id);if(!j)return;
+ pendingDeleteJobId=id;
+ $id('deleteJobName').textContent=j.vehicle.vehicleName||j.vehicle.jobNo||'Unnamed job';
+ const remaining=jobs.filter(x=>x.id!==id).sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
+ $id('deleteJobFallbackNote').textContent=id===state.id
+  ?(remaining.length
+    ?`This is the active job. CarbTune will open ${remaining[0].vehicle.vehicleName||remaining[0].vehicle.jobNo||'the next most-recent job'} after deletion.`
+    :'This is the only job. CarbTune will create a fresh empty job after deletion so the app remains usable.')
+  :'The active job will not be changed.';
+ $id('deleteJobModal').classList.add('open');
+ $id('deleteJobModal').setAttribute('aria-hidden','false')
+}
+function cancelDeleteJob(){
+ pendingDeleteJobId=null;
+ $id('deleteJobModal').classList.remove('open');
+ $id('deleteJobModal').setAttribute('aria-hidden','true')
+}
+function confirmDeleteJob(){
+ const id=pendingDeleteJobId;if(!id)return;
+ const deletingActive=id===state.id;
+ jobs=jobs.filter(x=>x.id!==id);
+ if(deletingActive){
+  if(jobs.length){
+   jobs.sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
+   state=normalizeJob(clone(jobs[0]));
+  }else{
+   state=freshState();
+   state.screen='vehicle';
+   state.lastWork='vehicle';
+   jobs=[clone(state)];
+  }
+ }else{
+  const i=jobs.findIndex(j=>j.id===state.id);
+  if(i>=0)jobs[i]=clone(state);
+ }
+ localStorage.setItem(KEY,JSON.stringify(state));
+ localStorage.setItem(JOBS_KEY,JSON.stringify(jobs));
+ pendingDeleteJobId=null;
+ $id('deleteJobModal').classList.remove('open');
+ $id('deleteJobModal').setAttribute('aria-hidden','true');
+ fillFields();render();
+ go(deletingActive?(state.lastWork||'vehicle'):'history',{remember:false})
+}
+function renderDuplicateReview(){
+ const pairs=findDuplicatePairs(),groups=findDuplicateGroups(),card=$id('duplicateReviewCard'),wrap=$id('duplicatePairs');
+ card.classList.remove('hide');$id('duplicatePairCount').textContent=`${groups.length} group${groups.length===1?'':'s'}`;
+ if(!groups.length){wrap.innerHTML='<div class="triage-empty" style="margin-top:10px">No likely duplicate jobs found.</div>';return}
+ wrap.innerHTML=groups.map((group,gi)=>{
+  const ids=group.map(j=>j.id);
+  const strongest=pairs.filter(p=>ids.includes(p.a.id)&&ids.includes(p.b.id)).sort((a,b)=>b.score-a.score)[0];
+  return `<div class="merge-pair">
+   <div class="row"><div><b>Duplicate group ${gi+1} • ${group.length} records</b><div class="tiny">${group.map(j=>esc(j.vehicle.jobNo||j.vehicle.vehicleName||'Unnamed')).join(' • ')}</div></div><span class="pill warn">${strongest?strongest.score:'Likely'} match</span></div>
+   <div class="tiny" style="margin-top:5px">${strongest?`Strongest match: ${esc(strongest.reasons.join(', '))}`:'Matching vehicle/job data'}</div>
+   <div style="margin-top:8px">${group.map(j=>`<div class="inline-note" style="margin-top:5px"><b>${esc(j.vehicle.vehicleName||'Unnamed vehicle')}</b> • ${esc(j.vehicle.jobNo||'Unnumbered')} • ${esc(j.vehicle.cid||'—')} CID • ${esc(j.vehicle.carb||'Carb unknown')}</div>`).join('')}</div>
+   <div class="actions"><button type="button" data-merge-group="${ids.join('|')}">Merge All ${group.length} Records</button>${group.map((j,i)=>`<button type="button" class="secondary" data-resume-job="${j.id}">Open ${i+1}</button>`).join('')}</div>
+  </div>`
+ }).join('')
+}
+function renderHistory(){
+ const wrap=$id('jobHistoryList');if(!wrap)return;
+ const sorted=[...jobs].sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
+ wrap.innerHTML=sorted.map(j=>`
+  <div class="job-row">
+   <div class="row">
+    <div><b>${esc(j.vehicle.vehicleName||'Unnamed vehicle')}</b><div class="tiny">${esc(j.vehicle.jobNo||'Unnumbered')} • ${esc(j.vehicle.cid||'—')} CID • ${esc(j.vehicle.carb||'Carb unknown')}</div>
+     <div class="job-meta">${j.id===state.id?'<span class="pill good">Active</span>':''}<span class="pill">${esc(j.vehicle.concern||'Tune')}</span>${j.mergedFrom?.length?`<span class="pill">Merged ${j.mergedFrom.length}</span>`:''}</div>
+    </div>
+    <div class="actions" style="margin-top:0"><button type="button" class="secondary" data-resume-job="${j.id}">${j.id===state.id?'Resume':'Open'}</button><button type="button" class="danger" data-delete-job="${j.id}">Delete</button></div>
+   </div>
+  </div>`).join('')
+}
+
+function render(){
+ renderHeader();renderDecision();renderSteps();renderDelta();renderCompare();renderReport();renderTriage();renderHistory()
+}
+
+const help={
+ fuel:'Warm the engine. Connect a suitable fuel-pressure gauge. Record idle pressure and verify it remains stable as RPM increases. Diagnose unstable delivery before calibration.',
+ timing:'Warm the engine. Disconnect and plug vacuum advance where applicable. Record initial timing, then raise RPM gradually and record total mechanical timing and the RPM where advance stops increasing.',
+ float:'Verify fuel pressure first. Use the carburetor-specific sight reference. Adjust in small increments and recheck for booster drip.',
+ preload:'Confirm hydraulic lifter type. Put the lifter on the cam base circle, establish zero lash without compressing the plunger, then apply the verified preload specification.'
+};
+
+document.addEventListener('click',e=>{
+ const goBtn=e.target.closest('[data-go]');if(goBtn){e.preventDefault();go(goBtn.dataset.go);return}
+ const nav=e.target.closest('[data-nav]');if(nav){e.preventDefault();go(nav.dataset.nav);return}
+ const resumeJobBtn=e.target.closest('[data-resume-job]');if(resumeJobBtn){e.preventDefault();loadJob(resumeJobBtn.dataset.resumeJob);return}
+ const mergeDraftBtn=e.target.closest('[data-merge-draft]');if(mergeDraftBtn){e.preventDefault();mergeDraftInto(mergeDraftBtn.dataset.mergeDraft);return}
+ const mergeJobsBtn=e.target.closest('[data-merge-jobs]');if(mergeJobsBtn){e.preventDefault();const [a,b]=mergeJobsBtn.dataset.mergeJobs.split('|');mergeJobs(a,b);return}
+ const mergeGroupBtn=e.target.closest('[data-merge-group]');if(mergeGroupBtn){e.preventDefault();mergeJobGroup(mergeGroupBtn.dataset.mergeGroup.split('|'));return}
+ const deleteJobBtn=e.target.closest('[data-delete-job]');if(deleteJobBtn){e.preventDefault();requestDeleteJob(deleteJobBtn.dataset.deleteJob);return}
+ const use=e.target.closest('[data-cause-use]');if(use){e.preventDefault();useCause(use.dataset.causeUse);return}
+ const rule=e.target.closest('[data-cause-ruleout]');if(rule){e.preventDefault();ruleOut(rule.dataset.causeRuleout);return}
+ const restore=e.target.closest('[data-cause-restore]');if(restore){e.preventDefault();restoreCause(restore.dataset.causeRestore);return}
+ const action=e.target.closest('[data-action]');
+ if(action){
+  e.preventDefault();const a=action.dataset.action;
+  if(a==='resume')resume();
+  else if(a==='analyze')analyze(true);
+  else if(a==='record-change')recordChange();
+  else if(a==='save-verify')saveVerify();
+  else if(a==='run-triage')renderTriage();
+  else if(a==='reset-triage')resetTriage();
+  else if(a==='new-job')openNewJob();
+  else if(a==='close-job-modal')closeNewJob();
+  else if(a==='create-job')createJob(false);
+  else if(a==='force-create-job')createJob(true);
+  else if(a==='scan-duplicates')renderDuplicateReview();
+  else if(a==='delete-active-job')requestDeleteJob(state.id);
+  else if(a==='cancel-delete-job')cancelDeleteJob();
+  else if(a==='confirm-delete-job')confirmDeleteJob();
+  return
+ }
+ const hb=e.target.closest('[data-help]');if(hb){$id('helpPanel').textContent=help[hb.dataset.help]||'Procedure unavailable.'}
+});
+$id('jobModal').addEventListener('click',e=>{if(e.target===$id('jobModal'))closeNewJob()});
+$id('deleteJobModal').addEventListener('click',e=>{if(e.target===$id('deleteJobModal'))cancelDeleteJob()});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($id('deleteJobModal').classList.contains('open'))cancelDeleteJob();else if($id('jobModal').classList.contains('open'))closeNewJob()});
+
+fillFields();
+bindFields();
+analyze(false);
+render();
+go(state.screen&&document.querySelector(`[data-screen="${state.screen}"]`)?state.screen:'home',{remember:false});
+})();
+</script>
+
+</body></html>
