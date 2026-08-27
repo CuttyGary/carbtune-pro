@@ -24,6 +24,7 @@ async function run() {
   try {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const page = await context.newPage();
+    page.setDefaultTimeout(7000);
     const errors = [];
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
     page.on('pageerror', error => errors.push(error.message));
@@ -31,6 +32,12 @@ async function run() {
     await page.evaluate(() => localStorage.clear());
     await page.reload({ waitUntil: 'networkidle' });
     assert(await page.locator('.screen.active').getAttribute('data-screen') === 'guided', 'guided workflow is primary');
+    assert(await page.locator('meta[name="application-domain"]').getAttribute('content') === 'carbureted', 'application metadata declares carbureted domain');
+    assert((await page.locator('#productScopeBadge').innerText()).includes('Carbureted'), 'product scope is visible');
+    const productState = await page.evaluate(() => JSON.parse(localStorage.getItem('carbtune.clean.v40')));
+    assert(productState.productId === 'carbtune-pro' && productState.applicationType === 'carbureted', 'jobs persist CarbTune product boundary');
+    const visibleWorkflow = await page.locator('body').innerText();
+    assert(!/(injector pulse|fuel table|spark table|ecu calibration|pcm calibration|maf calibration)/i.test(visibleWorkflow), 'EFI calibration workflows are absent');
     assert((await page.locator('#guidedCard').innerText()).includes('What is the vehicle doing?'), 'demo resumes at complaint');
     assert((await page.locator('#guidedProgress').innerText()).includes('BUILD'), 'persistent progress is visible');
 
@@ -84,6 +91,17 @@ async function run() {
     const beforeJobs = await page.locator('.job-row').count();
     await page.locator('.screen.active [data-action="new-job"]').click();
     assert(await page.locator('#jobModal').getAttribute('aria-hidden') === 'false', 'New Job opens structured intake');
+    const engineManufacturers = await page.locator('#newEngineManufacturer option').allTextContents();
+    assert(engineManufacturers.includes('GM / Chevrolet') && engineManufacturers.includes('Ford') && engineManufacturers.includes('Mopar / Chrysler'), 'modern engine manufacturers remain available');
+    await page.locator('#newEngineManufacturer').selectOption('GM / Chevrolet');
+    await page.locator('#newEngineSize').selectOption('5.7L / 346 CID');
+    assert((await page.locator('#newEngineFamily option').allTextContents()).includes('LS Gen III / IV'), 'carbureted LS architecture remains available');
+    await page.locator('#newEngineManufacturer').selectOption('Ford');
+    await page.locator('#newEngineSize').selectOption('5.0L / 302 CID');
+    assert((await page.locator('#newEngineFamily option').allTextContents()).includes('Coyote'), 'carbureted Coyote architecture remains available');
+    await page.locator('#newEngineManufacturer').selectOption('Mopar / Chrysler');
+    await page.locator('#newEngineSize').selectOption('5.7L / 345 CID');
+    assert((await page.locator('#newEngineFamily option').allTextContents()).includes('Gen III Hemi'), 'carbureted Hemi architecture remains available');
     await page.locator('#newJobNo').fill('TEST-NEW-001');
     await page.locator('#newVehicleYear').selectOption('1968');
     await page.locator('#newVehicleMake').selectOption('Chevrolet');
@@ -93,6 +111,8 @@ async function run() {
     await page.locator('#newEngineSize').selectOption('5.7L / 350 CID');
     await page.locator('#newEngineFamily').selectOption('Small Block Chevrolet');
     await page.locator('#newEngineVariant').selectOption('350 Gen I');
+    await page.locator('[data-action="create-job"]').click();
+    assert((await page.locator('#duplicateStatus').innerText()).includes('requires the installed carburetor'), 'New Job rejects missing carburetor');
     await page.locator('#newCarb').fill('Holley 4150');
     await page.locator('[data-action="create-job"]').click();
     await page.locator('[data-nav="history"]').click();
@@ -123,6 +143,7 @@ async function run() {
 
     const migrateContext = await browser.newContext({ viewport: { width: 1280, height: 800 } });
     const migratePage = await migrateContext.newPage();
+    migratePage.setDefaultTimeout(7000);
     await migratePage.addInitScript(() => {
       localStorage.setItem('carbtune.clean.v31', JSON.stringify({ id: 'legacy', vehicle: { vehicleName: 'Legacy Vehicle', jobNo: 'OLD-1' }, baseline: { fp: 6.1 } }));
     });
@@ -130,9 +151,51 @@ async function run() {
     const migration = await migratePage.evaluate(() => ({ current: JSON.parse(localStorage.getItem('carbtune.clean.v40')), width: document.querySelector('#guidedCard').getBoundingClientRect().width }));
     assert(migration.current.vehicle.vehicleName === 'Legacy Vehicle', 'v31 active job migrates to v40');
     assert(migration.current.baseline.fp === 6.1, 'migration preserves baseline data');
-    assert(migration.width <= 780, 'desktop layout keeps focused task width');
-    await migratePage.setViewportSize({ width: 390, height: 844 });
-    assert(await migratePage.locator('#guidedCard').evaluate(el => el.getBoundingClientRect().width <= 390), 'mobile layout fits viewport');
+    assert(migration.current.productId === 'carbtune-pro' && migration.current.applicationType === 'carbureted', 'migration applies CarbTune product boundary');
+
+    migration.current.vehicle.carb = 'Holley 4150';
+    migration.current.workflow.phase = 'baseline';
+    migration.current.workflow.baselineIndex = 3;
+    await migratePage.evaluate(value => localStorage.setItem('carbtune.clean.v40', JSON.stringify(value)), migration.current);
+    await migratePage.reload({ waitUntil: 'networkidle' });
+    const viewports = [
+      ['iOS phone', 375, 667, 'phone'],
+      ['Android phone', 412, 915, 'phone'],
+      ['iPad Mini', 768, 1024, 'tablet'],
+      ['Android tablet', 800, 1280, 'tablet'],
+      ['iPad Pro', 1024, 1366, 'tablet'],
+      ['Windows tablet', 1280, 800, 'tablet'],
+      ['Windows desktop', 1440, 900, 'desktop']
+    ];
+    for (const [name, width, height, type] of viewports) {
+      await migratePage.setViewportSize({ width, height });
+      const metrics = await migratePage.evaluate(() => {
+        const card = document.querySelector('#guidedCard').getBoundingClientRect();
+        const task = document.querySelector('.guided-task-grid');
+        const visibleControls = [...document.querySelectorAll('#guidedCard button:not([disabled]), #guidedCard select, #guidedCard input')].filter(el => {
+          const rect = el.getBoundingClientRect();
+          return rect.width > 0 && rect.height > 0;
+        });
+        return {
+          overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+          cardWidth: card.width,
+          viewportWidth: document.documentElement.clientWidth,
+          taskDisplay: getComputedStyle(task).display,
+          taskColumns: getComputedStyle(task).gridTemplateColumns,
+          minControlHeight: Math.min(...visibleControls.map(el => el.getBoundingClientRect().height))
+        };
+      });
+      assert(metrics.overflow <= 1, `${name} has no horizontal overflow`, JSON.stringify(metrics));
+      assert(metrics.minControlHeight >= 43.5, `${name} preserves touch targets`, JSON.stringify(metrics));
+      if (type === 'phone') {
+        assert(metrics.taskDisplay !== 'grid', `${name} uses focused single-column task flow`);
+      } else {
+        assert(metrics.taskDisplay === 'grid' && metrics.taskColumns.split(' ').length === 2, `${name} uses task/result columns`, metrics.taskColumns);
+      }
+      if (type === 'tablet') {
+        assert(metrics.cardWidth / metrics.viewportWidth >= 0.86, `${name} uses available tablet width`, `${metrics.cardWidth}/${metrics.viewportWidth}`);
+      }
+    }
     await migrateContext.close();
   } finally {
     await browser.close();
