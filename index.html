@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0f14">
+<link rel="icon" href="data:,">
 <title>CarbTune Pro</title>
 <style>
 :root{--bg:#0b0f14;--panel:#151a21;--panel2:#0f141a;--line:#2b323c;--txt:#f2f5f8;--muted:#97a2af;--accent:#2f81f7;--good:#45c46a;--warn:#e3ad3b;--bad:#ff6b73;--shadow:0 8px 28px #0005}
@@ -90,15 +91,29 @@ button.danger:hover{background:#8e3030!important}
 .compat-note{font-size:12px;color:var(--muted);margin-top:6px}
 @media(max-width:700px){.component-grid,.component-spec .specgrid{grid-template-columns:1fr}}
 
+/* Build 40: guided diagnostic core */
+.guided-shell{max-width:780px;margin:0 auto}.guided-progress{display:flex;gap:6px;overflow-x:auto;padding:2px 0 5px;scrollbar-width:none}.guided-progress::-webkit-scrollbar{display:none}.guided-step{flex:0 0 auto;padding:7px 10px;border-radius:999px;border:1px solid var(--line);font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.02em}.guided-step.done{color:var(--good);border-color:#285b38}.guided-step.now{color:#fff;background:var(--accent);border-color:var(--accent)}
+.guided-card{min-height:410px;display:flex;flex-direction:column;justify-content:space-between}.guided-kicker{font-size:11px;font-weight:850;letter-spacing:.1em;color:var(--accent)}.guided-title{font-size:28px;line-height:1.08;margin:6px 0}.guided-copy{color:var(--muted);font-size:14px;line-height:1.45;max-width:620px}.guided-value{font-size:42px;font-weight:900;letter-spacing:-.03em}.guided-value input{font-size:32px;font-weight:850;text-align:center;min-height:68px;margin:12px 0 4px}.unit-wrap{position:relative}.unit-wrap .unit{position:absolute;right:16px;top:34px;color:var(--muted);font-weight:800}.result-panel{margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:13px;background:var(--panel2)}.result-panel.good{border-color:#285b38;background:#102117}.result-panel.bad{border-color:#78323a;background:#291315}.result-panel.warn{border-color:#71591f;background:#251e0e}.result-state{font-size:20px;font-weight:900}.target-line{font-size:13px;color:var(--muted);margin-top:3px}.next-line{font-size:14px;font-weight:750;margin-top:9px}.guided-actions{display:grid;grid-template-columns:1fr 1.4fr;gap:9px;margin-top:18px}.guided-actions.single{grid-template-columns:1fr}.guided-actions button{width:100%;min-height:50px}.help-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.help-row button{min-height:36px;padding:7px 10px;font-size:12px}.micro-help{margin-top:8px;padding:10px;border-radius:10px;background:#0b0f14;border:1px solid var(--line);font-size:13px;color:var(--muted);line-height:1.45}.guidance-select{width:auto;min-height:36px;margin:0;padding:6px 28px 6px 9px;font-size:13px}.quick-grid{display:grid;gap:7px}.quick-row{display:grid;grid-template-columns:1fr 120px 32px;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}.quick-row input{margin:0;text-align:right}.status-dot{font-size:19px;text-align:center}.blocker{padding:10px 12px;border-left:4px solid var(--warn);background:#251e0e;border-radius:8px;margin-top:10px}.action-item{padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);margin-top:9px}.action-item.completed{opacity:.68;border-color:#285b38}.action-status{font-size:11px;font-weight:850;text-transform:uppercase;color:var(--warn)}.action-item.completed .action-status{color:var(--good)}.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.choice-grid button{background:#21262d;border:1px solid var(--line);text-align:left}.choice-grid button.selected{border-color:var(--accent);background:#142238}.complaint-compact{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}.complaint-compact button{background:var(--panel2);border:1px solid var(--line);text-align:left;font-size:13px}.complaint-compact button.selected{border-color:var(--accent);background:#142238}.advanced-link{font-size:12px;color:#7db2ff;background:transparent!important;border:0!important;padding:5px!important;min-height:30px!important}.resume-banner{border-color:#71591f;background:#211b0d}.warning-log{margin-top:10px;font-size:12px;color:var(--warn)}
+@media(max-width:600px){.guided-shell{max-width:none}.guided-card{min-height:calc(100vh - 270px);padding:14px}.guided-title{font-size:25px}.guided-actions{grid-template-columns:1fr}.choice-grid,.complaint-compact{grid-template-columns:1fr 1fr}.quick-row{grid-template-columns:1fr 102px 28px}.jobbar{display:none}.screen[data-screen="guided"]{padding:8px}.guided-value input{font-size:28px}}
+@media(max-width:390px){.complaint-compact{grid-template-columns:1fr}.guided-title{font-size:23px}}
+
 </style>
 </head>
 <body>
 <div class="app">
-<header><div class="row"><div><h1>CarbTune Pro <span class="tiny">Build 35 • Intake + Exhaust Intelligence</span></h1><div class="sub" id="crumb">Home</div></div><div class="row"><span class="pill" id="techBadge">Shop Technician • Beginner</span><span class="pill good" id="saveBadge">Saved</span></div></div></header>
+<header><div class="row"><div><h1>CarbTune Pro <span class="tiny">Build 40 • Guided Diagnostic Core</span></h1><div class="sub" id="crumb">Guided Workflow</div></div><div class="row"><select id="guidanceLevel" class="guidance-select" aria-label="Guidance level"><option>Beginner</option><option>Novice</option><option>Seasoned</option><option>Pro</option></select><span class="pill good" id="saveBadge">Saved</span></div></div></header>
 
 <div class="card jobbar"><div class="row"><div><b id="globalVehicle">1982 Oldsmobile Cutlass Supreme</b><div class="tiny" id="globalJob">DEMO-001 • Baseline & Tune • Autosaved</div></div><div class="row"><span class="pill" id="globalGuidance">Beginner</span><button type="button" class="secondary" data-action="resume">Resume Job</button></div></div></div>
 
-<section class="screen active" data-screen="home">
+<section class="screen active" data-screen="guided">
+ <div class="guided-shell">
+  <div class="card"><div class="guided-progress" id="guidedProgress"></div></div>
+  <div id="resumeBlocker"></div>
+  <div class="card guided-card" id="guidedCard"></div>
+ </div>
+</section>
+
+<section class="screen" data-screen="home">
   <div class="card"><div class="row"><div><div class="tiny">TECHNICIAN HOME</div><h2>Get back to work</h2><div class="sub">Current job first. No sales fluff and no hunt for where you left off.</div></div><span class="pill good">Ready</span></div>
     <div class="grid3" style="margin-top:10px"><div class="metric"><span class="tiny">Current job</span><b id="homeVehicle">1982 Cutlass</b><span class="tiny" id="homeConcern">Baseline & Tune</span></div><div class="metric"><span class="tiny">Phase</span><b id="homePhase">Vehicle</b><span class="tiny">active workflow</span></div><div class="metric"><span class="tiny">Next action</span><b id="homeNext">Confirm build</b><span class="tiny">CarbTune guided</span></div></div>
     <div class="actions"><button type="button" data-action="resume">Resume Current Job</button><button type="button" class="secondary" data-action="new-job">Start New Job</button><button type="button" class="secondary" data-go="history">Recent Jobs</button></div>
@@ -361,16 +376,17 @@ button.danger:hover{background:#8e3030!important}
 </div>
 
 <button type="button" id="helpFab" data-go="academy">Help</button>
-<div class="nav"><div class="navin"><button type="button" data-nav="home" class="on">Home</button><button type="button" data-nav="vehicle">Vehicle</button><button type="button" data-nav="tune">Tune</button><button type="button" data-nav="compare">Compare</button><button type="button" data-nav="report">Report</button></div></div>
+<div class="nav"><div class="navin"><button type="button" data-nav="guided" class="on">Workflow</button><button type="button" data-nav="vehicle">Build</button><button type="button" data-nav="history">Jobs</button><button type="button" data-nav="compare">Compare</button><button type="button" data-nav="report">Report</button></div></div>
 
 
 <script>
 (function(){
 'use strict';
 
-const KEY='carbtune.clean.v31';
-const JOBS_KEY='carbtune.jobs.v31';
-const OLD_KEY='carbtune.clean.v30';
+const KEY='carbtune.clean.v40';
+const JOBS_KEY='carbtune.jobs.v40';
+const OLD_KEY='carbtune.clean.v31';
+const OLD_JOBS_KEY='carbtune.jobs.v31';
 
 const complaintLabels={
  'rough-idle':'Rough / unstable idle','dies-gear':'Dies in gear','hard-cold':'Hard cold start',
@@ -471,12 +487,14 @@ function now(){return new Date().toISOString()}
 function clone(x){return JSON.parse(JSON.stringify(x))}
 function freshState(){
  return {
-  id:uid(),createdAt:now(),updatedAt:now(),screen:'vehicle',lastWork:'vehicle',
+  id:uid(),createdAt:now(),updatedAt:now(),screen:'guided',lastWork:'guided',guidance:'Beginner',
   vehicle:{jobNo:'',vin:'',year:'',make:'',model:'',submodel:'',vehicleName:'',cid:null,carb:'',fuel:'93 octane pump gas',trans:'Automatic',cam:'',lifter:'Unknown',rocker:'Unknown',lash:'',concern:'Baseline / Tune',
    engineManufacturer:'',engineSize:'',engineFamily:'',engineVariant:'',engineLabel:'',engineSwap:false,
    intakeManifoldId:'',intakeManual:'',intakeManualSource:'',exhaustManifoldId:'',exhaustManual:'',exhaustManualSource:''},
   complaints:[],triage:{ruledOut:[],workingCause:null},
-  baseline:{fp:null,fp2:null,float:'Not checked',boost:'Not checked',initial:null,total:null,rpm:null,vac:null,temp:82,humidity:68,elevation:590},
+  baseline:{fp:null,fp2:null,float:'Not checked',boost:'Not checked',initial:null,total:null,rpm:null,vac:null,afr:null,temp:82,humidity:68,elevation:590},
+  workflow:{phase:'build',baselineIndex:0,overrides:[],warnings:[],correction:null,recheckFp:null,quickBaseline:false},
+  requiredActions:[],
   decision:{title:'Building baseline',text:'Enter the measured baseline and CarbTune will choose the safest next action.',start:'Complete the baseline first.'},
   change:null,verification:null,mergedFrom:[]
  }
@@ -484,7 +502,7 @@ function freshState(){
 function demoState(){
  const s=freshState();
  s.id='demo-001';s.vehicle={...s.vehicle,jobNo:'DEMO-001',year:'1982',make:'Oldsmobile',model:'Cutlass Supreme',submodel:'Supreme',vehicleName:'1982 Oldsmobile Cutlass Supreme',cid:350,carb:'Brawler BR-67255',engineManufacturer:'GM / Chevrolet',engineSize:'5.7L / 350 CID',engineFamily:'Small Block Chevrolet',engineVariant:'L31 Vortec',engineLabel:'GM / Chevrolet • 5.7L / 350 CID • Small Block Chevrolet • L31 Vortec',engineSwap:true,intakeManifoldId:'',exhaustManifoldId:'',concern:'Baseline / Tune'};
- s.screen='home';return s
+ s.screen='guided';s.lastWork='guided';s.workflow.phase='complaint';return s
 }
 function normalizeJob(s){
  const d=freshState(),x=s||{};
@@ -492,12 +510,14 @@ function normalizeJob(s){
   ...d,...x,
   vehicle:{...d.vehicle,...(x.vehicle||{})},
   baseline:{...d.baseline,...(x.baseline||{})},
+  workflow:{...d.workflow,...(x.workflow||{}),overrides:Array.isArray(x.workflow?.overrides)?x.workflow.overrides:[],warnings:Array.isArray(x.workflow?.warnings)?x.workflow.warnings:[]},
+  requiredActions:Array.isArray(x.requiredActions)?x.requiredActions:[],
   triage:{...d.triage,...(x.triage||{})},
   complaints:Array.isArray(x.complaints)?x.complaints:[],
   mergedFrom:Array.isArray(x.mergedFrom)?x.mergedFrom:[]
  }
 }
-function loadJobs(){try{const a=JSON.parse(localStorage.getItem(JOBS_KEY)||'[]');return Array.isArray(a)?a.map(normalizeJob):[]}catch(e){return []}}
+function loadJobs(){try{let a=JSON.parse(localStorage.getItem(JOBS_KEY)||'null');if(!Array.isArray(a))a=JSON.parse(localStorage.getItem(OLD_JOBS_KEY)||'[]');return Array.isArray(a)?a.map(normalizeJob):[]}catch(e){return []}}
 function loadActive(){
  try{
   const raw=JSON.parse(localStorage.getItem(KEY)||'null');
@@ -537,7 +557,7 @@ function save(){
   flashSaved()
  }catch(e){}
 }
-function titles(id){return ({home:'Home',vehicle:'Vehicle / Triage',tune:'Baseline & Assessment',correct:'Guided Correction',verify:'Verification',compare:'Live Compare',history:'Job History',academy:'CarbTune Academy',report:'Job Report'})[id]||id}
+function titles(id){return ({guided:'Guided Workflow',home:'Home',vehicle:'Vehicle / Triage',tune:'Baseline & Assessment',correct:'Guided Correction',verify:'Verification',compare:'Live Compare',history:'Job History',academy:'CarbTune Academy',report:'Job Report'})[id]||id}
 function go(id,{remember=true}={}){
  const target=document.querySelector(`[data-screen="${id}"]`);if(!target)return false;
  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));target.classList.add('active');
@@ -546,7 +566,7 @@ function go(id,{remember=true}={}){
  if(remember&&['vehicle','tune','correct','verify','compare','report'].includes(id))state.lastWork=id;
  save();render();window.scrollTo(0,0);return true
 }
-function resume(){go(['vehicle','tune','correct','verify','compare','report'].includes(state.lastWork)?state.lastWork:'vehicle')}
+function resume(){go('guided')}
 
 function complaintSummary(){
  const a=state.complaints||[];
@@ -850,12 +870,13 @@ function renderReport(){
  const b=state.baseline,d=state.decision;
  $id('reportBase').textContent=`Fuel ${b.fp??'—'} PSI • Initial ${b.initial??'—'}° • Total ${b.total??'—'}° • Idle ${b.rpm??'—'} RPM • Vacuum ${b.vac??'—'} in-Hg`;
  const complaints=(state.complaints||[]).map(x=>complaintLabels[x]||x).join(', ');
- $id('reportProblem').textContent=(complaints?`Complaints: ${complaints}. `:'')+d.title;
- $id('reportStart').textContent=state.change?`${state.change.system}: ${state.change.exact}`:d.start;
+ const warnings=workflow().warnings||[],activeAction=state.requiredActions.find(x=>x.status!=='Completed'&&x.status!=='Not Needed');
+ $id('reportProblem').textContent=(complaints?`Complaints: ${complaints}. `:'')+d.title+(warnings.length?` ⚠ ${warnings.join(' • ')}`:'');
+ $id('reportStart').textContent=activeAction?`${activeAction.title}: ${activeAction.reason}`:state.change?`${state.change.system}: ${state.change.exact}`:d.start;
  $id('reportVerify').textContent=state.verification?`${state.verification.result}${state.verification.notes?' • '+state.verification.notes:''}`:'No verified change yet.';
  let score=0;if(b.fp!=null)score+=15;if(b.initial!=null&&b.total!=null)score+=20;if(b.rpm!=null&&b.vac!=null)score+=20;if(b.temp!=null&&b.elevation!=null)score+=10;if(state.change)score+=15;if(state.verification)score+=20;
  $id('evidenceScore').textContent=`${score}% ${score>=80?'Strong':score>=55?'Usable':'Developing'}`;$id('evidenceScore').className='pill '+(score>=80?'good':score>=55?'warn':'');
- $id('learningSummary').textContent=`Build identified • ${state.complaints.length} complaint(s) triaged • ${state.vehicle.intakeManifoldId?'intake captured':'intake missing'} • ${state.vehicle.exhaustManifoldId?'exhaust captured':'exhaust missing'} • environmental context ${b.temp!=null?'captured':'incomplete'} • ${state.change?'correction documented':'correction missing'} • ${state.verification?'outcome verified':'verification missing'}.`;
+ $id('learningSummary').textContent=`Build identified • ${state.complaints.length} complaint(s) triaged • ${state.vehicle.intakeManifoldId?'intake captured':'intake missing'} • ${state.vehicle.exhaustManifoldId?'exhaust captured':'exhaust missing'} • environmental context ${b.temp!=null?'captured':'incomplete'} • ${state.requiredActions.length||state.change?'correction documented':'correction missing'} • ${state.verification?'outcome verified':'verification missing'} • ${warnings.length?`${warnings.length} unresolved warning(s)`:'no unresolved warnings'}.`;
  $id('homeEvidence').textContent=score>=80?'Strong':score>=55?'Usable':'Developing'
 }
 function renderHeader(){
@@ -870,6 +891,59 @@ function renderSteps(){
  const labels=['Vehicle','Baseline','Assess','Correct','Verify','Compare','Report'],map={vehicle:0,tune:1,correct:3,verify:4,compare:5,report:6},i=map[state.screen]??0;
  $id('steps').innerHTML=labels.map((x,k)=>`<span class="step ${k<i?'done':k===i?'now':''}">${k<i?'✓ ':''}${x}</span>`).join('');
  $id('homePhase').textContent=titles(state.lastWork)
+}
+
+/* ---------- Guided diagnostic core ---------- */
+const GUIDED_PHASES=['build','complaint','baseline','diagnose','correct','verify','report'];
+const BASELINE_TESTS=[
+ {key:'temp',name:'Operating Temperature',unit:'°F',step:'1',target:'160–215 °F',min:160,max:215,instruction:'Warm the engine fully and record coolant temperature.',why:'Temperature changes fuel vaporization, choke position, idle speed, and mixture demand.',how:'Verify the choke is open, then read coolant temperature at the intake crossover or with a trusted sender.',more:'An engine below operating temperature can hide a rich choke condition. Overheating can lower fuel density and create hot-fuel problems.'},
+ {key:'rpm',name:'Warm Idle RPM',unit:'RPM',step:'10',target:'650–950 RPM',min:650,max:950,instruction:'Record stable warm idle speed in Park or Neutral.',why:'Idle speed establishes the operating point for vacuum and fuel-pressure interpretation.',how:'Warm the engine, disable fast idle, stabilize accessories, and read a trusted tachometer.',more:'Camshaft, converter, transmission load, and intake design can legitimately move the target. CarbTune treats this as a baseline, not a universal specification.'},
+ {key:'vac',name:'Manifold Vacuum',unit:'inHg',step:'.1',target:'12–22 inHg, steady',min:12,max:22,instruction:'Connect below the throttle plates and record warm idle vacuum.',why:'Vacuum helps expose leaks, valve events, timing problems, and engine load.',how:'Use a full-manifold source. Note both the average reading and whether the needle is steady.',more:'Large cams and single-plane intakes may produce lower normal vacuum. CarbTune keeps component context separate from manufacturer facts.'},
+ {key:'fp',name:'Fuel Pressure',unit:'PSI',step:'.1',target:'5.5–7.0 PSI',min:5.5,max:7,instruction:'Measure pressure at warm idle near the carburetor.',why:'Incorrect pressure can overpower the needle and seat or starve the bowls.',how:'Install a fuel-rated gauge near the carb inlet, check for leaks, start the engine, and read stabilized pressure.',more:'Gauge accuracy, regulator reference, pump type, line restriction, return plumbing, and under-load stability all matter. Recheck at elevated RPM when delivery is suspect.'},
+ {key:'initial',name:'Initial Timing',unit:'° BTDC',step:'.5',target:'8–20° BTDC',min:8,max:20,instruction:'Record initial timing at warm idle.',why:'Ignition timing can mimic carburetor faults and changes throttle opening at idle.',how:'Disconnect and plug vacuum advance when applicable, verify idle RPM, then read timing with a trusted light.',more:'Always confirm true TDC when the mark is questionable. Camshaft and combustion-chamber design affect the best setting.'},
+ {key:'afr',name:'Air/Fuel Ratio',unit:'AFR',step:'.1',target:'13.2–14.7 at warm idle',min:13.2,max:14.7,optional:true,instruction:'Record stabilized warm-idle AFR when a wideband is available.',why:'AFR adds mixture evidence but does not replace fuel-pressure, ignition, or mechanical checks.',how:'Use a warmed, calibrated wideband with no upstream exhaust leaks. Leave blank if unavailable.',more:'Misfire and exhaust dilution can make a wideband report falsely lean. Treat AFR as one piece of evidence.'},
+ {key:'float',name:'Float / Fuel Level',unit:'',target:'Correct',select:true,optional:true,instruction:'Verify fuel level using the carburetor-specific reference.',why:'Float level directly affects metering head and booster behavior.',how:'Confirm fuel pressure first, then use the manufacturer sight-plug or sight-glass procedure.',more:'Do not generalize one carburetor family’s float reference to another. A high level may be pressure, float, needle/seat, or contamination related.'}
+];
+function workflow(){state.workflow=state.workflow||clone(freshState().workflow);return state.workflow}
+function phaseIndex(){return Math.max(0,GUIDED_PHASES.indexOf(workflow().phase))}
+function phaseLabel(p){return ({build:'BUILD',complaint:'COMPLAINT',baseline:'BASELINE',diagnose:'DIAGNOSE',correct:'CORRECT',verify:'VERIFY',report:'REPORT'})[p]}
+function baselineDoneCount(){return BASELINE_TESTS.filter(t=>nonempty(state.baseline[t.key])).length}
+function setPhase(phase){workflow().phase=phase;state.screen='guided';state.lastWork='guided';save();renderGuided()}
+function nextPhase(){const i=phaseIndex();setPhase(GUIDED_PHASES[Math.min(i+1,GUIDED_PHASES.length-1)])}
+function previousPhase(){const w=workflow();if(w.phase==='baseline'&&w.baselineIndex>0){w.baselineIndex--;save();renderGuided();return}setPhase(GUIDED_PHASES[Math.max(0,phaseIndex()-1)])}
+function testResult(t,value){
+ if(t.select){if(!value||value==='Not checked')return {kind:'',label:'NOT ENTERED',next:'Verify the fuel level or continue if it is not appropriate for this carburetor.'};if(value==='Correct')return {kind:'good',label:'PASS',next:'Fuel level is acceptable. Continue.'};return {kind:'bad',label:value.toUpperCase(),next:'Correct fuel level control, or override and continue.'}}
+ const x=Number(value);if(!Number.isFinite(x))return {kind:'',label:'ENTER RESULT',next:t.optional?'Enter a result or skip this optional test.':'Enter the measured value.'};
+ if(x<t.min)return {kind:'bad',label:'LOW',next:t.key==='fp'?'Check restriction, pump supply, voltage, pickup, lines, and pump capacity.':'Review this result before continuing.'};
+ if(x>t.max)return {kind:'bad',label:'HIGH',next:t.key==='fp'?'Correct fuel pressure before carburetor calibration.':'Review this result before continuing.'};
+ return {kind:'good',label:'PASS',next:'Result is within the working target. Continue.'}
+}
+function warningFor(t,value){return `${t.name} warning overridden — ${value}${t.unit?' '+t.unit:''}`}
+function storeOverride(t){const value=state.baseline[t.key],msg=warningFor(t,value),w=workflow();if(!w.overrides.includes(t.key))w.overrides.push(t.key);if(!w.warnings.includes(msg))w.warnings.push(msg);advanceBaseline()}
+function advanceBaseline(){const w=workflow();if(w.baselineIndex<BASELINE_TESTS.length-1){w.baselineIndex++;save();renderGuided()}else setPhase('diagnose')}
+function saveGuidedValue(key,value){const t=BASELINE_TESTS.find(x=>x.key===key);state.baseline[key]=t?.select?value:(value===''?null:Number(value));save();renderGuided()}
+function addRequiredAction(kind){
+ const defs={regulator:{title:'Adjustable Fuel Pressure Regulator',reason:'Needed to reduce pressure to 5.5–7.0 PSI at adequate flow for this build.',status:'Customer Approval',type:'part',requirement:'Adjustable carbureted-fuel regulator supporting 5.5–7.0 PSI and adequate fuel flow.'},adjust:{title:'Adjust Existing Regulator',reason:'Set regulated pressure to the 5.5–7.0 PSI working target.',status:'Needs Attention',type:'action'},pump:{title:'Check / Replace Pump',reason:'Verify pump output and suitability before changing carburetor calibration.',status:'Needs Attention',type:'action'},plumbing:{title:'Inspect Return / Plumbing',reason:'Confirm the return, restriction, routing, and line condition allow stable regulation.',status:'Needs Attention',type:'action'},filter:{title:'Check Filter / Restriction',reason:'Find restrictions that can reduce fuel pressure and flow.',status:'Needs Attention',type:'action'},supply:{title:'Verify Pump Supply',reason:'Confirm pump feed, pickup, lines, voltage, and capacity.',status:'Needs Attention',type:'action'}};
+ const d=defs[kind];if(!d)return;let item=state.requiredActions.find(x=>x.kind===kind);if(!item){item={id:'action-'+Date.now(),kind,...d,createdAt:now()};state.requiredActions.push(item)}workflow().correction=kind;workflow().phase='correct';save();renderGuided()
+}
+function setActionStatus(id,status){const item=state.requiredActions.find(x=>x.id===id);if(!item)return;item.status=status;if(status==='Completed'){workflow().phase='verify';workflow().recheckFp=null}save();renderGuided()}
+function requiredActionsHTML(){
+ if(!state.requiredActions.length)return '<div class="micro-help">No repair actions or parts have been added.</div>';
+ return state.requiredActions.map(a=>`<div class="action-item ${a.status==='Completed'?'completed':''}"><div class="row"><div><div class="action-status">${esc(a.status)}</div><b>${esc(a.title)}</b></div><span class="pill">${a.type==='part'?'Part':'Action'}</span></div><div class="tiny" style="margin-top:5px">${esc(a.reason)}</div>${a.requirement?`<div class="micro-help"><b>Required:</b> ${esc(a.requirement)}<div style="margin-top:6px"><a href="https://www.holley.com/products/fuel_systems/fuel_pumps_regulators_and_filters/regulators/carbureted_regulators/" target="_blank" rel="noopener">View verified manufacturer options ↗</a></div></div>`:''}<div class="actions"><button type="button" class="secondary" data-action-status="${a.id}|Ready">Ready</button><button type="button" class="secondary" data-action-status="${a.id}|Completed">${a.type==='part'?'Installed':'Completed'}</button><button type="button" class="secondary" data-action-status="${a.id}|Not Needed">Not Needed</button></div></div>`).join('')
+}
+function helpControls(t){return `<div class="help-row"><button type="button" class="secondary" data-guide-help="why">Why?</button><button type="button" class="secondary" data-guide-help="how">How To</button><button type="button" class="secondary" data-guide-help="more">More Info</button></div><div id="guidedHelp"></div>`}
+function buildProgress(){const i=phaseIndex(),w=workflow();$id('guidedProgress').innerHTML=GUIDED_PHASES.map((p,k)=>{let label=phaseLabel(p);if(p==='baseline')label+=` ${baselineDoneCount()}/${BASELINE_TESTS.length}`;return `<span class="guided-step ${k<i?'done':k===i?'now':''}">${k<i?'✓ ':''}${label}</span>`}).join('')}
+function blockerHTML(){const w=workflow(),pending=state.requiredActions.find(a=>a.status!=='Completed'&&a.status!=='Not Needed');const detail=pending?`Current issue: ${pending.title} pending`:(w.warnings.length?w.warnings[w.warnings.length-1]:'');if(!detail){$id('resumeBlocker').innerHTML='';return}$id('resumeBlocker').innerHTML=`<div class="card resume-banner"><div class="tiny">CURRENT JOB</div><b>${esc(detail)}</b><div class="tiny">Paused at: ${phaseLabel(w.phase)}${w.phase==='baseline'?` ${w.baselineIndex+1} of ${BASELINE_TESTS.length}`:''}</div></div>`}
+function guidedBuildHTML(){return `<div><div class="guided-kicker">IDENTIFY</div><h2 class="guided-title">Confirm the build</h2><div class="guided-copy">Chassis and installed engine stay independent so swaps remain fully supported.</div><div class="grid" style="margin-top:14px"><div class="metric"><span class="tiny">Vehicle</span><b>${esc(state.vehicle.vehicleName||'Not identified')}</b></div><div class="metric"><span class="tiny">Installed engine</span><b>${esc(state.vehicle.engineLabel||'Not identified')}</b></div><div class="metric"><span class="tiny">Carburetor</span><b>${esc(state.vehicle.carb||'Not entered')}</b></div><div class="metric"><span class="tiny">Airflow components</span><b>${esc(componentContextText()||'Not selected')}</b></div></div></div><div><button class="advanced-link" data-go="vehicle">Edit detailed build & components</button><div class="guided-actions single"><button data-guided-next>Build Identified — Continue</button></div></div>`}
+function guidedComplaintHTML(){const choices=Object.entries(complaintLabels).slice(0,12);return `<div><div class="guided-kicker">COMPLAINT</div><h2 class="guided-title">What is the vehicle doing?</h2><div class="guided-copy">Select every complaint that applies. CarbTune ranks causes that explain the combination.</div><div class="complaint-compact">${choices.map(([id,label])=>`<button type="button" class="${state.complaints.includes(id)?'selected':''}" data-guided-complaint="${id}">${state.complaints.includes(id)?'✓ ':''}${esc(label)}</button>`).join('')}</div></div><div class="guided-actions"><button class="secondary" data-guided-back>Back</button><button data-guided-next>Save & Continue</button></div>`}
+function quickBaselineHTML(){return `<div><div class="guided-kicker">QUICK BASELINE • PRO</div><h2 class="guided-title">Enter the core measurements</h2><div class="quick-grid">${BASELINE_TESTS.slice(0,5).map(t=>{const val=state.baseline[t.key],r=testResult(t,val);return `<div class="quick-row"><b>${esc(t.name)}</b><input type="number" step="${t.step||'.1'}" value="${val??''}" data-quick-value="${t.key}" aria-label="${esc(t.name)}"><span class="status-dot ${r.kind==='good'?'value-good':r.kind==='bad'?'value-bad':''}">${val==null?'—':r.kind==='good'?'✓':'!'}</span></div>`}).join('')}</div></div><div><button class="advanced-link" data-toggle-quick>Use guided tests</button><div class="guided-actions"><button class="secondary" data-guided-back>Back</button><button data-quick-continue>Interpret & Continue</button></div></div>`}
+function guidedBaselineHTML(){const w=workflow();if(state.guidance==='Pro'&&w.quickBaseline)return quickBaselineHTML();const t=BASELINE_TESTS[Math.min(w.baselineIndex,BASELINE_TESTS.length-1)],value=state.baseline[t.key],r=testResult(t,value),abnormal=r.kind==='bad',pro=state.guidance==='Pro',showProcedure=['Beginner','Novice'].includes(state.guidance);let input=t.select?`<select data-guided-value="${t.key}" aria-label="${t.name}"><option>Not checked</option><option ${value==='Low'?'selected':''}>Low</option><option ${value==='Correct'?'selected':''}>Correct</option><option ${value==='High'?'selected':''}>High</option></select>`:`<div class="unit-wrap"><input type="number" step="${t.step||'.1'}" inputmode="decimal" value="${value??''}" data-guided-value="${t.key}" aria-label="${t.name}"><span class="unit">${t.unit}</span></div>`;return `<div><div class="guided-kicker">BASELINE ${w.baselineIndex+1} OF ${BASELINE_TESTS.length}${t.optional?' • OPTIONAL':''}</div><h2 class="guided-title">${esc(t.name)}</h2>${showProcedure?`<div class="guided-copy">${esc(t.instruction)}</div>`:''}<div class="guided-value">${input}</div><div class="result-panel ${r.kind}"><div class="result-state">${r.kind==='good'?'🟢':r.kind==='bad'?'🔴':'○'} ${esc(r.label)}</div><div class="target-line">Target: ${esc(t.target)}</div><div class="next-line">Next: ${esc(r.next)}</div></div>${helpControls(t)}${state.guidance==='Beginner'?`<div class="micro-help"><b>Why:</b> ${esc(t.why)}</div>`:''}${workflow().warnings.length?`<div class="warning-log">⚠ ${esc(workflow().warnings[workflow().warnings.length-1])}</div>`:''}</div><div>${pro?'<button class="advanced-link" data-toggle-quick>Quick Baseline</button>':''}<div class="guided-actions"><button class="secondary" data-guided-back>Back</button>${abnormal?`<button data-correct-now="${t.key}">Correct Now</button><button class="secondary" data-override-test="${t.key}">Override & Continue</button>`:`<button data-baseline-next ${value==null&&t.optional?'':'data-requires-value'}>${value==null&&t.optional?'Skip & Continue':'Perform Next Test'}</button>`}</div></div>`}
+function guidedDiagnoseHTML(){const ranked=triageScores().filter(x=>!x.ruled).slice(0,3),fpWarn=workflow().warnings.find(x=>x.startsWith('Fuel Pressure'));return `<div><div class="guided-kicker">INTERPRET</div><h2 class="guided-title">Diagnostic direction</h2><div class="guided-copy">Measurements and build configuration now shape the next checks.</div>${fpWarn?`<div class="blocker">⚠ Fuel pressure remains above target and may contribute to rich-running or flooding symptoms.</div>`:''}<div style="margin-top:12px">${ranked.length?ranked.map((c,i)=>`<div class="action-item"><div class="action-status">Priority ${i+1} • ${esc(c.system)}</div><b>${esc(c.name)}</b><div class="tiny">${esc(c.why)}</div></div>`).join(''):'<div class="micro-help">No dominant complaint-based cause yet. Continue with the measured baseline and one-variable testing.</div>'}</div></div><div><button class="advanced-link" data-go="vehicle">Open full complaint triage</button><div class="guided-actions"><button class="secondary" data-guided-back>Back</button><button data-guided-next>Continue to Correction</button></div></div>`}
+function guidedCorrectHTML(){const fp=state.baseline.fp,high=fp!=null&&fp>7,low=fp!=null&&fp<5.5;if(!high&&!low&&!state.requiredActions.length)return `<div><div class="guided-kicker">CORRECT</div><h2 class="guided-title">Choose one correction</h2><div class="guided-copy">Document one change at a time, then verify the measured result.</div></div><div class="guided-actions"><button class="secondary" data-guided-back>Back</button><button data-go="correct">Open Guided Correction</button></div>`;const choices=high?[['adjust','Adjust Existing Regulator'],['regulator','Install Regulator'],['pump','Check / Replace Pump'],['plumbing','Inspect Return / Plumbing']]:[['filter','Check Filter / Restriction'],['supply','Verify Pump Supply'],['pump','Verify Pump Capacity'],['plumbing','Inspect Pickup / Lines']];return `<div><div class="guided-kicker">CORRECT</div><h2 class="guided-title">${high?'Fuel pressure is high':'Fuel pressure is low'}</h2><div class="guided-copy">Choose the most appropriate next action. The technician retains authority to proceed.</div><div class="choice-grid">${choices.map(([id,label])=>`<button type="button" class="${workflow().correction===id?'selected':''}" data-correction="${id}">${esc(label)}</button>`).join('')}</div><h3 style="margin-top:16px">Required Actions & Parts</h3>${requiredActionsHTML()}</div><div class="guided-actions"><button class="secondary" data-guided-back>Back</button><button data-go-verify>Recheck Fuel Pressure</button></div>`}
+function guidedVerifyHTML(){const value=workflow().recheckFp,r=testResult(BASELINE_TESTS.find(t=>t.key==='fp'),value);return `<div><div class="guided-kicker">VERIFY</div><h2 class="guided-title">Recheck fuel pressure</h2><div class="guided-copy">Repeat the same test after the repair.</div><div class="guided-value"><div class="unit-wrap"><input type="number" step=".1" inputmode="decimal" value="${value??''}" data-recheck-fp aria-label="Recheck fuel pressure"><span class="unit">PSI</span></div></div><div class="result-panel ${r.kind}"><div class="result-state">${r.kind==='good'?'🟢':r.kind==='bad'?'🔴':'○'} ${esc(r.label)}</div><div class="target-line">Target: 5.5–7.0 PSI</div><div class="next-line">${r.kind==='good'?'Fuel pressure verified.':'Enter the recheck result after correction.'}</div></div>${helpControls(BASELINE_TESTS.find(t=>t.key==='fp'))}</div><div class="guided-actions"><button class="secondary" data-guided-back>Back</button>${r.kind==='good'?'<button data-verify-pass>Continue Diagnostic →</button>':r.kind==='bad'?'<button class="secondary" data-verify-override>Override & Continue</button>':'<button data-save-recheck>Save Recheck</button>'}</div>`}
+function guidedReportHTML(){const w=workflow();return `<div><div class="guided-kicker">REPORT</div><h2 class="guided-title">Job record ready</h2><div class="grid"><div class="metric"><span class="tiny">Build</span><b>${esc(state.vehicle.vehicleName)}</b></div><div class="metric"><span class="tiny">Baseline</span><b>${baselineDoneCount()}/${BASELINE_TESTS.length} tests</b></div><div class="metric"><span class="tiny">Fuel pressure</span><b>${state.baseline.fp??'—'} → ${w.recheckFp??'—'} PSI</b></div><div class="metric"><span class="tiny">Warnings</span><b>${w.warnings.length}</b></div></div><h3 style="margin-top:15px">Required Actions & Parts</h3>${requiredActionsHTML()}${w.warnings.length?`<div class="warning-log">${w.warnings.map(x=>`⚠ ${esc(x)}`).join('<br>')}</div>`:''}</div><div class="guided-actions"><button class="secondary" data-guided-back>Back</button><button data-go="report">Open Full Report</button></div>`}
+function renderGuided(){
+ if(!$id('guidedCard'))return;buildProgress();blockerHTML();const views={build:guidedBuildHTML,complaint:guidedComplaintHTML,baseline:guidedBaselineHTML,diagnose:guidedDiagnoseHTML,correct:guidedCorrectHTML,verify:guidedVerifyHTML,report:guidedReportHTML};$id('guidedCard').innerHTML=(views[workflow().phase]||guidedBuildHTML)();if($id('guidanceLevel'))$id('guidanceLevel').value=state.guidance||'Beginner';$id('globalGuidance').textContent=state.guidance||'Beginner'
 }
 
 /* ---------- Duplicate-safe job management ---------- */
@@ -1198,7 +1272,7 @@ function renderHistory(){
 }
 
 function render(){
- renderHeader();renderDecision();renderSteps();renderDelta();renderCompare();renderReport();renderTriage();renderHistory();renderComponentSpecs()
+ renderHeader();renderDecision();renderSteps();renderDelta();renderCompare();renderReport();renderTriage();renderHistory();renderComponentSpecs();renderGuided()
 }
 
 const help={
@@ -1209,6 +1283,21 @@ const help={
 };
 
 document.addEventListener('click',e=>{
+ const next=e.target.closest('[data-guided-next]');if(next){e.preventDefault();nextPhase();return}
+ const back=e.target.closest('[data-guided-back]');if(back){e.preventDefault();previousPhase();return}
+ const complaint=e.target.closest('[data-guided-complaint]');if(complaint){e.preventDefault();const id=complaint.dataset.guidedComplaint;state.complaints=state.complaints.includes(id)?state.complaints.filter(x=>x!==id):[...state.complaints,id];state.vehicle.concern=complaintSummary();save();renderGuided();renderTriage();return}
+ const baselineNext=e.target.closest('[data-baseline-next]');if(baselineNext){e.preventDefault();const t=BASELINE_TESTS[workflow().baselineIndex];if(baselineNext.hasAttribute('data-requires-value')&&!nonempty(state.baseline[t.key])){document.querySelector(`[data-guided-value="${t.key}"]`)?.focus();return}advanceBaseline();return}
+ const override=e.target.closest('[data-override-test]');if(override){e.preventDefault();const t=BASELINE_TESTS.find(x=>x.key===override.dataset.overrideTest);if(t)storeOverride(t);return}
+ const correct=e.target.closest('[data-correct-now]');if(correct){e.preventDefault();if(correct.dataset.correctNow==='fp')setPhase('correct');else go('correct');return}
+ const correction=e.target.closest('[data-correction]');if(correction){e.preventDefault();addRequiredAction(correction.dataset.correction);return}
+ const actionStatus=e.target.closest('[data-action-status]');if(actionStatus){e.preventDefault();const [id,status]=actionStatus.dataset.actionStatus.split('|');setActionStatus(id,status);return}
+ if(e.target.closest('[data-go-verify]')){e.preventDefault();setPhase('verify');return}
+ if(e.target.closest('[data-verify-pass]')){e.preventDefault();state.verification={...(state.verification||{}),result:'Better',afterFp:workflow().recheckFp,notes:'Fuel pressure verified in guided workflow.',at:now()};workflow().warnings=workflow().warnings.filter(x=>!x.startsWith('Fuel Pressure'));save();setPhase('diagnose');return}
+ if(e.target.closest('[data-verify-override]')){e.preventDefault();const msg=`Fuel Pressure recheck warning overridden — ${workflow().recheckFp} PSI`;if(!workflow().warnings.includes(msg))workflow().warnings.push(msg);save();setPhase('diagnose');return}
+ if(e.target.closest('[data-save-recheck]')){e.preventDefault();document.querySelector('[data-recheck-fp]')?.focus();return}
+ if(e.target.closest('[data-toggle-quick]')){e.preventDefault();workflow().quickBaseline=!workflow().quickBaseline;save();renderGuided();return}
+ if(e.target.closest('[data-quick-continue]')){e.preventDefault();workflow().baselineIndex=BASELINE_TESTS.length-1;save();setPhase('diagnose');return}
+ const guideHelp=e.target.closest('[data-guide-help]');if(guideHelp){e.preventDefault();const t=workflow().phase==='verify'?BASELINE_TESTS.find(x=>x.key==='fp'):BASELINE_TESTS[workflow().baselineIndex];const text=guideHelp.dataset.guideHelp==='why'?t.why:guideHelp.dataset.guideHelp==='how'?t.how:t.more;const out=$id('guidedHelp');if(out)out.innerHTML=`<div class="micro-help">${esc(text)}</div>`;return}
  const goBtn=e.target.closest('[data-go]');if(goBtn){e.preventDefault();go(goBtn.dataset.go);return}
  const nav=e.target.closest('[data-nav]');if(nav){e.preventDefault();go(nav.dataset.nav);return}
  const resumeJobBtn=e.target.closest('[data-resume-job]');if(resumeJobBtn){e.preventDefault();loadJob(resumeJobBtn.dataset.resumeJob);return}
@@ -1239,6 +1328,12 @@ document.addEventListener('click',e=>{
   return
  }
  const hb=e.target.closest('[data-help]');if(hb){$id('helpPanel').textContent=help[hb.dataset.help]||'Procedure unavailable.'}
+});
+document.addEventListener('change',e=>{
+ const guided=e.target.closest('[data-guided-value]');if(guided){saveGuidedValue(guided.dataset.guidedValue,guided.value);return}
+ const quick=e.target.closest('[data-quick-value]');if(quick){state.baseline[quick.dataset.quickValue]=quick.value===''?null:Number(quick.value);save();renderGuided();return}
+ if(e.target.matches('[data-recheck-fp]')){workflow().recheckFp=e.target.value===''?null:Number(e.target.value);save();renderGuided();return}
+ if(e.target.id==='guidanceLevel'){state.guidance=e.target.value;workflow().quickBaseline=e.target.value==='Pro';save();renderGuided();renderHeader()}
 });
 $id('jobModal').addEventListener('click',e=>{if(e.target===$id('jobModal'))closeNewJob()});
 $id('deleteJobModal').addEventListener('click',e=>{if(e.target===$id('deleteJobModal'))cancelDeleteJob()});
