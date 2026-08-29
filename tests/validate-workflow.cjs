@@ -48,10 +48,10 @@ async function saveVerification(page, { mode = 'ROAD_TEST', symptom = 'no-sympto
 
 async function fillStructuredVehicle(page, jobNo) {
   await page.locator('#newJobNo').fill(jobNo);
-  await page.locator('#newVehicleYear').selectOption('1968');
+  await page.locator('#newVehicleYear').selectOption('1985');
   await page.locator('#newVehicleMake').selectOption('Chevrolet');
   await page.locator('#newVehicleModel').selectOption('Camaro');
-  await page.locator('#newVehicleSubmodel').selectOption('Base');
+  await page.locator('#newVehicleSubmodel').selectOption('Unknown / Not Listed');
   await page.locator('#newEngineManufacturer').selectOption('GM / Chevrolet');
   await page.locator('#newEngineSize').selectOption('5.7L / 350 CID');
   await page.locator('#newEngineFamily').selectOption('Small Block Chevrolet');
@@ -73,7 +73,7 @@ async function run() {
     await page.reload({ waitUntil: 'networkidle' });
 
     assert(await page.locator('.screen.active').getAttribute('data-screen') === 'guided', 'continuous guided workflow is primary');
-    assert((await page.locator('header').innerText()).includes('Build 50'), 'Build 50 version is visible');
+    assert((await page.locator('header').innerText()).includes('Build 51'), 'Build 51 version is visible');
     assert(await page.locator('meta[name="application-domain"]').getAttribute('content') === 'carbureted', 'application metadata declares carbureted domain');
     assert((await page.locator('#productScopeBadge').innerText()).includes('Carbureted'), 'carbureted product scope is visible');
     const productState = await stored(page);

@@ -38,6 +38,14 @@ assert.match(html, /data-action="delete-active-job"/);
 assert.match(html, /function findDuplicatePairs/);
 assert.match(html, /localStorage\.setItem\(KEY/);
 assert.match(html, /localStorage\.setItem\(JOBS_KEY/);
+assert.match(html, /data\/vehicle-applications\.js/);
+assert.match(html, /function vehicleApplicationRows\(selection=\{\}\)/);
+assert.match(html, /String\(row\.year\)===String\(selection\.year\)/);
+assert.match(html, /selection\.make==null\|\|row\.make===selection\.make/);
+assert.match(html, /selection\.model==null\|\|row\.model===selection\.model/);
+assert.doesNotMatch(html, /VEHICLE_CATALOG|COMMON_SUBMODELS|B51_SUBMODELS/);
+assert.doesNotMatch(html, /\['Base','Other \/ Custom'\]/);
+assert.match(html, /if\(key==='year'\)\{state\.vehicle\.make='';state\.vehicle\.model='';state\.vehicle\.submodel=''\}/);
 
 for (const [index, script] of inlineScripts.entries()) {
   new vm.Script(script, { filename: `index-inline-${index + 1}.js` });
