@@ -1,198 +1,155 @@
-# CarbTune Pro Permanent Handoff
-
 Status: READY_FOR_CHATGPT_REVIEW
+
+# CarbTune Handoff — CT-0052
 
 ## Assignment
 
-Replace the invalid global vehicle selector with a relational Year -> Make -> Model -> Submodel/Trim cascade, prove unrelated data cannot leak between applications, deploy it for manual acceptance, then research a sustainable approximately 1960-present supply without implementing another dataset. This report separates the implemented correction from the research-only follow-up.
+CarbTune Project-Control + Automated-Validation Foundation. This assignment repaired the current test/harness failures, established seeded project-control documents and a permanent acceptance catalog, added one repeatable validation command plus GitHub Actions, updated repository architecture/research policy, and preserved the current relational vehicle data.
+
+## Root causes
+
+### `tests/vehicle-cascade.browser.cjs` — `ReferenceError: b51 is not defined`
+
+The test assumed that anything answering on fixed port 4173 was the current CarbTune application, then called global `b51()` without first proving Build 51 had initialized. A stale or unrelated server could therefore turn an environment/harness error into a misleading application failure. A clean current app load did define `b51`.
+
+The repair gives the canonical runner ownership of an ephemeral server, adds explicit readiness checks for Build 51, `b51`, the relational selector, state, and renderer, records browser/page errors, and initializes test state without an unnecessary direct `b51()` call.
+
+### `tests/validate-workflow.cjs` — stale Build Review expectation
+
+The test still expected older Build Review copy and markup. The active Build 51 screen is Build Intelligence, with the heading `What we know, what it means, what comes next`, eight `.guided-step` stages, calculated-confidence limits, explicit evidence classes, and table-based measurement comparison. The assertions were updated to the active product contract without deleting evidence, workflow, persistence, or responsive coverage.
+
+### Saved-job compatibility regression discovered during validation
+
+The active relational vehicle renderer rebuilt `vehicleName` from structured Year/Make/Model/Submodel fields on every display. A valid legacy saved job that had a display name but did not yet have all new structured chassis fields lost its name during render. `b51VehicleName` now preserves an existing legacy display name while rendering; deliberate selector changes still rebuild or clear the name.
+
+### Downstream Submodel clearing regression discovered during validation
+
+Changing Model cleared stored Submodel, but a rebuilt two-option trim selector let the browser implicitly select `Unknown / Not Listed`. Guided and New Job selectors now retain an actual unselected state after upstream changes while continuing to expose only `Unknown / Not Listed` and `Other / Custom` when no trustworthy trim data exists. No escape choice becomes catalog evidence.
+
+### Invalid test fixture discovered by the owned-server run
+
+The reset test attempted 2005 Chevrolet Camaro, which is not a relational application in the current FuelEconomy.gov registry. The test now derives two real 2005 Chevrolet models from the constrained selector. It no longer assumes an impossible path in order to test clearing behavior.
 
 ## What changed
 
-### Implemented correction
+- Added a single validation entry point: `npm run validate` (`node scripts/validate.cjs`).
+- The runner starts and owns an ephemeral local HTTP server, runs five meaningful test programs sequentially, preserves nonzero exit behavior, selects installed Chrome on Windows when available, and uses temporary screenshots unless an external path is explicitly requested.
+- Added GitHub Actions validation for pushes to `main` and pull requests, using Node 22 and Playwright Chromium. No secrets or paid dependencies are used.
+- Seeded permanent product controls in `project/` with current decisions, limitations, roadmap, bugs, ideas, architecture direction, and acceptance status.
+- Recorded the required Measure -> Interpret -> Correct/Test -> Retest -> Compare -> Decide -> Log direction, Beginner/Seasoned/Pro levels, chassis/build separation, evidence/provenance rules, conditional AFR, override direction, relational selector constraints, future service/database direction, learning-record model, and research-first data policy.
+- Updated `AGENTS.md` to permit explicitly assigned incremental service/database evolution while preserving behavior and saved data, and to require authoritative-source research before large automotive data construction.
+- Expanded automated vehicle acceptance coverage for Year/Make/Model downstream clearing, escape-path non-evidence, impossible paths, and cross-make trim isolation.
+- Expanded workflow validation for active Build Intelligence, conditional wideband/AFR behavior, measured correction/retest/verification/results, legacy migration, saved jobs, and multi-device layouts.
+- Repaired only the two product behaviors required to make those acceptance contracts true: legacy display-name preservation and true Submodel clearing.
 
-- Removed the hand-maintained `VEHICLE_CATALOG`, global `COMMON_SUBMODELS`, and Build 51 `B51_SUBMODELS` fallbacks.
-- Added one relational collection whose rows contain `year`, `make`, `model`, `submodel`, `trim`, `source`, and `verificationStatus`.
-- Derived Year from all rows; Make from selected Year; Model from Year + Make; Submodel/Trim from Year + Make + Model.
-- Changing Year clears Make/Model/Submodel; changing Make clears Model/Submodel; changing Model clears Submodel.
-- Retained only `Unknown / Not Listed` and `Other / Custom` as escape values that never imply compatibility.
-- Applied the same relational source/reset rules to the guided selector and New Job modal.
-- Added a reproducible generator with source URL, retrieval date, row count, and SHA-256 provenance.
-- Added data/browser negative regressions and positive multi-manufacturer/decade checks.
+## Vehicle data status
 
-### Research-only follow-up
+- Source: U.S. DOE/EPA FuelEconomy.gov.
+- Structure: relational application records.
+- Application records: 26,366.
+- Year coverage: 1984–2027 in the committed snapshot (44 distinct years).
+- Makes: 145 source identities.
+- Models: 1,559 source identities.
+- Records with Submodel or Trim: 20,187 (76.56%).
+- CT-0052 vehicle dataset change: none. `data/vehicle-applications.js` has no diff from pre-task `HEAD`.
+- FuelEconomy.gov remains a legitimate 1984-present baseline but is insufficient for desired classic-era coverage.
+- Required 1982 Oldsmobile Cutlass/Cutlass Supreme acceptance remains `BLOCKED_BY_DATA`; no record was fabricated.
+- Preserved source direction: Auto Care VCdb/ACES primary-backbone candidate; CLASSIC.COM historical-supplement candidate; NHTSA/vPIC, FuelEconomy.gov, EPA, and other authoritative sources as verification/enrichment candidates.
+- No commercial source is approved until coverage, provenance, licensing, persistent-registry rights, and software-provider reuse rights are verified.
 
-- Inspected marketplaces, parts retailers, federal data, industry standards, and commercial providers.
-- Recommended a multi-source normalized CarbTune Vehicle Registry.
-- Did not replace, extend, or modify the FuelEconomy.gov catalog during research.
+## Files changed
 
-## Root cause
+- `.github/workflows/validate.yml`
+- `AGENTS.md`
+- `README.md`
+- `index.html`
+- `package.json`
+- `project/ACCEPTANCE_TESTS.md`
+- `project/BUGS.md`
+- `project/DECISIONS.md`
+- `project/IDEAS.md`
+- `project/PRODUCT_SPEC.md`
+- `project/ROADMAP.md`
+- `scripts/validate.cjs`
+- `tests/project-control.test.mjs`
+- `tests/validate-workflow.cjs`
+- `tests/vehicle-applications.test.mjs`
+- `tests/vehicle-cascade.browser.cjs`
+- `CARBTUNE_HANDOFF.md` (this completion report, committed separately from the implementation)
 
-The old selector combined unrelated structures: a generated year range, a make-to-model vocabulary without year applicability, global `COMMON_SUBMODELS` containing Mustang trims, and a partial `B51_SUBMODELS` map with generic fallbacks. Year did not constrain Make, Year + Make did not constrain Model, and trim was not keyed by exact Year + Make + Model. This allowed 1980 -> Hyundai -> Elantra and Mustang trims under Camaro. Filtering could not make independent arrays relational; the source structure had to change.
+No component catalog, engine catalog, or vehicle application dataset was expanded or replaced. No backend migration or unrelated feature redesign was performed.
 
-## Exact implemented source
+## Validation command
 
-- U.S. DOE/EPA FuelEconomy.gov: <https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip>
-- Retrieved: 2026-08-29.
-- Source rows: 50,242.
-- SHA-256: `cb6304e8970fabc4ae144ee91210953729ab3bae1ff0290f986c31501bf2c7a7`.
-- `year` and `make` remain source values.
-- `baseModel` becomes CarbTune `model` when present; otherwise source `model` is used.
-- When source `model` differs from `baseModel`, the full source model becomes `submodel`.
-- `trim` stays null because the source has no trustworthy canonical trim column.
-- Duplicates are removed by Year + Make + Model + Submodel.
-
-No marketplace, retailer, NHTSA, commercial, or invented records were ingested.
-
-## Application count and coverage
-
-| Measure | Value |
-| --- | ---: |
-| Relational application records | 26,366 |
-| Years | 1984-2027; 44 distinct |
-| Case-insensitive makes | 145 |
-| Case-insensitive Make + Model identities | 1,559 |
-| Records with derived submodel | 20,187 |
-| Records with submodel or trim | 76.56% |
-| Records with neither | 6,179 |
-| Records with native trim | 0 |
-
-A case-sensitive recount finds 146 make strings and 1,569 Make + Model strings because the source includes casing variants such as `MINI` and `Mini`. PowerShell uniqueness metadata is case-insensitive while JavaScript `Set` is case-sensitive. This is a future ingestion-normalization gap, not a reason for UI blacklists.
-
-The data is a valid relational 1984-present baseline but does not meet the desired approximately 1960-present coverage.
-
-## Remaining selector fallback
-
-- `Unknown / Not Listed` and `Other / Custom` are the only escape paths.
-- With no trustworthy exact submodel/trim rows, those are the only Submodel/Trim choices.
-- Selecting an upstream escape value returns no rows and manufactures no compatibility.
-- No global make/model/submodel/trim vocabulary remains in the cascade.
-- Separate installed-engine/component catalogs remain global by design and do not populate the vehicle cascade.
-
-## Research findings
-
-### Marketplaces and retailer selectors
-
-| Source | Findings | CarbTune use |
-| --- | --- | --- |
-| Classics on Autotrader | Public selector initially exposes 1885-2027 and about 497 makes. Its Vue application receives substantial taxonomy in the server response and loads assets from `static.cdn.autotraderspecialty.com`. No documented public taxonomy API or disclosed third-party provider was found. Choices are marketplace-driven and sparse: Hyundai -> Elantra exposed only 1992, 1994, and 1998-2001 during inspection. Chevrolet also showed suspicious unrelated model labels. The likely source is proprietary Autotrader Specialty/Cox taxonomy. Autotrader's agreement restricts commercial storage/reuse without permission. | Manual cross-check or negotiated license only. Do not scrape or treat the initial range as complete coverage. |
-| Autotrader | Regular marketplace directs pre-1981 vehicles to Classics. It exposes inventory-derived Make/Model/Trim and listing specifications, but no public US taxonomy API was identified. | Cross-check or licensed use only. |
-| Cars.com | Inventory-derived Year/Make/Model/Trim facets and listing specifications. No public registry API was identified; terms prohibit automated collection and redistribution. | Cross-check only absent a license. |
-| CarSoup | Dealer-inventory Year/Make/Model and listing trim/engine fields. Historical coverage depends on inventory; no documented taxonomy API/provider was identified. | Cross-check only. |
-| RockAuto | Broad historical parts applications with Year/Make/Model/engine relationships, but exact lower-year coverage, public API access, and provider were not confirmed. | High-value fitment cross-check; pursue a commercial relationship instead of scraping. |
-| Summit Racing and JEGS | Broad classic-to-modern fitment. SEMA documentation identifies them in manufacturer/reseller workflows, indicating material use of ACES/SEMA supplier data plus retailer normalization. Storefront selectors are not public licensed APIs. | License upstream ACES/VCdb/SEMA data instead of storefront ingestion. |
-
-References: [Classics on Autotrader](https://classics.autotrader.com/), [Autotrader advanced search](https://www.autotrader.com/cars-for-sale/advanced-search), [Autotrader Visitor Agreement](https://www.autotrader.com/legal/visitor-agreement), [Cars.com terms](https://www.cars.com/about/terms/), [SEMA retailer information](https://www.semadata.org/node/501), and [SEMA reseller scorecards](https://www.semadata.org/news/wed-2022-01-26-0006/find-out-what-data-your-customers-need-reseller-scorecards).
-
-### Public authoritative sources
-
-| Source | Coverage/content | CarbTune use |
-| --- | --- | --- |
-| NHTSA/vPIC | Principally 1981-present. Public API/downloads provide authoritative manufacturer/VIN information. Make/model/body/series/trim and engine attributes may exist for an exact VIN, but vPIC cannot enumerate a complete retail trim catalog. | Verification/enrichment for 1981-present, not the sole registry. |
-| NHTSA recalls | Hierarchical model-year/make/model can corroborate older applications, but only vehicles represented in safety records appear. | Historical cross-check; absence proves nothing. |
-| FuelEconomy.gov | 1984-present passenger/light-truck model variants with engine, transmission, drive, and fuel information; no dependable canonical trim taxonomy. | Legitimate direct ingestion; current baseline. |
-| EPA Automotive Trends | US light-duty model/technology coverage from 1975 onward; analytical rather than retail-trim oriented. | Authoritative corroboration, especially 1975-1983. |
-| Historical DOT Automobile Characteristics | Sample years 1955, 1960, 1965, 1968, and 1970-1974; old research artifact, not a maintained feed. | Gap research/cross-check only. |
-
-References: [vPIC](https://vpic.nhtsa.dot.gov/), [vPIC API](https://vpic.nhtsa.dot.gov/api/), [vPIC downloads](https://vpic.nhtsa.dot.gov/Downloads), [NHTSA datasets/APIs](https://www.nhtsa.gov/nhtsa-datasets-and-apis), [FuelEconomy.gov API](https://www.fueleconomy.gov/feg/ws/index.shtml), [FuelEconomy.gov downloads](https://www.fueleconomy.gov/feg/download.shtml), [EPA Automotive Trends](https://catalog.data.gov/dataset/the-epa-automotive-trends-report-greenhouse-gas-emissions-fuel-economy-and-technology-1975), and [historical DOT data](https://rosap.ntl.bts.gov/view/dot/6231/dot_6231_DS1.pdf).
-
-### Industry and commercial sources
-
-| Source | Findings | CarbTune use |
-| --- | --- | --- |
-| Auto Care VCdb / ACES | Strongest normalized industry candidate. VCdb documents 175,500+ applications and 2.4M+ configurations with Year/Make/Model/Submodel, region, engine, and configuration IDs. Subscription downloads/JSON API exist. Exact earliest year is not clearly public; customer-facing caching/derivatives require the correct license. | Preferred backbone candidate, subject to 1960-present sample and software-provider license review. |
-| SEMA Data | Manufacturer product applications tied to VCdb IDs, including YMM/Submodel, region, displacement, and fitment. Subscription/token and manufacturer permissions required. | Future parts/application layer, not necessarily master taxonomy. |
-| CLASSIC.COM | Licensed collector hierarchy with Make -> Model -> Generation -> Variant -> Trim, year ranges, body, engine/powertrain, and stable IDs. | Strongest historical specialty supplement; request coverage and registry rights. |
-| CarAPI.app | Claims US 1900-2027, YMM/Submodel from 1900+, detailed trims/specifications mainly from 1990+, and 75,000+ trims. Commercial API/feed; provenance is insufficiently public and terms restrict bulk redistribution/competing databases. | Possible low-cost pilot only with written provenance and registry permission. |
-| J.D. Power ChromeData | Rich commercial style/specification data; documented Simple Model Walk begins in 1992. | Modern enrichment, not a 1960-present backbone. |
-| DataOne and MOTOR | Commercial VIN, trim, specification, and identification products. Historical scope, price, and registry rights require proposals. | Vendor comparison; not yet proven for historical need. |
-| VehDB and Auto.dev | Structured commercial vehicle/listing APIs, but provenance, historical completeness, and registry rights were not strong enough for a backbone recommendation. | Evaluation only. |
-
-References: [Auto Care VCdb](https://www.autocare.org/data-and-information/data-standards/databases/vehicle-configuration-database-vcdb), [Auto Care subscriptions](https://www.autocare.org/data-standards/subscriptions), [SEMA Data API](https://apps.semadata.org/sdapi/v2), [CLASSIC.COM overview](https://support.classic.com/classic.com-api), [CLASSIC.COM documentation](https://www.classic.com/insights/classic-com-third-party-api-documentation/), [CarAPI feed](https://carapi.app/features/vehicle-csv-download/), [CarAPI terms](https://carapi.app/terms-of-use/), [J.D. Power](https://www.jdpower.com/business/features-price-specs), and [DataOne](https://www.dataonesoftware.com/solutions).
-
-## Required normalized registry direction
-
-Future sources must feed one normalized registry with source evidence stored separately:
-
-```text
-vehicle_application
-  id, year, make, model, submodel, trim, body, chassis, platform
-
-vehicle_application_source
-  applicationId, source, sourceRecordId, retrievedAt,
-  sourcePayloadHash, verificationStatus
+```shell
+npm install
+npm run validate
 ```
 
-- `VERIFIED`: exact application supported by an authoritative/licensed record or multiple independent credible sources.
-- `CONDITIONAL`: only a range, marketplace occurrence, or incomplete relationship is established.
-- `CONFLICT`: credible sources disagree.
-- `UNVERIFIED`: imported record awaits corroboration.
-- `UNKNOWN`: user escape path, never compatibility evidence.
+The implementation was validated locally with the equivalent pinned runtime invocation `node scripts/validate.cjs` because this Codex host exposes bundled Node/Playwright rather than a global `npm` command.
 
-Missing trim/submodel data must remain missing. Marketplace occurrence alone must not establish factory applicability.
+## Tests performed and exact results
 
-## Tests performed and results
+Final canonical local run: PASS — 5 of 5 test programs.
 
-### Re-run during handoff preparation
+1. `tests/build51.test.mjs` — PASS; 2 inline scripts parsed/executed for structural JavaScript validation.
+2. `tests/vehicle-applications.test.mjs` — PASS; 26,366 relational records; negative/positive application checks and escape-path non-evidence checks passed.
+3. `tests/project-control.test.mjs` — PASS; all six seeded controls, AGENTS policies, acceptance catalog, 26,366-record invariant, 1984 minimum, FuelEconomy provenance, and absence of fabricated 1982 records passed.
+4. `tests/vehicle-cascade.browser.cjs` — PASS; guided and New Job relational selectors, impossible 1980 path, Camaro/Mustang isolation, upstream clearing, escape paths, app readiness, browser errors, and screenshot creation passed.
+5. `tests/validate-workflow.cjs` — PASS; 92 assertions passed. This includes Build 51 initialization, carbureted product boundary, active Build Intelligence, evidence/provenance separation, conditional AFR/wideband behavior, Beginner/Seasoned/Pro choices, correction/retest/verification outcome history, jobs/duplicates/deletion, legacy `localStorage` migration, console cleanliness, and iOS/Android/Windows phone/tablet/desktop responsiveness.
 
-- `tests/vehicle-applications.test.mjs`: **PASS** — 26,366 relational records; required fields/source; 1980 Hyundai/Elantra impossible; Camaro excludes forbidden Mustang trims; Mustang trims excluded from non-Mustang rows; positive Chevrolet, Ford, Hyundai, Dodge, and Toyota applications across 1985-2025.
-- `tests/build51.test.mjs`: **PASS** — two embedded scripts parsed and structural assertions passed.
-- Live deployment fetch: **PASS** — <https://cuttygary.github.io/carbtune-pro/> and its vehicle asset returned HTTP 200; the live page contains relational selector code and the asset reports 26,366 records.
-- GitHub remote check: **PASS** — public `main` resolved to `2cae1dce868183304aa85af1c9dc3d6651a21db3`.
-- `tests/vehicle-cascade.browser.cjs`: **FAIL** before assertions completed — direct `page.evaluate` setup reported `ReferenceError: b51 is not defined`.
-- `tests/validate-workflow.cjs`: **FAIL** at its current start-state expectation — `demo starts at Build Review`.
+Additional checks:
 
-The browser failures are documented, not repaired, because the handoff assignment prohibits functionality changes. The committed tests show intended assertions, but no durable original test log exists in Git. Manual acceptance remains required, and the browser harness/start-state mismatch must be diagnosed before the complete suite is called green.
+- `git diff --check` — PASS before implementation commit.
+- `git diff --exit-code -- data/vehicle-applications.js` — PASS; no dataset change.
+- `git diff --exit-code -- CARBTUNE_HANDOFF.md` — PASS before the required final handoff replacement.
+- Branch/remote/identity — PASS: `main`, correct GitHub origin, configured `CuttyGary <garrettgriffitts82@att.net>`.
+- Visual browser review — PASS: representative iOS phone, iPad Mini, Windows desktop, and vehicle-cascade modal screenshots showed readable, nonblank layouts; tablet/desktop layouts use multi-column space; modal Submodel remained unselected after Model change.
+- Live Pages check — PASS: HTTP 200, Build 51 present, relational vehicle data script present.
 
-## Known limitations and gaps
+## Pre-existing failures versus CT-0052 regressions
 
-- Coverage stops at 1984, short of approximately 1960-present.
-- FuelEconomy.gov is an emissions/fuel-economy test dataset, not a complete factory trim/classic taxonomy.
-- No native `trim` is populated; derived `submodel` may encode drivetrain, body, or test configuration rather than retail trim.
-- 6,179 rows have neither submodel nor trim and expose only escape choices.
-- Source casing aliases create case-sensitive duplicates not reflected in case-insensitive metadata.
-- Rows lack body, chassis, platform, source record ID, per-row retrieved-at, and multi-source evidence relationships.
-- `VERIFIED_SOURCE_RECORD` means the row came from the cited source, not that CarbTune independently verified every application or interpretation.
-- vPIC is not comprehensive before 1981; FuelEconomy.gov starts in 1984.
-- Marketplace/retailer selectors are incomplete and generally unsuitable for unlicensed ingestion.
-- VCdb, CLASSIC.COM, and other commercial candidates need coverage and reuse rights confirmed contractually.
-- The two browser-test failures remain unresolved.
-- Manual acceptance remains the release gate.
+Pre-existing/stale at assignment start:
 
-## Files changed by the relational implementation
+- Fixed-port browser harness could report `b51 is not defined` without verifying the loaded application.
+- Workflow test expected obsolete Build Review copy/markup.
+- Legacy display name could be erased by the active relational renderer.
+- Model changes could visually auto-select the first escape trim despite stored downstream clearing.
+- A reset test fixture assumed an invalid 2005 Camaro application.
 
-- `data/vehicle-applications.js` — generated catalog and provenance.
-- `index.html` — removed global vehicle fallbacks; added relational filtering/resets to both selectors.
-- `scripts/generate-vehicle-applications.ps1` — reproducible normalization/generation.
-- `tests/build51.test.mjs` — structural coverage.
-- `tests/validate-workflow.cjs` — affected workflow assertions/setup.
-- `tests/vehicle-applications.test.mjs` — relational negative/positive tests.
-- `tests/vehicle-cascade.browser.cjs` — guided/modal browser regressions.
+Regressions caused by CT-0052: none found. The final local suite, GitHub Actions, Pages deployment, console checks, persistence migration, and responsive checks pass.
 
-The data-supply research changed no repository files.
+## Commit and remote status
 
-## Commit SHA
+- Implementation commit: `9dec94ce7666bfdb8d99b75a7665e6e40b08485d` — `Establish CT-0052 project controls and validation`.
+- Implementation push: complete on `origin/main`.
+- Handoff: committed separately after this report was written, then pushed to `origin/main`.
 
-- Relational implementation: `2cae1dce868183304aa85af1c9dc3d6651a21db3` — `Replace vehicle cascade with relational applications`.
-- Data-supply research: N/A; research only.
+## CI status
+
+- GitHub Actions workflow: `Validate CarbTune`.
+- Run ID: `33267992685`.
+- Result: SUCCESS.
+- Duration: 40 seconds.
 
 ## Deployment status
 
-- Branch: `main`.
-- Remote: `https://github.com/CuttyGary/carbtune-pro.git`.
-- `origin/main` and GitHub public `main` resolved to `2cae1dce868183304aa85af1c9dc3d6651a21db3` during this audit.
-- GitHub Pages is reachable at <https://cuttygary.github.io/carbtune-pro/>.
-- The deployed page/data asset return HTTP 200 and the asset contains the 26,366-record catalog.
-- Automated publication is complete; manual acceptance is not complete.
+- GitHub Pages run ID: `33267992014`.
+- Result: SUCCESS.
+- Duration: 23 seconds.
+- Page status: `built`.
+- URL: https://cuttygary.github.io/carbtune-pro/
+- Live verification: HTTP 200; current Build 51 and relational vehicle script present.
+
+## Known limitations and gaps
+
+- `HIST-001` remains `BLOCKED_BY_DATA`: the current registry has no 1982 Oldsmobile record and must not be manually fabricated.
+- Active Build 51 warning Override & Continue behavior is not yet consistently exposed with full audit history. This is recorded as open `B-0052-03` / planned `CARB-004`; CT-0052 did not broaden scope to implement it.
+- Persisted/UI guidance still contains a legacy Novice compatibility value in addition to the intended Beginner/Seasoned/Pro direction; this is recorded for migration rather than silently breaking saved jobs.
+- FuelEconomy source identity aliases such as case variants remain a future normalization concern.
+- No VCdb/ACES, CLASSIC.COM, or other commercial source integration is approved or implemented.
+- The current pilot remains frontend/localStorage-based; Docker, PostgreSQL, Knowledge Harvester, and development/staging services are documented future direction only.
 
 ## Recommended next step
 
-Do not manually extend the catalog and do not redesign the dropdown again.
-
-1. Diagnose the two browser-harness failures without changing vehicle data, then restore a green browser baseline.
-2. Request an Auto Care VCdb sample/coverage report and software-provider license terms; audit 1960-present, classic domestic/import applications, engines, and submodels.
-3. Request a CLASSIC.COM historical-taxonomy evaluation/license proposal in parallel.
-4. Use CarAPI only as a trial after written provenance and persistent-registry permission.
-5. Add a source-evidence layer so a licensed backbone can coexist with vPIC, FuelEconomy.gov, EPA, and historical corroboration while preserving conflicts/provenance.
-6. Replace or supplement FuelEconomy.gov only after source selection, license review, normalization, coverage audit, regression plan, and approval.
-
-STOP: Await ChatGPT/user review and approval before another vehicle dataset or further CarbTune development.
+ChatGPT/user should review CT-0052, the project-control documents, the open/blocked acceptance items, and the green CI result. Do not start another feature, vehicle-source integration, or database migration until that review approves the next assignment. After approval, choose a narrowly scoped follow-up from the recorded roadmap—most likely audited Override & Continue behavior or formal vehicle-source licensing/coverage due diligence—without combining it with a broad rewrite.
