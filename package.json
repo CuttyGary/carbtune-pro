@@ -1,0 +1,12 @@
+{
+  "name": "carbtune-pro",
+  "version": "5.1.0",
+  "private": true,
+  "description": "Professional guided diagnostic software for carbureted and performance vehicles.",
+  "scripts": {
+    "validate": "node scripts/validate.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

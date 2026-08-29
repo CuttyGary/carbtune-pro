@@ -6,7 +6,7 @@ These instructions apply to the entire repository.
 
 - Do not remove, disable, or substantially change a working feature unless the user explicitly requests it.
 - Prefer focused, backward-compatible changes over broad rewrites.
-- Preserve the existing single-page, dependency-free architecture unless an architectural change is explicitly requested.
+- Preserve working behavior and saved-data compatibility, but CarbTune may evolve incrementally toward proper database and service architecture when explicitly assigned. Avoid reckless full rewrites.
 - Preserve the duplicate-safe job system, including duplicate detection, merge handling, job identity, and safeguards against accidental duplicate records.
 - Preserve the existing **Delete Job** behavior, including its confirmation and active/history job handling. Do not weaken its safeguards.
 
@@ -17,6 +17,14 @@ These instructions apply to the entire repository.
 - Keep vehicle chassis identity independent from the installed engine identity. Engine-swap vehicles must retain both the chassis/application data and the installed engine/family data without one overwriting the other.
 - Keep manufacturer-verified specifications clearly separate from CarbTune-generated tuning inference, recommendations, or interpretation.
 - Prefer verified manufacturer or component data when available. Retain source attribution and verification metadata, and label manual or inferred data honestly.
+
+## Research Before Large Data Construction
+
+- Before manually constructing a large automotive taxonomy, catalog, compatibility, fitment, or specification database, research mature automotive systems and authoritative sources first.
+- Evaluate authoritative public datasets, documented APIs, automotive industry standards, legitimately reusable structured data, and licensable commercial datasets.
+- Prefer suitable existing structured sources over manually recreating mature automotive datasets.
+- Preserve source, provenance, retrieval information, verification status, licensing/reuse restrictions, and conflicting evidence.
+- Never invent missing data or bypass authentication, CAPTCHA, paywalls, or access controls.
 
 ## Validation and Git Workflow
 

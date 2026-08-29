@@ -25,7 +25,24 @@ function excludesForbidden(items) {
     await page.goto(baseURL, { waitUntil: 'networkidle' });
     await page.evaluate(() => localStorage.clear());
     await page.reload({ waitUntil: 'networkidle' });
-    await page.evaluate(() => { state.workflow.phase = 'vehicle'; state.workflow.showOverview = false; b51().showJobs = false; state.results.completed = false; renderGuided(); });
+    const readiness = await page.evaluate(() => ({
+      build51: document.querySelector('header')?.innerText.includes('Build 51'),
+      b51: typeof b51,
+      relationalSelector: typeof vehicleApplicationRows,
+      state: typeof state,
+      renderGuided: typeof renderGuided
+    }));
+    if (!readiness.build51 || readiness.b51 !== 'function' || readiness.relationalSelector !== 'function' || readiness.state !== 'object' || readiness.renderGuided !== 'function') {
+      throw new Error(`Current CarbTune application did not initialize: ${JSON.stringify(readiness)}; errors=${errors.join(' | ')}; url=${page.url()}`);
+    }
+    await page.evaluate(() => {
+      state.workflow.phase = 'vehicle';
+      state.workflow.showOverview = false;
+      state.workflow.b51 = state.workflow.b51 || {};
+      state.workflow.b51.showJobs = false;
+      state.results.completed = false;
+      renderGuided();
+    });
 
     const year = '[data-b51-vehicle="year"]';
     const make = '[data-b51-vehicle="make"]';
@@ -42,6 +59,21 @@ function excludesForbidden(items) {
     await select(page, trim, 'Unknown / Not Listed');
     await select(page, year, '2005');
     if (await page.locator(make).inputValue() || await page.locator(model).inputValue() || await page.locator(trim).inputValue()) throw new Error('Guided upstream change did not clear downstream selections');
+    await select(page, make, 'Hyundai');
+    await select(page, model, 'Elantra');
+    await select(page, trim, 'Unknown / Not Listed');
+    await select(page, make, 'Chevrolet');
+    if (await page.locator(model).inputValue() || await page.locator(trim).inputValue()) throw new Error('Guided Make change did not clear Model/Submodel');
+    const guidedChevroletModels = await page.locator(model).locator('option').evaluateAll(items => items.map(item => item.value).filter(value => value && value !== 'Unknown / Not Listed' && value !== 'Other / Custom'));
+    if (guidedChevroletModels.length < 2) throw new Error('Guided selector lacks two relational 2005 Chevrolet models for reset testing');
+    await select(page, model, guidedChevroletModels[0]);
+    await select(page, trim, 'Unknown / Not Listed');
+    await select(page, model, guidedChevroletModels[1]);
+    if (await page.locator(trim).inputValue()) throw new Error('Guided Model change did not clear Submodel');
+    await select(page, year, 'Unknown / Not Listed');
+    if ((await options(page, make)).join('|') !== 'Select make|Unknown / Not Listed|Other / Custom') throw new Error('Guided Unknown year manufactured catalog Make evidence');
+    await select(page, make, 'Other / Custom');
+    if ((await options(page, model)).join('|') !== 'Select model|Unknown / Not Listed|Other / Custom') throw new Error('Guided Other make manufactured catalog Model evidence');
 
     await page.evaluate(() => openNewJob());
     if ((await options(page, '#newVehicleYear')).includes('1980')) throw new Error('Modal selector exposes unsupported 1980 catalog year');
@@ -55,6 +87,17 @@ function excludesForbidden(items) {
     await select(page, '#newVehicleSubmodel', 'Unknown / Not Listed');
     await select(page, '#newVehicleYear', '2005');
     if (await page.locator('#newVehicleMake').inputValue() || await page.locator('#newVehicleModel').inputValue() || await page.locator('#newVehicleSubmodel').inputValue()) throw new Error('Modal upstream change did not clear downstream selections');
+    await select(page, '#newVehicleMake', 'Hyundai');
+    await select(page, '#newVehicleModel', 'Elantra');
+    await select(page, '#newVehicleSubmodel', 'Unknown / Not Listed');
+    await select(page, '#newVehicleMake', 'Chevrolet');
+    if (await page.locator('#newVehicleModel').inputValue() || await page.locator('#newVehicleSubmodel').inputValue()) throw new Error('Modal Make change did not clear Model/Submodel');
+    const modalChevroletModels = await page.locator('#newVehicleModel option').evaluateAll(items => items.map(item => item.value).filter(value => value && value !== 'Unknown / Not Listed' && value !== 'Other / Custom'));
+    if (modalChevroletModels.length < 2) throw new Error('Modal selector lacks two relational 2005 Chevrolet models for reset testing');
+    await select(page, '#newVehicleModel', modalChevroletModels[0]);
+    await select(page, '#newVehicleSubmodel', 'Unknown / Not Listed');
+    await select(page, '#newVehicleModel', modalChevroletModels[1]);
+    if (await page.locator('#newVehicleSubmodel').inputValue()) throw new Error('Modal Model change did not clear Submodel');
 
     await page.screenshot({ path: screenshot, fullPage: true });
     if (errors.length) throw new Error(`Browser errors: ${errors.join(' | ')}`);

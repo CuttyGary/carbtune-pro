@@ -6,7 +6,7 @@ CarbTune Pro is a local-first guided diagnostic application exclusively for carb
 
 Modern EFI-era engine architectures remain in the engine catalog so CarbTune can support carbureted LS, Coyote, Hemi, and other swaps. CarbTune does not provide injector, ECU, or EFI calibration workflows. A future separate InjectiTune Pro may reuse shared architecture, but it is not part of this application.
 
-Build 50 uses a continuous job workflow:
+Build 51 uses a continuous job workflow:
 
 `Vehicle → Build → Build Review → Baseline → Guided Tuning → Road Test / Dyno → Symptom Diagnosis → Retune / Retest → Final Results`
 
@@ -31,12 +31,13 @@ Every CarbTune feature must intentionally support phones, tablets, and desktops 
 Validation
 ----------
 
-Start a static server in the repository, then run:
+Install the pinned development dependency once, then run the complete validation suite:
 
 ```powershell
-$env:CARBTUNE_URL='http://127.0.0.1:4173'
-$env:CHROME_PATH='C:\Program Files\Google\Chrome\Application\chrome.exe'
-node .\tests\validate-workflow.cjs
+npm install
+npm run validate
 ```
 
-The test uses Playwright and covers the carbureted product boundary, retained modern engine architectures, complete sequential workflow, editable completed steps, unknown values, component search/custom records, build review, measurement context, Tune Log/revert/retest dependencies, road/dyno verification, the symptom loop, results/reporting, job persistence, migration, duplicate handling, deletion, and a phone/tablet/desktop responsive matrix.
+`npm run validate` starts its own ephemeral local server, runs the static JavaScript and project-control checks, then runs both Playwright browser programs. It exits nonzero on a genuine failure and does not trust an unrelated process on a fixed port.
+
+The suite covers the carbureted product boundary, retained modern engine architectures, relational vehicle selection, complete sequential workflow, editable completed steps, unknown values, component search/custom records, Build Intelligence, measurement context, Tune Log/retest dependencies, road/dyno verification, results, job persistence and migration, duplicate handling, deletion, and a phone/tablet/desktop responsive matrix. GitHub Actions runs the same command on pushes to `main` and on pull requests.

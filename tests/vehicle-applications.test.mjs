@@ -42,4 +42,11 @@ assert.ok(values('make', { year: 1985 }).includes('Chevrolet'));
 assert.ok(values('model', { year: 1985, make: 'Chevrolet' }).includes('Camaro'));
 assert.ok(values('submodelTrim', { year: 2015, make: 'Dodge', model: 'Challenger' }).length > 0);
 
+// Escape paths are UI choices, never catalog evidence.
+assert.ok(!applications.some(row => ['Unknown / Not Listed', 'Other / Custom'].includes(row.year)));
+assert.ok(!applications.some(row => ['Unknown / Not Listed', 'Other / Custom'].includes(row.make)));
+assert.ok(!applications.some(row => ['Unknown / Not Listed', 'Other / Custom'].includes(row.model)));
+assert.ok(!applications.some(row => ['Unknown / Not Listed', 'Other / Custom'].includes(row.submodel)));
+assert.ok(!applications.some(row => ['Unknown / Not Listed', 'Other / Custom'].includes(row.trim)));
+
 console.log(`Vehicle application checks passed (${applications.length} relational records).`);
