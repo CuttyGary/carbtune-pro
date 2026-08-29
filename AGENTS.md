@@ -25,3 +25,15 @@ These instructions apply to the entire repository.
 - Commit and push only after validation succeeds.
 - Do not push a knowingly broken or partially validated change to `main`.
 - If validation cannot be completed, report the blocker instead of committing or pushing.
+
+## Permanent ChatGPT <-> Codex Handoff
+
+- `CARBTUNE_HANDOFF.md` is the canonical handoff between ChatGPT, Codex, and the user. Read it before every assignment so prior implementation state, tests, limitations, deployment, and next action are not lost.
+- At completion of every task, replace its active report with a complete, self-contained report for that task. This applies to implementation, documentation, research, diagnosis, and no-change work.
+- Use `Status: READY_FOR_CHATGPT_REVIEW` only when the requested work and validation are complete and ready for review. Otherwise record the blocker accurately.
+- Include, where applicable: assignment/scope, what changed, root cause/rationale, exact sources/provenance, record and coverage counts, research, tests with exact results, limitations/gaps, files changed, implementation commit SHA, deployment status, and recommended next step.
+- Distinguish verified facts from inference. Never invent counts, tests, provenance, SHAs, or deployment success. Mark unavailable/inapplicable fields explicitly.
+- For code/data work, create and validate the implementation commit first. Then put that exact SHA in `CARBTUNE_HANDOFF.md` in a separate handoff documentation commit; a commit cannot truthfully contain its own SHA. Push both commits.
+- For research/no-change tasks, record `N/A` for implementation/deployment fields and still commit/push the handoff update unless the user explicitly prohibits repository changes.
+- Before the final push, review the handoff diff against actual repository/validation state. After pushing, verify the expected remote branch and mark deployment verified, pending, failed, or not applicable.
+- Never change CarbTune functionality merely to make the report look complete. Record pre-existing failures and manual-acceptance gates honestly.
