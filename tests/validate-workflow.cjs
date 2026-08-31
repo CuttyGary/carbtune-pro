@@ -154,6 +154,109 @@ async function run() {
     assert(await page.locator('.validation-message').isVisible(), 'implausible measurement is rejected with an explicit validation message');
     await changeValue(page, '[data-guided-value="temp"]', '185');
     assert(await page.locator('.validation-message').count() === 0, 'plausible measurement clears validation');
+
+    await setStored(page, state => {
+      state.guidance = 'Beginner';
+      state.baseline = { ...state.baseline, temp: 185, rpm: 780, vac: 16, fp: 8.5, initial: 12, float: 'Correct' };
+      state.workflow.phase = 'baseline';
+      state.workflow.baselineIndex = 3;
+      state.workflow.overrideAudit = [];
+      state.workflow.overrides = [];
+      state.workflow.warnings = [];
+      state.workflow.b51 = { ...(state.workflow.b51 || {}), showJobs: false, hasWideband: false, retestQueue: null };
+      state.tuneLog = [];
+    });
+    const beginnerWarning = page.locator('[data-advisory-warning="baseline.fp.high"]');
+    assert(await beginnerWarning.isVisible(), 'advisory abnormal value produces a visible warning');
+    assert(await page.locator('[data-guided-value="fp"]').inputValue() === '8.5', 'advisory warning preserves the original entered value');
+    const beginnerText = await beginnerWarning.innerText();
+    assert(/Why it matters/i.test(beginnerText) && /Expected \/ recommended/i.test(beginnerText) && /Recommended correction \/ recheck/i.test(beginnerText), 'Beginner explains abnormality, impact, expected range, and correction');
+    assert(/does not make the value normal|does not.*agree/i.test(beginnerText), 'Beginner explains what overriding means');
+    assert(await beginnerWarning.locator('[data-correct-recheck="fp"]').isVisible(), 'advisory offers Correct / Recheck');
+    assert(await beginnerWarning.locator('[data-b51-override="fp"]').isVisible(), 'advisory visibly offers Override & Continue');
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), 'advisory warning has no phone horizontal overflow');
+    const warningTargets = await beginnerWarning.locator('button').evaluateAll(buttons => buttons.map(button => button.getBoundingClientRect().height));
+    assert(warningTargets.every(height => height >= 44), 'advisory actions preserve phone touch targets');
+    let overrideState = await stored(page);
+    assert(overrideState.workflow.overrideAudit.length === 0, 'continuing requires explicit technician override action');
+    await beginnerWarning.locator('[data-override-reason="fp"]').fill('Known gauge offset; proceeding to compare regulator response');
+    await beginnerWarning.locator('[data-b51-override="fp"]').click();
+    overrideState = await stored(page);
+    const beginnerAudit = overrideState.workflow.overrideAudit[0];
+    assert(beginnerAudit?.type === 'WARNING_OVERRIDE' && beginnerAudit.warningId === 'baseline.fp.high', 'override creates an audit record with warning identity and context');
+    assert(beginnerAudit.originalValue === 8.5 && overrideState.baseline.fp === 8.5, 'audit retains original abnormal value without normalizing it');
+    assert(beginnerAudit.technicianIntent === 'OVERRIDE_AND_CONTINUE' && /Known gauge offset/.test(beginnerAudit.technicianReason), 'audit retains explicit technician intent and supplied reason');
+    assert(!Number.isNaN(Date.parse(beginnerAudit.timestamp)), 'override audit retains a valid timestamp');
+    assert(beginnerAudit.jobId === overrideState.id && beginnerAudit.workflowPhase === 'baseline' && beginnerAudit.measurementId === 'fp', 'override audit is associated with the correct job, workflow, and measurement');
+    assert(beginnerAudit.guidanceLevel === 'Beginner' && beginnerAudit.continuation.action === 'CONTINUED_AFTER_WARNING' && beginnerAudit.continuation.nextMeasurementId === 'initial', 'override audit records guidance and resulting workflow continuation');
+    assert(overrideState.tuneLog.some(entry => entry.id === beginnerAudit.id && entry.outcome === 'WARNING_OVERRIDDEN'), 'override is added to Tune Log evidence');
+
+    await page.reload({ waitUntil: 'networkidle' });
+    const reloadedOverride = await stored(page);
+    assert(reloadedOverride.workflow.overrideAudit.some(entry => entry.id === beginnerAudit.id), 'override audit survives save and reload');
+    await page.evaluate(() => { state.workflow.phase = 'results'; state.results.completed = false; save(); renderGuided(); });
+    const auditHistory = page.locator(`#guidedCard [data-override-audit="${beginnerAudit.id}"]`);
+    assert(await auditHistory.isVisible() && /Original measured value:\s*8\.5 PSI/i.test(await auditHistory.innerText()) && /Override & Continue/i.test(await auditHistory.innerText()), 'override remains visible with original value in Tune Log audit history');
+
+    await setStored(page, state => {
+      state.guidance = 'Beginner';
+      state.baseline = { ...state.baseline, temp: 185, rpm: 780, vac: 16, fp: 6.2, initial: 12, float: 'Correct' };
+      state.workflow.phase = 'baseline';
+      state.workflow.baselineIndex = 3;
+      state.workflow.overrideAudit = [];
+      state.workflow.overrides = [];
+      state.workflow.warnings = [];
+      state.workflow.b51 = { ...(state.workflow.b51 || {}), showJobs: false, hasWideband: false, retestQueue: null };
+      state.tuneLog = [];
+    });
+    assert(await page.locator('[data-advisory-warning]').count() === 0 && await page.locator('[data-b51-override]').count() === 0, 'in-range value creates no warning or override path');
+    await page.locator('[data-baseline-next]').click();
+    assert((await stored(page)).workflow.overrideAudit.length === 0, 'in-range value creates no override record');
+
+    await setStored(page, state => {
+      state.guidance = 'Beginner';
+      state.baseline.fp = 31;
+      state.workflow.phase = 'baseline';
+      state.workflow.baselineIndex = 3;
+      state.workflow.overrideAudit = [];
+      state.workflow.b51 = { ...(state.workflow.b51 || {}), showJobs: false, hasWideband: false, retestQueue: null };
+    });
+    const hardStop = page.locator('[data-hard-stop="fp"]');
+    assert(await hardStop.isVisible() && /Cannot continue|hard stop/i.test(await hardStop.innerText()), 'genuine implausible condition explains the non-overridable hard stop');
+    assert(await page.locator('[data-guided-value="fp"]').inputValue() === '31' && await page.locator('[data-b51-override="fp"]').count() === 0 && await page.locator('[data-baseline-next]').isDisabled(), 'hard-stop value remains visible and cannot use advisory override');
+
+    for (const guidance of ['Seasoned', 'Pro', 'Novice']) {
+      await setStored(page, state => {
+        state.guidance = guidance;
+        state.baseline = { ...state.baseline, temp: 185, rpm: 780, vac: 16, fp: 8.5, initial: 12, float: 'Correct' };
+        state.workflow.phase = 'baseline';
+        state.workflow.baselineIndex = 0;
+        state.workflow.overrideAudit = [];
+        state.workflow.overrides = [];
+        state.workflow.warnings = [];
+        state.workflow.b51 = { ...(state.workflow.b51 || {}), showJobs: false, hasWideband: false, retestQueue: null };
+        state.tuneLog = [];
+      });
+      const warning = page.locator('[data-advisory-warning="baseline.fp.high"]');
+      assert(await warning.isVisible() && await warning.locator('[data-b51-override="fp"]').isVisible(), `${guidance} guidance permits safe explicit override`);
+      assert(await page.locator('[data-baseline-complete]').isDisabled(), `${guidance} cannot silently continue before explicit override`);
+      await warning.locator('[data-b51-override="fp"]').click();
+      const guidanceState = await stored(page);
+      assert(guidanceState.workflow.overrideAudit.length === 1 && guidanceState.workflow.overrideAudit[0].guidanceLevel === guidance && guidanceState.baseline.fp === 8.5, `${guidance} override is audited and preserves the entered value`);
+      assert(!(await page.locator('[data-baseline-complete]').isDisabled()), `${guidance} can continue promptly after the advisory is audited`);
+    }
+
+    await setStored(page, state => {
+      state.guidance = 'Beginner';
+      state.baseline = { ...state.baseline, temp: 185, rpm: 780, vac: 16, fp: 6.2, initial: 12, total: 34, float: 'Correct' };
+      state.workflow.phase = 'baseline';
+      state.workflow.baselineIndex = 0;
+      state.workflow.overrideAudit = [];
+      state.workflow.overrides = [];
+      state.workflow.warnings = [];
+      state.workflow.b51 = { ...(state.workflow.b51 || {}), showJobs: false, hasWideband: false, retestQueue: null };
+      state.tuneLog = [];
+    });
     await page.locator('#guidanceLevel').selectOption('Seasoned');
     assert(await page.locator('[data-quick-value="afr"]').count() === 0, 'grouped carburetor baseline still excludes AFR without a device');
     await page.locator('[data-wideband]').check();

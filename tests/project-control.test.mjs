@@ -43,6 +43,9 @@ for (const phrase of [
   '1982 Oldsmobile', 'Cutlass Supreme', 'BLOCKED_BY_DATA',
   'AFR', 'wideband'
 ]) assert.match(acceptance, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
+assert.match(acceptance, /CARB-004[\s\S]*AUTOMATED[\s\S]*validate-workflow\.cjs/i, 'CARB-004 must retain real browser automation evidence');
+const bugs = read('project/BUGS.md');
+assert.match(bugs, /B-0052-03[\s\S]*RESOLVED_IN_CT-0054/i);
 for (const id of [
   'VEHICLE-001', 'VEHICLE-002', 'VEHICLE-003', 'VEHICLE-004',
   'VEHICLE-005', 'VEHICLE-006', 'VEHICLE-007', 'WORKFLOW-001',
@@ -57,15 +60,14 @@ for (const phrase of [
 ]) assert.match(roadmap, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
 
 const currentTask = JSON.parse(read('tasks/current.json'));
-const recordedTask = currentTask || (
-  fs.existsSync(path.join(root, 'tasks/completed/CT-0053.json'))
-    ? JSON.parse(read('tasks/completed/CT-0053.json'))
-    : null
-);
+const completedFoundation = JSON.parse(read('tasks/completed/CT-0053.json'));
 const allowedTaskStatuses = ['PLANNED', 'IN_PROGRESS', 'BLOCKED', 'READY_FOR_CHATGPT_REVIEW', 'ACCEPTED', 'FAILED'];
-assert.ok(recordedTask, 'CT-0053 must exist as the current or completed durable task');
+assert.equal(completedFoundation.schemaVersion, 1);
+assert.equal(completedFoundation.id, 'CT-0053');
+assert.ok(allowedTaskStatuses.includes(completedFoundation.status));
+const recordedTask = currentTask || completedFoundation;
 assert.equal(recordedTask.schemaVersion, 1);
-assert.equal(recordedTask.id, 'CT-0053');
+assert.ok(/^CT-\d{4}$/.test(recordedTask.id));
 assert.ok(allowedTaskStatuses.includes(recordedTask.status));
 for (const field of [
   'title', 'createdDate', 'scope', 'objectives', 'constraints', 'acceptanceTests',
@@ -105,7 +107,7 @@ const statusTool = spawnSync(process.execPath, [path.join(root, 'scripts/project
   encoding: 'utf8'
 });
 assert.equal(statusTool.status, 0, statusTool.stderr);
-assert.match(statusTool.stdout, /taskId: (CT-0053|null)/);
+assert.match(statusTool.stdout, /taskId: (CT-\d{4}|null)/);
 assert.match(statusTool.stdout, /validation: \{"status":"NOT RUN","exitCode":null\}/);
 assert.match(statusTool.stdout, /readiness: NOT VERIFIED/);
 

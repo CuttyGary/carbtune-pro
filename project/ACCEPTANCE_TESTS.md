@@ -23,7 +23,7 @@ This catalog is durable product evidence, not a release checklist that is reset 
 | CARB-001 | A carbureted vehicle baseline must not require AFR when no actual AFR/wideband sensor is installed. | AUTOMATED | `tests/validate-workflow.cjs` |
 | CARB-002 | Explicitly enabling an available wideband adds AFR to the baseline evidence set; removing it removes the requirement. | AUTOMATED | `tests/validate-workflow.cjs` |
 | CARB-003 | Manufacturer baseline, CarbTune recommendation, and successful technician setting remain separately labeled. | AUTOMATED | `tests/validate-workflow.cjs`, structural checks |
-| CARB-004 | Appropriate warnings provide Override & Continue with value, reason, technician intent, timestamp, and retained audit history. | PLANNED | Open bug `B-0052-03`; do not mark accepted until active Build 51 behavior and tests exist. |
+| CARB-004 | Appropriate advisory warnings provide deliberate Override & Continue; preserve abnormal value, warning/expected/recommended context, intent, optional reason, guidance, timestamp, job/workflow identity, continuation, persistence, and Tune Log history. Technically implausible hard stops remain explicitly non-overridable. | AUTOMATED | `tests/validate-workflow.cjs` exercises actual browser behavior for Beginner, Seasoned, Pro, compatible Novice, save/reload, in-range values, and hard stops. Resolved in CT-0054. |
 | DIAG-001 | Diagnostic work follows Measure -> Interpret -> Correct/Test -> Retest -> Compare -> Decide -> Log. | AUTOMATED | Sequential workflow and Tune Log/retest assertions in `tests/validate-workflow.cjs` |
 
 ## Data, provenance, and product boundaries

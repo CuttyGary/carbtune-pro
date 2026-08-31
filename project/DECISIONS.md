@@ -74,3 +74,13 @@
 
 **Status:** ACCEPTED WITH LIMITATION
 **Decision:** FuelEconomy.gov remains the unchanged sourced seed. Auto Care VCdb/ACES, CLASSIC.COM, NHTSA/vPIC, EPA historical sources, and SEMA Data are evaluation candidates only; no license, access, coverage, or integration right is implied.
+
+## D-016 — Advisory overrides are first-class evidence
+
+**Status:** ACCEPTED / IMPLEMENTED_IN_CT-0054
+**Decision:** A plausible measurement outside the current working expectation is an advisory, not a silent pass or automatic hard stop. Explicit Override & Continue preserves the original value and records warning identity/text, expected range, recommendation, technician intent/reason, guidance, timestamp, job/workflow/measurement identity, and continuation. The same event appears in Tune Log history. It never changes the measurement, specification, recommendation, or CarbTune's warning position.
+
+## D-017 — Hard stops use plausibility, not ordinary tuning disagreement
+
+**Status:** ACCEPTED / IMPLEMENTED_IN_CT-0054
+**Decision:** Technically implausible entries that indicate data, gauge, or test-setup error are non-overridable and explain why. Ordinary safe advisory deviations remain overridable for Beginner, Seasoned, Pro, and legacy-compatible Novice guidance. Hard stops must not be expanded merely to avoid technician authority.

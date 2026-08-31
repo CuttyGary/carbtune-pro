@@ -14,9 +14,10 @@
 
 ## B-0052-03 — Active Build 51 warning override audit is incomplete
 
-**Status:** OPEN
+**Status:** RESOLVED_IN_CT-0054
 **Impact:** Older workflow code contains Override & Continue history, but the active Build 51 measurement path does not consistently expose and audit warning overrides. Experienced technicians may be trapped or override evidence may be lost.
 **Required result:** Safe warnings offer explicit Override & Continue with value, reason, technician intent, timestamp, and retained audit history. Safety-critical non-overridable conditions explain why.
+**Resolution:** Active Build 51 now classifies plausible out-of-working-range measurements as advisory warnings and technically implausible values as hard stops. Safe overrides require an explicit button, preserve the entered value, store a structured `workflow.overrideAudit` record, create a Tune Log evidence entry, survive reload, and retain guidance/job/workflow/measurement context. Browser acceptance in `tests/validate-workflow.cjs` exercises Beginner, Seasoned, Pro, and compatible Novice paths, in-range behavior, persistence/history, and hard-stop exclusion.
 
 ## B-0052-04 — Guidance vocabulary includes Novice
 
@@ -39,3 +40,7 @@
 ## CT-0053 infrastructure review
 
 No application defect was opened during the CT-0053 baseline. The pre-change canonical suite passed. Infrastructure gaps addressed by CT-0053 are tracked through task `CT-0053`, not mislabeled as product bugs: repository-level `node_modules/` ignore, dedicated-machine documentation, durable task records, Node 24 CI alignment, and truthful status collection.
+
+## CT-0054 regression review
+
+No unrelated product regression was found. Existing saved-job normalization treats absent `workflow.overrideAudit` as an empty array, preserving legacy and Novice data. Vehicle data, component knowledge, duplicate/delete safeguards, conditional AFR behavior, and all CT-0053 regression coverage remain unchanged and passing.

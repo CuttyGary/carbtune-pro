@@ -2,17 +2,17 @@
 
 Roadmap items are direction, not automatic authorization. Every implementation requires a scoped task, preserved behavior, regression protection, and truthful acceptance evidence.
 
-## Foundation completed through CT-0053
+## Foundation completed through CT-0054
 
 - Dedicated Windows development machine with Node.js 24 LTS, npm, Git/Git Credential Manager, Playwright, Chromium, and authenticated GitHub fetch.
 - One canonical `npm run validate` command with owned ephemeral server, static/data/project-control checks, relational selector browser tests, workflow/persistence checks, and responsive smoke coverage.
 - GitHub Actions running the same canonical validation path.
 - Durable product decisions, roadmap, bugs, ideas, acceptance catalog, task schema, completion handoff discipline, and truthful local status collector.
 - Current FuelEconomy.gov relational snapshot preserved unchanged.
+- Active Build 51 safe advisory warnings now support deliberate, persistent Override & Continue audit evidence across all supported guidance values; implausible hard stops remain distinct.
 
 ## Next stabilization candidates — assignment required
 
-- Implement and validate audited warning Override & Continue behavior consistently in active Build 51 (`B-0052-03` / `CARB-004`).
 - Normalize guidance naming toward Beginner / Seasoned / Pro with a backward-compatible Novice migration (`B-0052-04`).
 - Complete human acceptance review of project controls and the relational selector without weakening automated tests.
 - Define structured validation-result persistence for the future Controller; do not display stale or invented green state.
