@@ -1,155 +1,147 @@
+Task: CT-0053
 Status: READY_FOR_CHATGPT_REVIEW
 
-# CarbTune Handoff — CT-0052
+# CarbTune Handoff — CT-0053
 
-## Assignment
+## Assignment and result
 
-CarbTune Project-Control + Automated-Validation Foundation. This assignment repaired the current test/harness failures, established seeded project-control documents and a permanent acceptance catalog, added one repeatable validation command plus GitHub Actions, updated repository architecture/research policy, and preserved the current relational vehicle data.
+CT-0053 established the Project Control + Automation Foundation. The repository is now the durable source of truth for product rules, decisions, roadmap, bugs, ideas, acceptance cases, active/completed/blocked tasks, validation, and cross-agent handoff. No CarbTune application feature or UI behavior was redesigned.
 
-## Root causes
+- Baseline SHA: `5259194dc5c97926a9fcb5e409be113239ada4f2`
+- Implementation SHA: `e9f4282f653d8aa3999afadd577f6d28b359193d`
+- Final documentation/handoff SHA: not representable inside the commit that creates this report; verify the commit containing this file with `git log -1 --format=%H -- CARBTUNE_HANDOFF.md`. It is reported externally after push.
 
-### `tests/vehicle-cascade.browser.cjs` — `ReferenceError: b51 is not defined`
+## What was implemented
 
-The test assumed that anything answering on fixed port 4173 was the current CarbTune application, then called global `b51()` without first proving Build 51 had initialized. A stale or unrelated server could therefore turn an environment/harness error into a misleading application failure. A clean current app load did define `b51`.
+- Improved the six permanent `project/` controls and preserved established product rules: carbureted shop scope, conditional AFR, chassis/build separation, separate manufacturer/CarbTune/technician facts, Measure -> Interpret -> Correct/Test -> Retest -> Compare -> Decide -> Log, Beginner/Seasoned/Pro levels, audited override direction, relational vehicles, research-first data construction, explicit provenance/confidence, compatibility versus suitability, and measured outcome learning.
+- Added exact durable acceptance IDs `VEHICLE-001` through `VEHICLE-007`, `WORKFLOW-001`, `CARB-001`, `DIAG-001`, `DATA-001`, and `DATA-002`, retaining honest automated/planned/blocked states.
+- Added the simple versioned task system under `tasks/`, seeded CT-0053, and finalized it at `tasks/completed/CT-0053.json`; `tasks/current.json` is now `null`.
+- Added `docs/development.md` for the verified dedicated Windows baseline: Node.js 24 LTS family, npm/npx, Git, Git Credential Manager, Playwright/Chromium, CuttyGary authentication, installation, validation, and security rules. No secrets are stored.
+- Added repository `.gitignore` coverage for `node_modules/`, ordinary validation output, editor files, logs, and local environment files without broadly ignoring source.
+- Kept `npm run validate` as the single canonical command and added explicit stage names while preserving all tests and genuine exit behavior.
+- Updated GitHub Actions to Node 24, `npm install`, Playwright Chromium with Linux dependencies, and the same `npm run validate` command.
+- Added `npm run project:status` (`scripts/project-status.cjs`) to report branch, HEAD, working tree, optional fresh origin sync, optional actual validation, current task/review status, and honest unknown/not-verified states. It cannot claim review readiness without validation in the same run.
+- Added `project/CONTROLLER_SPEC.md` for a future localhost-only `CARBTUNE CONTROL` dashboard driven by durable task/Git/test evidence.
+- Documented the incremental architecture path: dedicated machine -> validation -> project control -> PostgreSQL -> services/API -> Knowledge Harvester -> dev/staging -> secure production.
+- Documented Knowledge Harvester shared collector infrastructure, required evidence states, provenance fields, component relationship graph, and compatibility/suitability separation.
+- Documented source candidates without claiming access or licensing: Auto Care VCdb/ACES, CLASSIC.COM, NHTSA/vPIC, FuelEconomy.gov, EPA historical sources, and SEMA Data.
 
-The repair gives the canonical runner ownership of an ephemeral server, adds explicit readiness checks for Build 51, `b51`, the relational selector, state, and renderer, records browser/page errors, and initializes test state without an unnecessary direct `b51()` call.
+## Deliberately not implemented
 
-### `tests/validate-workflow.cjs` — stale Build Review expectation
+- No application UI/product functionality change.
+- No broad backend rewrite, PostgreSQL database, API/service, Knowledge Harvester implementation, Controller UI, dev/staging service, or public exposure of the development machine.
+- No component catalog expansion or giant automotive database.
+- No commercial source access/license claim and no restricted marketplace scraping.
+- No customer, VIN, shop-sensitive, authentication, token, password, or cookie data.
+- No implementation of planned `CARB-004` audited Override & Continue behavior or Novice vocabulary migration; those remain separately scoped future work.
 
-The test still expected older Build Review copy and markup. The active Build 51 screen is Build Intelligence, with the heading `What we know, what it means, what comes next`, eight `.guided-step` stages, calculated-confidence limits, explicit evidence classes, and table-based measurement comparison. The assertions were updated to the active product contract without deleting evidence, workflow, persistence, or responsive coverage.
+## Files added/changed
 
-### Saved-job compatibility regression discovered during validation
-
-The active relational vehicle renderer rebuilt `vehicleName` from structured Year/Make/Model/Submodel fields on every display. A valid legacy saved job that had a display name but did not yet have all new structured chassis fields lost its name during render. `b51VehicleName` now preserves an existing legacy display name while rendering; deliberate selector changes still rebuild or clear the name.
-
-### Downstream Submodel clearing regression discovered during validation
-
-Changing Model cleared stored Submodel, but a rebuilt two-option trim selector let the browser implicitly select `Unknown / Not Listed`. Guided and New Job selectors now retain an actual unselected state after upstream changes while continuing to expose only `Unknown / Not Listed` and `Other / Custom` when no trustworthy trim data exists. No escape choice becomes catalog evidence.
-
-### Invalid test fixture discovered by the owned-server run
-
-The reset test attempted 2005 Chevrolet Camaro, which is not a relational application in the current FuelEconomy.gov registry. The test now derives two real 2005 Chevrolet models from the constrained selector. It no longer assumes an impossible path in order to test clearing behavior.
-
-## What changed
-
-- Added a single validation entry point: `npm run validate` (`node scripts/validate.cjs`).
-- The runner starts and owns an ephemeral local HTTP server, runs five meaningful test programs sequentially, preserves nonzero exit behavior, selects installed Chrome on Windows when available, and uses temporary screenshots unless an external path is explicitly requested.
-- Added GitHub Actions validation for pushes to `main` and pull requests, using Node 22 and Playwright Chromium. No secrets or paid dependencies are used.
-- Seeded permanent product controls in `project/` with current decisions, limitations, roadmap, bugs, ideas, architecture direction, and acceptance status.
-- Recorded the required Measure -> Interpret -> Correct/Test -> Retest -> Compare -> Decide -> Log direction, Beginner/Seasoned/Pro levels, chassis/build separation, evidence/provenance rules, conditional AFR, override direction, relational selector constraints, future service/database direction, learning-record model, and research-first data policy.
-- Updated `AGENTS.md` to permit explicitly assigned incremental service/database evolution while preserving behavior and saved data, and to require authoritative-source research before large automotive data construction.
-- Expanded automated vehicle acceptance coverage for Year/Make/Model downstream clearing, escape-path non-evidence, impossible paths, and cross-make trim isolation.
-- Expanded workflow validation for active Build Intelligence, conditional wideband/AFR behavior, measured correction/retest/verification/results, legacy migration, saved jobs, and multi-device layouts.
-- Repaired only the two product behaviors required to make those acceptance contracts true: legacy display-name preservation and true Submodel clearing.
-
-## Vehicle data status
-
-- Source: U.S. DOE/EPA FuelEconomy.gov.
-- Structure: relational application records.
-- Application records: 26,366.
-- Year coverage: 1984–2027 in the committed snapshot (44 distinct years).
-- Makes: 145 source identities.
-- Models: 1,559 source identities.
-- Records with Submodel or Trim: 20,187 (76.56%).
-- CT-0052 vehicle dataset change: none. `data/vehicle-applications.js` has no diff from pre-task `HEAD`.
-- FuelEconomy.gov remains a legitimate 1984-present baseline but is insufficient for desired classic-era coverage.
-- Required 1982 Oldsmobile Cutlass/Cutlass Supreme acceptance remains `BLOCKED_BY_DATA`; no record was fabricated.
-- Preserved source direction: Auto Care VCdb/ACES primary-backbone candidate; CLASSIC.COM historical-supplement candidate; NHTSA/vPIC, FuelEconomy.gov, EPA, and other authoritative sources as verification/enrichment candidates.
-- No commercial source is approved until coverage, provenance, licensing, persistent-registry rights, and software-provider reuse rights are verified.
-
-## Files changed
+Implementation commit:
 
 - `.github/workflows/validate.yml`
-- `AGENTS.md`
+- `.gitignore`
 - `README.md`
-- `index.html`
+- `docs/architecture.md`
+- `docs/development.md`
+- `docs/knowledge-ingestion.md`
 - `package.json`
 - `project/ACCEPTANCE_TESTS.md`
 - `project/BUGS.md`
+- `project/CONTROLLER_SPEC.md`
 - `project/DECISIONS.md`
 - `project/IDEAS.md`
 - `project/PRODUCT_SPEC.md`
 - `project/ROADMAP.md`
+- `scripts/project-status.cjs`
 - `scripts/validate.cjs`
+- `tasks/README.md`
+- `tasks/blocked/.gitkeep`
+- `tasks/completed/.gitkeep`
+- `tasks/current.json`
 - `tests/project-control.test.mjs`
-- `tests/validate-workflow.cjs`
-- `tests/vehicle-applications.test.mjs`
-- `tests/vehicle-cascade.browser.cjs`
-- `CARBTUNE_HANDOFF.md` (this completion report, committed separately from the implementation)
 
-No component catalog, engine catalog, or vehicle application dataset was expanded or replaced. No backend migration or unrelated feature redesign was performed.
+Final handoff commit:
 
-## Validation command
+- `CARBTUNE_HANDOFF.md`
+- `tasks/current.json`
+- `tasks/completed/CT-0053.json`
+
+`index.html`, `data/knowledge-base.js`, and `data/vehicle-applications.js` were unchanged.
+
+## Validation commands and exact results
+
+Baseline at `5259194dc5c97926a9fcb5e409be113239ada4f2`:
 
 ```shell
-npm install
+git fetch origin --prune
 npm run validate
 ```
 
-The implementation was validated locally with the equivalent pinned runtime invocation `node scripts/validate.cjs` because this Codex host exposes bundled Node/Playwright rather than a global `npm` command.
+Result: PASS — local `main` matched `origin/main`; all 5 test programs passed; workflow suite passed 92 assertions.
 
-## Tests performed and exact results
+Post-change canonical validation was run twice:
 
-Final canonical local run: PASS — 5 of 5 test programs.
+```shell
+npm run validate
+npm run validate
+```
 
-1. `tests/build51.test.mjs` — PASS; 2 inline scripts parsed/executed for structural JavaScript validation.
-2. `tests/vehicle-applications.test.mjs` — PASS; 26,366 relational records; negative/positive application checks and escape-path non-evidence checks passed.
-3. `tests/project-control.test.mjs` — PASS; all six seeded controls, AGENTS policies, acceptance catalog, 26,366-record invariant, 1984 minimum, FuelEconomy provenance, and absence of fabricated 1982 records passed.
-4. `tests/vehicle-cascade.browser.cjs` — PASS; guided and New Job relational selectors, impossible 1980 path, Camaro/Mustang isolation, upstream clearing, escape paths, app readiness, browser errors, and screenshot creation passed.
-5. `tests/validate-workflow.cjs` — PASS; 92 assertions passed. This includes Build 51 initialization, carbureted product boundary, active Build Intelligence, evidence/provenance separation, conditional AFR/wideband behavior, Beginner/Seasoned/Pro choices, correction/retest/verification outcome history, jobs/duplicates/deletion, legacy `localStorage` migration, console cleanliness, and iOS/Android/Windows phone/tablet/desktop responsiveness.
+Both results: PASS — 5 of 5 test programs each time.
+
+1. JavaScript / syntax integrity — PASS; 2 inline scripts parsed/executed.
+2. Vehicle registry and provenance integrity — PASS; 26,366 relational application records and source/data invariants passed.
+3. Project control and data-policy integrity — PASS; durable documents/tasks, exact acceptance IDs, truthful automation, Node 24 CI, ignore rules, policies, and unchanged vehicle baseline passed.
+4. Relational vehicle cascade browser regressions — PASS; guided/modal selectors and required clearing/isolation/escape-path cases passed.
+5. Workflow, persistence, provenance, and UI smoke regressions — PASS; 92 assertions covering initialization, carbureted boundary, evidence separation, conditional AFR, workflow/Tune Log/retests, jobs/duplicates/deletion, legacy localStorage migration, console cleanliness, and responsive layouts.
 
 Additional checks:
 
-- `git diff --check` — PASS before implementation commit.
-- `git diff --exit-code -- data/vehicle-applications.js` — PASS; no dataset change.
-- `git diff --exit-code -- CARBTUNE_HANDOFF.md` — PASS before the required final handoff replacement.
-- Branch/remote/identity — PASS: `main`, correct GitHub origin, configured `CuttyGary <garrettgriffitts82@att.net>`.
-- Visual browser review — PASS: representative iOS phone, iPad Mini, Windows desktop, and vehicle-cascade modal screenshots showed readable, nonblank layouts; tablet/desktop layouts use multi-column space; modal Submodel remained unselected after Model change.
-- Live Pages check — PASS: HTTP 200, Build 51 present, relational vehicle data script present.
+- `node tests/project-control.test.mjs` — PASS after the second canonical run and before implementation commit.
+- `npm run project:status` — PASS; correctly reported dirty working tree, validation `NOT RUN`, task `IN_PROGRESS`, and readiness `NOT VERIFIED`.
+- `npm run project:status -- --fetch` — PASS; fetch succeeded and sync reported `SYNCED` without inventing validation readiness.
+- `git diff --check` / staged diff check — PASS after correcting new-file EOF formatting.
+- `git diff --exit-code -- data/vehicle-applications.js index.html data/knowledge-base.js` — PASS; no data or application-code change.
+- Credential-like pattern scan of CT-0053 files — no matches.
 
-## Pre-existing failures versus CT-0052 regressions
+## Acceptance-test results
 
-Pre-existing/stale at assignment start:
+- `VEHICLE-001` through `VEHICLE-006` — AUTOMATED/PASS through existing vehicle tests.
+- `VEHICLE-007` — remains `BLOCKED_BY_DATA`; no 1982 Oldsmobile record was fabricated.
+- `WORKFLOW-001`, `CARB-001`, `DIAG-001`, `DATA-001`, and `DATA-002` — AUTOMATED/PASS.
+- `CARB-004` — remains PLANNED; CT-0053 did not falsely mark active warning override auditing complete.
+- CT-0053 control and validation acceptance — PASS.
 
-- Fixed-port browser harness could report `b51 is not defined` without verifying the loaded application.
-- Workflow test expected obsolete Build Review copy/markup.
-- Legacy display name could be erased by the active relational renderer.
-- Model changes could visually auto-select the first escape trim despite stored downstream clearing.
-- A reset test fixture assumed an invalid 2005 Camaro application.
+## GitHub sync, CI, and deployment
 
-Regressions caused by CT-0052: none found. The final local suite, GitHub Actions, Pages deployment, console checks, persistence migration, and responsive checks pass.
+- Implementation push: VERIFIED. After fetch, local `main` and `origin/main` both resolved to `e9f4282f653d8aa3999afadd577f6d28b359193d`.
+- GitHub Actions `Validate CarbTune` run `33351587159`: VERIFIED SUCCESS for the implementation SHA.
+- GitHub Pages run `33351586536`: VERIFIED SUCCESS for the implementation SHA.
+- Final handoff push/sync: verified after creating this report and reported externally; the implementation cannot truthfully pre-state the future commit SHA.
 
-## Commit and remote status
+## Vehicle data and source status
 
-- Implementation commit: `9dec94ce7666bfdb8d99b75a7665e6e40b08485d` — `Establish CT-0052 project controls and validation`.
-- Implementation push: complete on `origin/main`.
-- Handoff: committed separately after this report was written, then pushed to `origin/main`.
+- `data/vehicle-applications.js` remains unchanged: 26,366 FuelEconomy.gov relational records, normalized coverage beginning in 1984.
+- Classic-era coverage remains insufficient; required 1982 Oldsmobile Cutlass/Cutlass Supreme acceptance is blocked.
+- Candidate sources are research directions only. No commercial coverage, license, persistent-registry right, or software-provider reuse right was claimed or acquired.
 
-## CI status
+## Known gaps
 
-- GitHub Actions workflow: `Validate CarbTune`.
-- Run ID: `33267992685`.
-- Result: SUCCESS.
-- Duration: 40 seconds.
+- `B-0052-03` / `CARB-004`: active Build 51 audited Override & Continue remains open.
+- `B-0052-04`: backward-compatible Novice -> Beginner/Seasoned/Pro vocabulary migration remains open.
+- `B-0052-05`: FuelEconomy source identity/casing normalization remains future ingestion work.
+- `B-0052-06` / `VEHICLE-007`: pre-1984 vehicle coverage remains blocked by approved data.
+- Project status is currently an on-demand read-only collector; persistent signed validation history and the Controller UI are future work.
+- PostgreSQL, application services/API, Knowledge Harvester, dev/staging, and secure production architecture remain documented roadmaps, not implementations.
 
-## Deployment status
+## Decisions for ChatGPT/product-owner review
 
-- GitHub Pages run ID: `33267992014`.
-- Result: SUCCESS.
-- Duration: 23 seconds.
-- Page status: `built`.
-- URL: https://cuttygary.github.io/carbtune-pro/
-- Live verification: HTTP 200; current Build 51 and relational vehicle script present.
+1. Accept or revise the durable roles and repository-source-of-truth decisions (`D-011` through `D-013`).
+2. Accept the task schema/status lifecycle and completed-task placement.
+3. Confirm Node 24 LTS as the supported local/CI family.
+4. Confirm the future Controller remains read-only/local-first before adding reviewed actions.
+5. Choose whether the next scoped assignment addresses audited Override & Continue or vehicle-source licensing/coverage due diligence.
 
-## Known limitations and gaps
+## Recommended CT-0054
 
-- `HIST-001` remains `BLOCKED_BY_DATA`: the current registry has no 1982 Oldsmobile record and must not be manually fabricated.
-- Active Build 51 warning Override & Continue behavior is not yet consistently exposed with full audit history. This is recorded as open `B-0052-03` / planned `CARB-004`; CT-0052 did not broaden scope to implement it.
-- Persisted/UI guidance still contains a legacy Novice compatibility value in addition to the intended Beginner/Seasoned/Pro direction; this is recorded for migration rather than silently breaking saved jobs.
-- FuelEconomy source identity aliases such as case variants remain a future normalization concern.
-- No VCdb/ACES, CLASSIC.COM, or other commercial source integration is approved or implemented.
-- The current pilot remains frontend/localStorage-based; Docker, PostgreSQL, Knowledge Harvester, and development/staging services are documented future direction only.
-
-## Recommended next step
-
-ChatGPT/user should review CT-0052, the project-control documents, the open/blocked acceptance items, and the green CI result. Do not start another feature, vehicle-source integration, or database migration until that review approves the next assignment. After approval, choose a narrowly scoped follow-up from the recorded roadmap—most likely audited Override & Continue behavior or formal vehicle-source licensing/coverage due diligence—without combining it with a broad rewrite.
+Prefer one narrowly scoped task after ChatGPT review: implement and regression-test audited Override & Continue behavior (`B-0052-03` / `CARB-004`). If product review prioritizes historical coverage instead, CT-0054 should be source licensing/coverage due diligence only—not source integration or manual record construction. Do not combine either choice with a broad backend rewrite.
