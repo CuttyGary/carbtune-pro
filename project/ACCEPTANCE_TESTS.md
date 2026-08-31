@@ -1,45 +1,44 @@
 # CarbTune Pro Permanent Acceptance Test Catalog
 
-Status values: `AUTOMATED`, `MANUAL`, `BLOCKED_BY_DATA`, or `PLANNED`.
+This catalog is durable product evidence, not a release checklist that is reset per task. Status values are `AUTOMATED`, `MANUAL`, `BLOCKED_BY_DATA`, or `PLANNED`. Automated evidence must name a test that genuinely exercises the requirement.
 
 ## Vehicle cascade
 
 | ID | Acceptance requirement | Status | Automated evidence |
 | --- | --- | --- | --- |
-| VEH-001 | 1980 Hyundai -> Elantra cannot be constructed from catalog selections. | AUTOMATED | `tests/vehicle-applications.test.mjs`, `tests/vehicle-cascade.browser.cjs` |
-| VEH-002 | Camaro cannot receive Mustang-only trims; those trims cannot appear on non-Mustang applications. | AUTOMATED | Both vehicle tests |
-| VEH-003 | Changing Year clears Make, Model, and Submodel. | AUTOMATED | `tests/vehicle-cascade.browser.cjs` |
-| VEH-004 | Changing Make clears Model and Submodel. | AUTOMATED | `tests/vehicle-cascade.browser.cjs` |
-| VEH-005 | Changing Model clears Submodel. | AUTOMATED | `tests/vehicle-cascade.browser.cjs` |
-| VEH-006 | `Unknown / Not Listed` and `Other / Custom` paths create no catalog compatibility evidence. | AUTOMATED | Both vehicle tests |
-| VEH-007 | Existing saved-job/`localStorage` compatibility remains intact. | AUTOMATED | `tests/validate-workflow.cjs` |
-| VEH-008 | Guided and New Job selectors use the same relational source. | AUTOMATED | `tests/vehicle-cascade.browser.cjs` |
+| VEHICLE-001 | 1980 Hyundai must not offer or construct Elantra from catalog selections. | AUTOMATED | `tests/vehicle-applications.test.mjs`, `tests/vehicle-cascade.browser.cjs` |
+| VEHICLE-002 | A Chevrolet Camaro must not receive Ford Mustang trims/submodels. | AUTOMATED | Both vehicle tests |
+| VEHICLE-003 | Changing Year clears dependent Make, Model, and Submodel selections. | AUTOMATED | `tests/vehicle-cascade.browser.cjs` |
+| VEHICLE-004 | Changing Make clears Model and Submodel. | AUTOMATED | `tests/vehicle-cascade.browser.cjs` |
+| VEHICLE-005 | Changing Model clears Submodel. | AUTOMATED | `tests/vehicle-cascade.browser.cjs` |
+| VEHICLE-006 | `Unknown / Not Listed` and `Other / Custom` do not establish component or vehicle compatibility. | AUTOMATED | Both vehicle tests and workflow custom-component checks |
+| VEHICLE-007 | 1982 Oldsmobile Cutlass/Cutlass Supreme remains unavailable until an approved provenance-bearing historical source provides coverage. | BLOCKED_BY_DATA | Current normalized FuelEconomy.gov data begins in 1984. `tests/project-control.test.mjs` proves 1982 remains absent. Never fabricate a record merely to satisfy this test. |
+| VEHICLE-008 | Guided and New Job selectors use the same relational application source; no global fallback vehicle vocabularies are allowed. | AUTOMATED | `tests/vehicle-cascade.browser.cjs` |
 
-## Historical coverage
-
-| ID | Acceptance requirement | Status | Evidence/blocker |
-| --- | --- | --- | --- |
-| HIST-001 | 1982 Oldsmobile Cutlass/Cutlass Supreme is selectable from a provenance-bearing registry record. | BLOCKED_BY_DATA | Current FuelEconomy.gov data starts in 1984. `tests/project-control.test.mjs` proves 1982 remains absent and this test remains blocked. Never fabricate a record to turn this green. |
-
-## Carburetor and measurement behavior
+## Workflow, carburetion, and persistence
 
 | ID | Acceptance requirement | Status | Automated evidence |
 | --- | --- | --- | --- |
-| CARB-001 | A carburetor-only baseline does not require AFR when no wideband/sensor device is present. | AUTOMATED | `tests/validate-workflow.cjs` |
-| CARB-002 | Explicitly enabling an available wideband adds AFR to the baseline evidence set. | AUTOMATED | `tests/validate-workflow.cjs` |
-| CARB-003 | Manufacturer baseline, CarbTune recommendation, and technician result remain separately labeled. | AUTOMATED | `tests/validate-workflow.cjs`, structural tests |
-| CARB-004 | Warning Override & Continue retains audit history. | PLANNED | Open bug B-0052-03; do not mark accepted until active Build 51 behavior is implemented and tested. |
+| WORKFLOW-001 | Existing saved jobs and `localStorage` remain compatible after application upgrades. | AUTOMATED | `tests/validate-workflow.cjs` legacy migration and persistence assertions |
+| CARB-001 | A carbureted vehicle baseline must not require AFR when no actual AFR/wideband sensor is installed. | AUTOMATED | `tests/validate-workflow.cjs` |
+| CARB-002 | Explicitly enabling an available wideband adds AFR to the baseline evidence set; removing it removes the requirement. | AUTOMATED | `tests/validate-workflow.cjs` |
+| CARB-003 | Manufacturer baseline, CarbTune recommendation, and successful technician setting remain separately labeled. | AUTOMATED | `tests/validate-workflow.cjs`, structural checks |
+| CARB-004 | Appropriate warnings provide Override & Continue with value, reason, technician intent, timestamp, and retained audit history. | PLANNED | Open bug `B-0052-03`; do not mark accepted until active Build 51 behavior and tests exist. |
+| DIAG-001 | Diagnostic work follows Measure -> Interpret -> Correct/Test -> Retest -> Compare -> Decide -> Log. | AUTOMATED | Sequential workflow and Tune Log/retest assertions in `tests/validate-workflow.cjs` |
 
-## Product and persistence
+## Data, provenance, and product boundaries
 
 | ID | Acceptance requirement | Status | Automated evidence |
 | --- | --- | --- | --- |
+| DATA-001 | Missing source data remains missing rather than being invented. | AUTOMATED | Vehicle registry invariants, unknown/custom paths, and project-control checks |
+| DATA-002 | Manufacturer specification, CarbTune calculated recommendation, and actual successful technician setting remain distinguishable. | AUTOMATED | Workflow evidence/provenance assertions |
+| DATA-003 | Physical compatibility and performance suitability are separate decisions with their own evidence. | AUTOMATED | Build Intelligence workflow assertions |
+| DATA-004 | Important sourced records can retain source, source type, source record ID when available, retrieval date, confidence, and verification status. | PLANNED | Knowledge schema/harvester roadmap; full registry enforcement awaits service work |
 | PROD-001 | Product remains carbureted and contains no EFI calibration workflow. | AUTOMATED | `tests/validate-workflow.cjs` |
-| PROD-002 | Chassis and installed engine/build identity persist separately. | AUTOMATED | `tests/validate-workflow.cjs` |
-| PROD-003 | Missing facts remain explicitly unknown/unverified. | AUTOMATED | Workflow and structural tests |
-| PROD-004 | Beginner, Seasoned, and Pro guidance choices remain available. | AUTOMATED | `tests/validate-workflow.cjs` |
-| PROD-005 | Phone/tablet/desktop layouts avoid horizontal overflow, retain touch targets, and tablets use width intelligently. | AUTOMATED | `tests/validate-workflow.cjs` |
-| PROD-006 | Duplicate prevention and confirmed Delete Job safeguards remain intact. | AUTOMATED | `tests/validate-workflow.cjs` |
+| PROD-002 | Chassis/original vehicle identity and installed engine/build identity persist separately. | AUTOMATED | `tests/validate-workflow.cjs` |
+| PROD-003 | Beginner, Seasoned, and Pro guidance choices remain available. | AUTOMATED | `tests/validate-workflow.cjs` |
+| PROD-004 | Duplicate prevention and confirmed Delete Job safeguards remain intact. | AUTOMATED | `tests/validate-workflow.cjs` |
+| PROD-005 | Phone/tablet/desktop layouts avoid horizontal overflow, retain touch targets, and tablets use width intentionally. | AUTOMATED | Responsive matrix in `tests/validate-workflow.cjs` |
 
 ## Validation policy
 
@@ -49,4 +48,4 @@ The canonical command is:
 npm run validate
 ```
 
-It must exit nonzero for syntax, data, project-control, browser, persistence, or responsive failures. Manual acceptance and `BLOCKED_BY_DATA` items are reported honestly and are never converted to false automated passes.
+It must exit `0` only when every configured stage succeeds and nonzero when syntax, registry, project-control, browser, persistence, provenance, or responsive checks fail. The runner reports each test program before executing it so the failing stage is visible. Manual, planned, and `BLOCKED_BY_DATA` items are reported honestly and are never converted into fake automated passes.

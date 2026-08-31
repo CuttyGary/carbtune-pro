@@ -15,6 +15,31 @@ This document defines a future controlled pipeline. It does not authorize uncont
 7. **Verification** — require a reviewer or policy-controlled verification step. Record who/what verified the claim and when.
 8. **Knowledge base** — publish versioned, provenance-bearing records separately from application code.
 
+Collectors are component-specific but share the pipeline infrastructure. A carburetor collector, ignition collector, or vehicle collector may use source-specific extraction logic; none may bypass the common provenance, identity, deduplication, conflict, verification, and publication gates.
+
+## Evidence record contract
+
+Every important sourced record should be capable of retaining:
+
+- source name and stable location/identifier;
+- source type (manufacturer, government, industry standard, licensed catalog, technical reference, or observation);
+- source record ID where the source supplies one;
+- retrieval date and relevant publication/effective date;
+- original assertion and units plus normalized value/units;
+- confidence and verification status;
+- license, reuse, attribution, and persistence constraints;
+- conflicting assertions and their independent evidence.
+
+Supported verification statuses are `VERIFIED`, `CONDITIONAL`, `INFERRED`, `CONFLICT`, `UNVERIFIED`, and `UNKNOWN`. Extraction alone never produces `VERIFIED`. Missing evidence remains `UNKNOWN`; a calculated relationship must remain `INFERRED` or `CONDITIONAL` until the applicable verification policy is satisfied.
+
+## Relationship model
+
+The future graph supports:
+
+`Vehicle -> Engine -> Heads -> Cam/Valvetrain -> Intake -> Carburetor -> Fuel Pump -> Regulator -> Ignition -> Exhaust -> Transmission -> Converter -> Differential -> Tire`
+
+Each edge separates physical compatibility (whether parts can connect and under what modifications) from performance suitability (whether the combination serves the intended use and operating range). A compatible part may be unsuitable; a desirable part may be physically incompatible. Neither classification may be inferred from the other or from an `Unknown / Other` escape choice.
+
 ## Source policy
 
 - Respect copyright, robots rules, access restrictions, contracts, and source terms.
@@ -23,6 +48,8 @@ This document defines a future controlled pipeline. It does not authorize uncont
 - Real-world observations remain observations until corroborated.
 - Never fabricate missing fields or infer compatibility solely to make a record appear complete.
 - Retain source dates because application and lifecycle information changes.
+
+Current vehicle-source research candidates remain unevaluated unless a task records evidence otherwise: Auto Care VCdb/ACES as preferred backbone candidate; CLASSIC.COM as historical specialty candidate; NHTSA/vPIC for authoritative VIN/application verification primarily 1981+; FuelEconomy.gov as the current sourced seed; EPA historical sources for corroboration; and SEMA Data for future aftermarket/application relationships. Listing a candidate does not claim access, coverage, license, or reuse rights.
 
 ## Quality gates
 

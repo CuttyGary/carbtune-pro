@@ -1,0 +1,14 @@
+node_modules/
+
+# Local validation artifacts when a developer explicitly overrides the default temp paths.
+artifacts/
+test-results/
+playwright-report/
+
+# Local environment and editor files; never commit credentials.
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
+*.log

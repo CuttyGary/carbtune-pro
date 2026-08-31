@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -12,7 +13,10 @@ const requiredDocuments = [
   'project/ROADMAP.md',
   'project/BUGS.md',
   'project/IDEAS.md',
-  'project/ACCEPTANCE_TESTS.md'
+  'project/ACCEPTANCE_TESTS.md',
+  'project/CONTROLLER_SPEC.md',
+  'docs/development.md',
+  'tasks/README.md'
 ];
 
 for (const document of requiredDocuments) {
@@ -39,6 +43,41 @@ for (const phrase of [
   '1982 Oldsmobile', 'Cutlass Supreme', 'BLOCKED_BY_DATA',
   'AFR', 'wideband'
 ]) assert.match(acceptance, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
+for (const id of [
+  'VEHICLE-001', 'VEHICLE-002', 'VEHICLE-003', 'VEHICLE-004',
+  'VEHICLE-005', 'VEHICLE-006', 'VEHICLE-007', 'WORKFLOW-001',
+  'CARB-001', 'DIAG-001', 'DATA-001', 'DATA-002'
+]) assert.match(acceptance, new RegExp(id), `${id} must remain in the permanent catalog`);
+
+const roadmap = read('project/ROADMAP.md');
+for (const phrase of [
+  'PostgreSQL', 'CarbTune application services/API', 'Knowledge Harvester',
+  'Auto Care VCdb / ACES', 'CLASSIC.COM', 'NHTSA/vPIC', 'FuelEconomy.gov',
+  'EPA historical sources', 'SEMA Data', 'Physical compatibility', 'performance suitability'
+]) assert.match(roadmap, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
+
+const currentTask = JSON.parse(read('tasks/current.json'));
+const recordedTask = currentTask || (
+  fs.existsSync(path.join(root, 'tasks/completed/CT-0053.json'))
+    ? JSON.parse(read('tasks/completed/CT-0053.json'))
+    : null
+);
+const allowedTaskStatuses = ['PLANNED', 'IN_PROGRESS', 'BLOCKED', 'READY_FOR_CHATGPT_REVIEW', 'ACCEPTED', 'FAILED'];
+assert.ok(recordedTask, 'CT-0053 must exist as the current or completed durable task');
+assert.equal(recordedTask.schemaVersion, 1);
+assert.equal(recordedTask.id, 'CT-0053');
+assert.ok(allowedTaskStatuses.includes(recordedTask.status));
+for (const field of [
+  'title', 'createdDate', 'scope', 'objectives', 'constraints', 'acceptanceTests',
+  'implementationNotes', 'validation', 'filesChanged', 'commitSha',
+  'deploymentStatus', 'blockers', 'reviewStatus'
+]) assert.ok(Object.hasOwn(recordedTask, field), `CT-0053 task must include ${field}`);
+
+const gitignore = read('.gitignore');
+assert.match(gitignore, /^node_modules\/$/m);
+const workflow = read('.github/workflows/validate.yml');
+assert.match(workflow, /node-version:\s*24/);
+assert.match(workflow, /npm run validate/);
 
 const agents = read('AGENTS.md');
 assert.match(agents, /may evolve incrementally toward proper database and service architecture/i);
@@ -59,5 +98,15 @@ assert.ok(catalog.applications.every(record => record.source === 'U.S. DOE/EPA F
 
 const packageJson = JSON.parse(read('package.json'));
 assert.equal(packageJson.scripts.validate, 'node scripts/validate.cjs');
+assert.equal(packageJson.scripts['project:status'], 'node scripts/project-status.cjs');
 
-console.log('Project-control checks passed (seeded controls, policies, acceptance catalog, and unchanged vehicle baseline).');
+const statusTool = spawnSync(process.execPath, [path.join(root, 'scripts/project-status.cjs')], {
+  cwd: root,
+  encoding: 'utf8'
+});
+assert.equal(statusTool.status, 0, statusTool.stderr);
+assert.match(statusTool.stdout, /taskId: (CT-0053|null)/);
+assert.match(statusTool.stdout, /validation: \{"status":"NOT RUN","exitCode":null\}/);
+assert.match(statusTool.stdout, /readiness: NOT VERIFIED/);
+
+console.log('Project-control checks passed (durable controls/tasks, truthful automation, policies, acceptance catalog, and unchanged vehicle baseline).');

@@ -49,3 +49,28 @@
 
 **Status:** ACCEPTED
 **Decision:** Research authoritative/open data, documented APIs, standards, reusable structured sources, and licensable commercial data before manually building mature automotive databases. Never bypass access controls or invent missing data.
+
+## D-011 — Repository is the durable source of truth
+
+**Status:** ACCEPTED
+**Decision:** Product rules live in `project/`, assignments and evidence live in `tasks/`, executable contracts live in tests, and the current cross-agent report lives in `CARBTUNE_HANDOFF.md`. Conversation history may explain intent but cannot silently replace these records.
+
+## D-012 — Development roles
+
+**Status:** ACCEPTED
+**Decision:** Garrett is product owner/shop expert; ChatGPT owns architecture, requirements, research direction, and acceptance review; Codex owns assigned implementation, testing, documentation, commit, and push. `ACCEPTED` remains a reviewer/product-owner transition, not an automatic implementation claim.
+
+## D-013 — Honest automation state
+
+**Status:** ACCEPTED
+**Decision:** Validation, GitHub synchronization, review, and deployment are independent facts. Automation reports `UNKNOWN` or `NOT VERIFIED` when it cannot obtain evidence and never derives deployment success or review readiness from a task title.
+
+## D-014 — Knowledge evidence states
+
+**Status:** ACCEPTED AS ARCHITECTURE DIRECTION
+**Decision:** Future sourced knowledge supports `VERIFIED`, `CONDITIONAL`, `INFERRED`, `CONFLICT`, `UNVERIFIED`, and `UNKNOWN`. Physical compatibility and performance suitability remain separate relationship judgments.
+
+## D-015 — CT-0053 source candidates are research only
+
+**Status:** ACCEPTED WITH LIMITATION
+**Decision:** FuelEconomy.gov remains the unchanged sourced seed. Auto Care VCdb/ACES, CLASSIC.COM, NHTSA/vPIC, EPA historical sources, and SEMA Data are evaluation candidates only; no license, access, coverage, or integration right is implied.

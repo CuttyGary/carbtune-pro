@@ -35,3 +35,7 @@
 **Status:** BLOCKED_BY_DATA
 **Impact:** The current registry begins in 1984. Required cases such as 1982 Oldsmobile Cutlass/Cutlass Supreme cannot be catalog-selected.
 **Constraint:** Do not fabricate records. Resolve only through approved, licensed/provenance-bearing source integration.
+
+## CT-0053 infrastructure review
+
+No application defect was opened during the CT-0053 baseline. The pre-change canonical suite passed. Infrastructure gaps addressed by CT-0053 are tracked through task `CT-0053`, not mislabeled as product bugs: repository-level `node_modules/` ignore, dedicated-machine documentation, durable task records, Node 24 CI alignment, and truthful status collection.

@@ -6,6 +6,8 @@ Ideas are not approved implementation work.
 
 A controlled ingestion service that registers permitted sources, extracts facts with exact source locations, normalizes identity/units, detects duplicates/conflicts, routes review, and publishes versioned knowledge releases. It must never bypass access controls or silently convert retailer claims into manufacturer facts.
 
+Component-specific collectors should share discovery, extraction, normalization, provenance, deduplication, conflict detection, verification, and relationship infrastructure. Collectors should emit reviewable evidence records rather than writing directly into verified production knowledge.
+
 ## Vehicle Registry service
 
 A normalized registry with canonical application identity plus source-evidence records. It should support aliases, conflicts, retrieval history, license constraints, and verification states without manufacturing missing trim data.
@@ -17,6 +19,10 @@ Move beyond browser-only storage through a versioned service while retaining an 
 ## Dedicated development and staging
 
 Use a dedicated development machine/server, Docker, isolated development/staging services, CI validation, and deployment promotion gates.
+
+## CarbTune Controller
+
+A local-first project-health dashboard reading task, project, Git, validation, and future CI/deployment evidence from durable sources. It should give Garrett a plain-language view of Current Build, Current Task, Codex Status, Validation, GitHub Sync, ChatGPT Review, and Latest Commit without manufacturing status. See `project/CONTROLLER_SPEC.md`.
 
 ## Technician override ledger
 

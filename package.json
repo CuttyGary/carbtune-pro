@@ -4,7 +4,8 @@
   "private": true,
   "description": "Professional guided diagnostic software for carbureted and performance vehicles.",
   "scripts": {
-    "validate": "node scripts/validate.cjs"
+    "validate": "node scripts/validate.cjs",
+    "project:status": "node scripts/project-status.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

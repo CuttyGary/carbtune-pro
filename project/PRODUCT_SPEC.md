@@ -43,9 +43,20 @@ Existing `localStorage` jobs must remain readable through incremental migration.
 
 Learning records must distinguish Configuration, Baseline, Problem, Change, After Measurement, Result, Evidence, and Confidence. Outcomes include positive, negative, mixed, and no measurable change. Failed tests and reversions remain in history.
 
+CarbTune may learn from measured before/change/after outcomes, but a learned observation never overwrites a manufacturer specification. Aggregated knowledge retains its source population, test context, confidence, conflicts, and applicability boundaries.
+
+## Project ownership and durable control
+
+- Garrett is the product owner and shop-domain expert.
+- ChatGPT owns product architecture, requirements clarification, research direction, and acceptance review.
+- Codex implements approved assignments, validates them, updates durable documentation/task records, and commits/pushes verified work.
+- The repository is the durable source of truth. `project/`, `tasks/`, tests, Git history, and `CARBTUNE_HANDOFF.md` supersede assumptions based only on conversation memory.
+
 ## Architecture direction
 
-The current frontend is a pilot. CarbTune may evolve incrementally toward structured services and database components when assigned, while preserving working behavior and saved-data compatibility. Likely future development infrastructure includes a dedicated development machine/server, Docker, PostgreSQL, automated validation, a controlled Knowledge Harvester, and separate development/staging services. CT-0052 does not implement that backend.
+The current frontend is a pilot. CarbTune may evolve incrementally toward structured services and database components when assigned, while preserving working behavior and saved-data compatibility. The intended sequence is dedicated development machine -> automated validation -> structured project control -> PostgreSQL -> CarbTune application services/API -> Knowledge Harvester -> development/staging environments -> eventual secure production hosting. This is a direction, not authorization for a broad rewrite.
+
+CarbTune has no permanent single-page or dependency-free restriction. New boundaries may be introduced incrementally when justified, migration-safe, and regression protected. Production hosting must use explicit security, backup, observability, and rollback designs and must not expose the dedicated development computer.
 
 ## Device contract
 

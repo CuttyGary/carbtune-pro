@@ -42,9 +42,9 @@ function serve(request, response) {
   });
 }
 
-function runTest(file, environment) {
+function runTest(stage, file, environment) {
   return new Promise((resolve, reject) => {
-    console.log(`\n=== ${file} ===`);
+    console.log(`\n=== ${stage}: ${file} ===`);
     const child = spawn(process.execPath, [path.join(root, file)], {
       cwd: root,
       env: environment,
@@ -53,7 +53,7 @@ function runTest(file, environment) {
     child.on('error', reject);
     child.on('exit', (code, signal) => {
       if (code === 0) resolve();
-      else reject(new Error(`${file} failed${signal ? ` with signal ${signal}` : ` with exit code ${code}`}`));
+      else reject(new Error(`${stage} (${file}) failed${signal ? ` with signal ${signal}` : ` with exit code ${code}`}`));
     });
   });
 }
@@ -76,18 +76,18 @@ async function main() {
     if (fs.existsSync(installedChrome)) environment.CHROME_PATH = installedChrome;
   }
 
-  const tests = [
-    'tests/build51.test.mjs',
-    'tests/vehicle-applications.test.mjs',
-    'tests/project-control.test.mjs',
-    'tests/vehicle-cascade.browser.cjs',
-    'tests/validate-workflow.cjs'
+  const stages = [
+    ['JavaScript / syntax integrity', 'tests/build51.test.mjs'],
+    ['Vehicle registry and provenance integrity', 'tests/vehicle-applications.test.mjs'],
+    ['Project control and data-policy integrity', 'tests/project-control.test.mjs'],
+    ['Relational vehicle cascade browser regressions', 'tests/vehicle-cascade.browser.cjs'],
+    ['Workflow, persistence, provenance, and UI smoke regressions', 'tests/validate-workflow.cjs']
   ];
 
   try {
     console.log(`CarbTune validation server: ${environment.CARBTUNE_URL}`);
-    for (const test of tests) await runTest(test, environment);
-    console.log(`\nCarbTune validation passed (${tests.length} test programs).`);
+    for (const [stage, test] of stages) await runTest(stage, test, environment);
+    console.log(`\nCarbTune validation passed (${stages.length} test programs).`);
   } finally {
     await new Promise(resolve => server.close(resolve));
     fs.rmSync(temporary, { recursive: true, force: true });

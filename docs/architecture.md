@@ -35,6 +35,8 @@ Every technical assertion can carry one of these evidence types:
 
 Missing evidence remains unknown. Compatibility and suitability are classifications with supporting reasons, not decorative percentages.
 
+Future service evolution must preserve the distinction among manufacturer specification, CarbTune calculation/recommendation, and actual successful technician setting. Measured learning outcomes may add evidence but never rewrite the manufacturer fact they were compared against.
+
 ## Relationship-aware compatibility
 
 Compatibility rules accept category-specific dimensions such as engine family, variant, heads, intake pattern, valvetrain, chassis, transmission, and other components. A relationship is `DIRECT_FIT`, `FITS_WITH_MODIFICATION`, `CONDITIONAL`, `INCOMPATIBLE`, or `UNVERIFIED`. The UI hides known incompatible options by default and allows an expert to show all.
@@ -46,3 +48,7 @@ Tune Log entries declare what changed. Dependency rules mark affected measuremen
 ## Responsive contract
 
 The same job model and workflow support phones, tablets, and desktops. Phones use one focused column. Tablets and desktops use available space for task/result columns, overview grids, and comparison tables. All primary controls retain touch-sized targets and safe-area support.
+
+## Incremental platform direction
+
+The frontend is not permanently restricted to a single-page or dependency-free architecture. Evolution proceeds incrementally from the dedicated development machine, automated validation, and structured project control toward PostgreSQL, versioned CarbTune services/API, the controlled Knowledge Harvester, isolated development/staging, and eventual secure production hosting. Every boundary must preserve saved-job migration, validation coverage, rollback, and evidence semantics; CT-0053 performs no backend rewrite.

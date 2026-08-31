@@ -22,6 +22,8 @@ Architecture and research controls
 - `data/knowledge-base.js` contains the data-only component schema contract and reviewed seed records.
 - `docs/architecture.md` defines product boundaries, job domains, compatibility relationships, invalidation, and responsive requirements.
 - `docs/knowledge-ingestion.md` defines the controlled future research pipeline and its source, licensing, conflict, and verification safeguards. It does not enable uncontrolled scraping.
+- `docs/development.md` documents the verified Windows development environment and GitHub authentication checks.
+- `project/` and `tasks/` are the durable product-control and assignment records; conversation history is not the project database.
 
 Permanent responsive-design requirement
 ---------------------------------------
@@ -41,3 +43,10 @@ npm run validate
 `npm run validate` starts its own ephemeral local server, runs the static JavaScript and project-control checks, then runs both Playwright browser programs. It exits nonzero on a genuine failure and does not trust an unrelated process on a fixed port.
 
 The suite covers the carbureted product boundary, retained modern engine architectures, relational vehicle selection, complete sequential workflow, editable completed steps, unknown values, component search/custom records, Build Intelligence, measurement context, Tune Log/retest dependencies, road/dyno verification, results, job persistence and migration, duplicate handling, deletion, and a phone/tablet/desktop responsive matrix. GitHub Actions runs the same command on pushes to `main` and on pull requests.
+
+Project status
+--------------
+
+Run `npm run project:status` for a non-mutating repository/task snapshot. Add `-- --fetch` to refresh `origin` first, or `-- --validate` to run the canonical suite and include its actual result. A report without a successful validation run remains `NOT VERIFIED` even if the task file requests review.
+
+See `docs/development.md` for the complete dedicated-machine setup and authentication procedure.

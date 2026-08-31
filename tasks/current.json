@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "id": "CT-0053",
+  "title": "Project Control and Automation Foundation",
+  "status": "IN_PROGRESS",
+  "createdDate": "2026-08-30",
+  "scope": "Development infrastructure, durable project control, task records, developer setup, CI alignment, and truthful handoff automation; no CarbTune product feature redesign.",
+  "objectives": [
+    "Make repository documents and task records the durable project source of truth.",
+    "Preserve one-command validation locally and in GitHub Actions.",
+    "Document the dedicated Windows development environment and incremental architecture/data roadmaps.",
+    "Provide a lightweight truthful project-status collector and future controller design."
+  ],
+  "constraints": [
+    "Preserve existing application functionality and saved-job compatibility.",
+    "Do not modify the FuelEconomy.gov vehicle dataset.",
+    "Do not fabricate compatibility, historical records, test results, deployment state, or source permissions.",
+    "Do not build the backend, giant component database, Knowledge Harvester, or Controller UI in CT-0053.",
+    "Do not store credentials, customer data, VINs, or shop-sensitive data."
+  ],
+  "acceptanceTests": [
+    { "id": "CT0053-CONTROL", "expected": "Required project documents and durable task schema are operational.", "status": "PASSED", "evidence": "tests/project-control.test.mjs passed in both post-change canonical runs." },
+    { "id": "CT0053-VALIDATE", "expected": "npm run validate exits zero without weakened coverage.", "status": "PASSED", "evidence": "Two post-change canonical runs passed 5 of 5 programs and 92 workflow assertions." },
+    { "id": "CT0053-SYNC", "expected": "Implementation and final handoff commits are pushed and local main matches origin/main.", "status": "PENDING", "evidence": null },
+    { "id": "VEHICLE-007", "expected": "1982 Oldsmobile remains blocked until approved historical data exists.", "status": "BLOCKED_BY_DATA", "evidence": "Current normalized FuelEconomy.gov registry begins in 1984; no record will be fabricated." }
+  ],
+  "implementationNotes": [
+    "Added repository-level ignore rules for dependencies and ordinary local artifacts without ignoring source files.",
+    "Added durable task schema/directories, developer environment documentation, exact acceptance IDs, expanded architecture/source/Knowledge Harvester roadmaps, and a local Controller design.",
+    "Aligned GitHub Actions with Node.js 24 and the canonical local dependency/validation path.",
+    "Added a read-only project-status collector that reports unknown/unverified facts honestly and validates only when explicitly requested.",
+    "Preserved application code, saved-data behavior, and data/vehicle-applications.js unchanged."
+  ],
+  "validation": {
+    "command": "npm run validate",
+    "status": "PASSED",
+    "exitCode": 0,
+    "date": "2026-08-30",
+    "summary": "Baseline plus two post-change canonical runs each passed 5 of 5 test programs including 92 workflow assertions."
+  },
+  "filesChanged": [
+    ".github/workflows/validate.yml",
+    ".gitignore",
+    "README.md",
+    "docs/architecture.md",
+    "docs/development.md",
+    "docs/knowledge-ingestion.md",
+    "package.json",
+    "project/ACCEPTANCE_TESTS.md",
+    "project/BUGS.md",
+    "project/CONTROLLER_SPEC.md",
+    "project/DECISIONS.md",
+    "project/IDEAS.md",
+    "project/PRODUCT_SPEC.md",
+    "project/ROADMAP.md",
+    "scripts/project-status.cjs",
+    "scripts/validate.cjs",
+    "tasks/README.md",
+    "tasks/blocked/.gitkeep",
+    "tasks/completed/.gitkeep",
+    "tasks/current.json",
+    "tests/project-control.test.mjs"
+  ],
+  "commitSha": null,
+  "deploymentStatus": "NOT_APPLICABLE",
+  "blockers": [],
+  "reviewStatus": "NOT_READY"
+}
