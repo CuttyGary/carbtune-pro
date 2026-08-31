@@ -11,9 +11,14 @@ Roadmap items are direction, not automatic authorization. Every implementation r
 - Current FuelEconomy.gov relational snapshot preserved unchanged.
 - Active Build 51 safe advisory warnings now support deliberate, persistent Override & Continue audit evidence across all supported guidance values; implausible hard stops remain distinct.
 
+## CT-0055 field-test stabilization
+
+- Closed-loop structured diagnostic test/result/correction/retest state, including accelerator-pump and numeric fuel-pressure evidence.
+- iPhone Operating Context touch persistence, mobile New Job action, chassis carry-forward, missing-trim handling, custom historical chassis disclosure, carburetor type-ahead, encoding repair, and Novice-to-Beginner migration.
+- `VEHICLE-007` remains blocked pending an approved historical source.
+
 ## Next stabilization candidates — assignment required
 
-- Normalize guidance naming toward Beginner / Seasoned / Pro with a backward-compatible Novice migration (`B-0052-04`).
 - Complete human acceptance review of project controls and the relational selector without weakening automated tests.
 - Define structured validation-result persistence for the future Controller; do not display stale or invented green state.
 

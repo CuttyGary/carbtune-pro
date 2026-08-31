@@ -59,9 +59,11 @@ async function fillStructuredVehicle(page, jobNo) {
 }
 
 async function run() {
+  const visibleSource = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert(!/[âÃÂ�]/.test(visibleSource), 'visible application source contains no mojibake');
   const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROME_PATH });
   try {
-    const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
     const page = await context.newPage();
     page.setDefaultTimeout(9000);
     const errors = [];
@@ -225,7 +227,7 @@ async function run() {
     assert(await hardStop.isVisible() && /Cannot continue|hard stop/i.test(await hardStop.innerText()), 'genuine implausible condition explains the non-overridable hard stop');
     assert(await page.locator('[data-guided-value="fp"]').inputValue() === '31' && await page.locator('[data-b51-override="fp"]').count() === 0 && await page.locator('[data-baseline-next]').isDisabled(), 'hard-stop value remains visible and cannot use advisory override');
 
-    for (const guidance of ['Seasoned', 'Pro', 'Novice']) {
+    for (const guidance of ['Seasoned', 'Pro']) {
       await setStored(page, state => {
         state.guidance = guidance;
         state.baseline = { ...state.baseline, temp: 185, rpm: 780, vac: 16, fp: 8.5, initial: 12, float: 'Correct' };
@@ -245,6 +247,17 @@ async function run() {
       assert(guidanceState.workflow.overrideAudit.length === 1 && guidanceState.workflow.overrideAudit[0].guidanceLevel === guidance && guidanceState.baseline.fp === 8.5, `${guidance} override is audited and preserves the entered value`);
       assert(!(await page.locator('[data-baseline-complete]').isDisabled()), `${guidance} can continue promptly after the advisory is audited`);
     }
+
+    await setStored(page, state => {
+      state.guidance = 'Novice';
+      state.workflow.phase = 'baseline';
+      state.workflow.b51 = { ...(state.workflow.b51 || {}), showJobs: false };
+      state.workflow.overrideAudit = [{ id: 'legacy-audit', guidanceLevel: 'Novice', measurementName: 'Manifold Vacuum', originalValue: 11, unit: 'inHg', warning: 'Low manifold vacuum', at: new Date().toISOString() }];
+    });
+    const legacyGuidance = await stored(page);
+    assert(legacyGuidance.guidance === 'Beginner' && await page.locator('#guidanceLevel').inputValue() === 'Beginner', 'legacy Novice saved job migrates deterministically to Beginner');
+    assert(legacyGuidance.workflow.overrideAudit[0].guidanceLevel === 'Novice', 'legacy CT-0054 audit guidance remains historical Novice evidence');
+    assert((await page.locator('#resumeBlocker').innerText()).includes('OPEN CONCERN') && !(await page.locator('#resumeBlocker').innerText()).includes('CURRENT BLOCKER'), 'overridden warning is an open concern rather than an active blocker');
 
     await setStored(page, state => {
       state.guidance = 'Beginner';
@@ -275,14 +288,24 @@ async function run() {
       state.retests = {};
       state.snapshots = [{ id: 'initial', type: 'INITIAL_BASELINE', label: 'Initial baseline', at: new Date().toISOString(), measurements: { ...state.baseline }, estimated: false }];
     });
-    assert((await page.locator('#guidedCard').innerText()).includes('Verify regulator output'), 'diagnosis interprets measured high fuel pressure before calibration changes');
+    assert((await page.locator('#guidedCard').innerText()).includes('Compare IDLE FUEL PRESSURE to FUEL PRESSURE AT 2500 RPM'), 'diagnosis names the structured fuel-pressure comparison explicitly');
     await page.locator('[data-start-action]').click();
-    await page.locator('[data-action-finding="FAULT_FOUND"]').click();
-    await changeValue(page, '[data-actual-change]', 'Adjusted regulator to 6.2 PSI');
-    await page.locator('[data-action-retest]').click();
+    await page.locator('[data-diagnostic-number="idle"]').fill('8.5');
+    await page.locator('[data-diagnostic-number="rpm2500"]').fill('7.0');
+    await page.locator('[data-save-numeric-result]').click();
     let tuneState = await stored(page);
-    assert(tuneState.tuneLog.length === 1, 'Tune Log records the controlled correction');
-    assert(['fp', 'float', 'boost'].every(key => tuneState.retests[key]?.status === 'RETEST_REQUIRED'), 'correction creates relevant retest dependencies');
+    assert(tuneState.diagnostic.tests.at(-1).results.at(-1).delta === -1.5, 'numeric fuel-pressure test stores and interprets both specific values');
+    await setStored(page, state => {
+      state.tuneLog = [{ id: 'legacy-controlled-correction', at: new Date().toISOString(), parameter: 'Fuel pressure', before: '8.5 PSI', after: '6.2 PSI', outcome: 'NOT_YET_VERIFIED', measurementsBefore: { ...state.baseline }, measurementsAfter: {}, symptomsBefore: ['flooding'], symptomsAfter: [] }];
+      state.results.lastTuneId = 'legacy-controlled-correction';
+      state.retests = { fp: { status: 'RETEST_REQUIRED' }, float: { status: 'RETEST_REQUIRED' }, boost: { status: 'RETEST_REQUIRED' } };
+      state.workflow.b51 = { ...(state.workflow.b51 || {}), retestQueue: ['fp', 'float', 'boost'], action: { id: 'fuel-pressure-compare', system: 'Fuel pressure', observe: '8.5 PSI', action: 'Compare fuel pressure', retest: ['fp', 'float', 'boost'], tuneEntryId: 'legacy-controlled-correction' } };
+      state.workflow.phase = 'baseline';
+      state.workflow.baselineIndex = 0;
+    });
+    tuneState = await stored(page);
+    assert(tuneState.tuneLog.length === 1, 'Tune Log retains controlled correction evidence');
+    assert(['fp', 'float', 'boost'].every(key => tuneState.retests[key]?.status === 'RETEST_REQUIRED'), 'correction retains relevant retest dependencies');
 
     await changeValue(page, '[data-guided-value="fp"]', '6.2');
     await page.locator('[data-baseline-next]').click();
@@ -325,11 +348,22 @@ async function run() {
     await page.locator('#newEngineSize').selectOption('5.7L / 345 CID');
     assert((await page.locator('#newEngineFamily option').allTextContents()).includes('Gen III Hemi'), 'carbureted Hemi architecture remains available');
 
+    await page.locator('#newCarb').fill('br67255');
+    assert(await page.locator('#newCarbSuggestions [data-new-carb-id]').count() === 1, 'carb type-ahead filters while typing and ignores case/punctuation');
+    await page.locator('#newCarbSuggestions [data-new-carb-id]').click();
+    assert(await page.locator('#newCarb').inputValue() === 'BR-67255', 'known carb selection preserves canonical part number');
+    assert(/IDENTIFICATION: Recognized BR-67255/.test(await page.locator('#newCarbEvidence').innerText()) && /COMPATIBILITY: unresolved/.test(await page.locator('#newCarbEvidence').innerText()), 'carb identification remains separate from compatibility');
+    await page.locator('#newCarb').fill('not-a-catalog-part');
+    assert(await page.locator('#newCarbSuggestions [data-new-carb-id]').count() === 0 && /unverified/i.test(await page.locator('#newCarbEvidence').innerText()), 'unknown carb does not fabricate a known record');
+    await page.locator('#newCarb').fill('');
+
     await fillStructuredVehicle(page, 'CT0052-UNKNOWN-CARB');
     await page.locator('[data-action="create-job"]').click();
     let jobRecords = await page.evaluate(() => JSON.parse(localStorage.getItem('carbtune.jobs.v40') || '[]'));
     assert(jobRecords.length === beforeJobs + 1, 'New Job accepts an unknown carburetor');
     assert(jobRecords.some(job => job.vehicle.jobNo === 'CT0052-UNKNOWN-CARB' && job.vehicle.carb === 'Unknown carburetor'), 'unknown carburetor remains explicit in persisted history');
+    const carried = await stored(page);
+    assert(carried.workflow.phase === 'build' && carried.workflow.completed.includes('vehicle') && carried.vehicle.year === '1985', 'new-job chassis data carries forward without duplicate required entry');
 
     await page.locator('[data-save-exit]').click();
     await page.locator('#guidedCard [data-action="new-job"]').click();
@@ -342,6 +376,90 @@ async function run() {
     await page.locator('[data-action="confirm-delete-job"]').click();
     jobRecords = await page.evaluate(() => JSON.parse(localStorage.getItem('carbtune.jobs.v40') || '[]'));
     assert(jobRecords.length === beforeJobs && !jobRecords.some(job => job.vehicle.jobNo === 'CT0052-UNKNOWN-CARB'), 'Delete Job removes only the selected job');
+
+    await setStored(page, state => {
+      state.vehicle = { ...state.vehicle, year: '1984', make: 'Oldsmobile', model: 'Cutlass / Cutlass Supreme', submodel: '', vehicleName: '1984 Oldsmobile Cutlass / Cutlass Supreme', chassisEvidence: 'SOURCED' };
+      state.workflow.phase = 'vehicle';
+      state.workflow.b51 = { ...(state.workflow.b51 || {}), showJobs: false };
+    });
+    await page.locator('[data-b51-next="vehicle"]').click();
+    assert((await stored(page)).workflow.phase === 'build', 'missing sourced submodel does not block continuation');
+
+    await page.locator('[data-save-exit]').click();
+    await page.locator('#guidedCard [data-action="new-job"]').click();
+    const actionRect = await page.locator('[data-action="create-job"]').boundingBox();
+    assert(actionRect && actionRect.y + actionRect.height <= 844, 'mobile Create New Job primary action remains reachable');
+    await page.locator('[data-custom-chassis]').click();
+    await page.locator('#newVehicleCustomYear').fill('1968');
+    await page.locator('#newVehicleCustomMake').fill('Plymouth');
+    await page.locator('#newVehicleCustomModel').fill('Barracuda');
+    const customDraft = await page.evaluate(() => jobDraft());
+    assert(customDraft.year === '1968' && customDraft.chassisEvidence === 'TECHNICIAN_ENTERED_UNVERIFIED', 'pre-1984 custom chassis is technician-entered and explicitly unverified');
+    await page.locator('[data-action="close-job-modal"]').click();
+
+    await setStored(page, state => {
+      state.workflow.phase = 'verify';
+      state.workflow.b51 = { ...(state.workflow.b51 || {}), showJobs: false, verificationDraft: { mode: 'ROAD_TEST', symptoms: [], contexts: [], notes: '', measurements: {} } };
+    });
+    await page.locator('[data-b51-context="tip-in"]').tap();
+    assert(await page.locator('[data-b51-context="tip-in"]').getAttribute('aria-pressed') === 'true', 'Operating Context responds to touch with visible selected state');
+    await page.reload({ waitUntil: 'networkidle' });
+    assert(await page.locator('[data-b51-context="tip-in"]').getAttribute('aria-pressed') === 'true' && (await stored(page)).workflow.b51.verificationDraft.contexts.includes('tip-in'), 'Operating Context survives save and reload as structured evidence');
+
+    await page.locator('[data-verification-symptom="other"]').click();
+    await page.locator('[data-other-observation]').fill('Run on when key off');
+    assert((await stored(page)).diagnostic.otherObservation === 'Run on when key off', 'Other technician observation persists');
+    await page.locator('[data-confirm-symptom="run-on"]').click();
+    assert((await stored(page)).complaints.includes('run-on'), 'run-on alias requires confirmation and becomes structured evidence');
+    await page.reload({ waitUntil: 'networkidle' });
+    assert((await stored(page)).complaints.includes('run-on'), 'structured symptoms persist through reload');
+
+    for (const [guidance, phrase] of [['Seasoned', 'Observe the primary discharge'], ['Pro', 'note onset and continuity']]) {
+      await setStored(page, state => {
+        state.guidance = guidance;
+        state.complaints = ['tipin'];
+        state.workflow.phase = 'diagnose';
+        state.workflow.b51 = { ...(state.workflow.b51 || {}), showJobs: false, action: null };
+        state.diagnostic.tests = [];
+      });
+      assert((await page.locator('#guidedCard').textContent()).includes(phrase), `${guidance} accelerator-pump guidance remains concise`);
+    }
+
+    await setStored(page, state => {
+      state.guidance = 'Beginner';
+      state.complaints = ['tipin'];
+      state.workflow.phase = 'diagnose';
+      state.workflow.b51 = { ...(state.workflow.b51 || {}), showJobs: false, action: null };
+      state.diagnostic.tests = [];
+    });
+    await page.locator('[data-start-action="accelerator-pump-shot"]').click();
+    await page.locator('[data-diagnostic-result="IMMEDIATE_STRONG"]').click();
+    assert((await stored(page)).diagnostic.tests[0].state === 'RULED_OUT', 'normal pump-shot result rules out the supported branch');
+    assert(await page.locator('[data-custom-action]').isVisible(), 'free-text custom action remains available');
+    await page.locator('[data-diagnostic-next]').first().click();
+    assert(await page.locator('[data-start-action="accelerator-pump-shot"]').count() === 0, 'completed test is not immediately recommended again');
+
+    await setStored(page, state => {
+      state.complaints = ['tipin', 'bog'];
+      state.workflow.phase = 'diagnose';
+      state.workflow.b51 = { ...(state.workflow.b51 || {}), showJobs: false, action: null };
+      state.diagnostic.tests = [];
+      state.diagnostic.terminalState = null;
+    });
+    assert(/Check accelerator-pump discharge/.test(await page.locator('#guidedCard').innerText()), 'symptoms recommend an explicit accelerator-pump test');
+    assert(/Engine OFF/.test(await page.locator('#guidedCard').innerText()), 'Beginner guidance explains the accelerator-pump procedure');
+    await page.locator('[data-start-action="accelerator-pump-shot"]').click();
+    await page.locator('[data-diagnostic-result="NO_DISCHARGE"]').click();
+    let diagnostic = (await stored(page)).diagnostic.tests[0];
+    assert(diagnostic.results[0].structured && diagnostic.state === 'CORRECTION_RECOMMENDED', 'abnormal pump-shot structured result changes state and produces a correction path');
+    assert(await page.locator('[data-actual-change]').count() === 0, 'prescribed correction does not ask technician to invent what changed');
+    await page.locator('[data-perform-correction]').click();
+    assert((await stored(page)).diagnostic.tests[0].state === 'RETEST_REQUIRED', 'correction leads to a specific retest');
+    await page.locator('[data-diagnostic-result="IMMEDIATE_STRONG"]').click();
+    diagnostic = (await stored(page)).diagnostic.tests[0];
+    assert(diagnostic.state === 'VERIFIED' && diagnostic.results[1].before === 'NO_DISCHARGE', 'retest preserves before/after evidence and verifies improvement');
+    await page.locator('[data-diagnostic-next]').click();
+    assert((await stored(page)).diagnostic.terminalState === 'VERIFIED_REPAIR', 'diagnostic workflow reaches a real terminal state');
 
     assert(errors.length === 0, 'browser console has no errors', errors.join(' | '));
     await context.close();

@@ -21,9 +21,10 @@
 
 ## B-0052-04 — Guidance vocabulary includes Novice
 
-**Status:** OPEN_COMPATIBILITY_MIGRATION
+**Status:** RESOLVED_IN_CT-0055
 **Impact:** Current persisted/UI values include Beginner, Novice, Seasoned, and Pro, while product direction is Beginner, Seasoned, and Pro.
 **Required result:** Define a backward-compatible migration before removing or remapping Novice.
+**Resolution:** Current saved jobs normalize legacy `Novice` guidance to `Beginner`; the current selector exposes Beginner, Seasoned, and Pro. Historical CT-0054 audit records retain their original `Novice` evidence value.
 
 ## B-0052-05 — Vehicle source casing aliases
 
@@ -44,3 +45,11 @@ No application defect was opened during the CT-0053 baseline. The pre-change can
 ## CT-0054 regression review
 
 No unrelated product regression was found. Existing saved-job normalization treats absent `workflow.overrideAudit` as an empty array, preserving legacy and Novice data. Vehicle data, component knowledge, duplicate/delete safeguards, conditional AFR behavior, and all CT-0053 regression coverage remain unchanged and passing.
+
+## CT-0055 product-owner field-test findings
+
+**Status:** RESOLVED_IN_CT-0055 with browser regression coverage
+
+The live Build 51 iPhone findings were durable workflow defects: Operating Context lacked reliable selected-state behavior; New Job repeated chassis entry and trapped sourced records without trim; historical coverage looked complete despite the 1984 source boundary; the primary mobile action could fall below the modal viewport; carb identification required cumbersome exact entry; visible catalog copy contained mojibake; overridden advisories remained labeled blockers; and diagnosis depended on circular generic findings/free-text corrections. CT-0055 repairs these through migration-safe state, structured pump/fuel-pressure results, prescribed correction/retest evidence, terminal outcomes, touch tests, sticky mobile actions, honest custom chassis evidence, normalized catalog type-ahead, and open-concern rendering.
+
+`VEHICLE-007` remains `BLOCKED_BY_DATA`: CT-0055 did not fabricate pre-1984 catalog records.

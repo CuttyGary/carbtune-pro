@@ -84,3 +84,13 @@
 
 **Status:** ACCEPTED / IMPLEMENTED_IN_CT-0054
 **Decision:** Technically implausible entries that indicate data, gauge, or test-setup error are non-overridable and explain why. Ordinary safe advisory deviations remain overridable for Beginner, Seasoned, Pro, and legacy-compatible Novice guidance. Hard stops must not be expanded merely to avoid technician authority.
+
+## D-018 — Closed-loop diagnostic evidence
+
+**Status:** ACCEPTED / IMPLEMENTED_IN_CT-0055
+**Decision:** Tests, structured results, interpretations, corrections, retests, and terminal outcomes are separate durable evidence. A completed branch is not immediately recommended again without a recorded correction/retest need or a material-evidence reopen reason. Free text is supplemental, not the normal diagnostic engine.
+
+## D-019 — Honest custom identity and catalog identification
+
+**Status:** ACCEPTED / IMPLEMENTED_IN_CT-0055
+**Decision:** Technician-entered chassis/component identity is useful but remains unverified. Recognizing a cataloged carburetor is separate from proving compatibility. Missing sourced trim does not invalidate a sourced Year + Make + Model application.

@@ -10,6 +10,8 @@ CarbTune supports carbureted modern engine swaps, including LS, Coyote, Hemi, an
 
 `Measure -> Interpret -> Correct/Test -> Retest -> Compare -> Decide -> Log`
 
+Tests and corrections are distinct records. A prescribed test collects a structured result; interpretation changes diagnostic state; supported faults may produce a prescribed correction and a specific retest with before/after evidence. Completed tests are not immediately recommended again unless a correction requires retest or materially new evidence records why the branch reopened. Diagnostic sessions terminate as `VERIFIED_REPAIR`, `NO_FAULT_FOUND`, `UNRESOLVED`, or `ADDITIONAL_REPAIR_REQUIRED`.
+
 The workflow is offered at Beginner, Seasoned, and Pro guidance levels. Existing Novice data/UI compatibility may remain during migration, but the product direction is the three named levels above.
 
 ## Required domain separation
@@ -31,6 +33,7 @@ The workflow is offered at Beginner, Seasoned, and Pro guidance levels. Existing
 - The selector is relational: each next choice is derived only from application records matching every prior choice.
 - Never restore global fallback Make, Model, Submodel, or Trim vocabularies.
 - `Unknown / Not Listed` and `Other / Custom` are escape paths, never compatibility evidence.
+- A sourced Year + Make + Model record remains usable when its source genuinely supplies no trim. A technician-entered Custom / Not Listed chassis is explicitly unverified and cannot establish component compatibility.
 - Current FuelEconomy.gov data is a legitimate relational 1984-present baseline but is insufficient for desired classic-era coverage.
 - Auto Care VCdb/ACES is the primary backbone candidate; CLASSIC.COM is the historical-supplement candidate; NHTSA/vPIC, FuelEconomy.gov, EPA, and other authoritative sources are verification/enrichment candidates.
 - No commercial source is approved until coverage, provenance, licensing, persistent-registry rights, and software-provider reuse rights are verified.
