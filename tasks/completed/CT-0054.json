@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "id": "CT-0054",
+  "title": "Audited Override and Continue",
+  "status": "READY_FOR_CHATGPT_REVIEW",
+  "createdDate": "2026-08-30",
+  "completedDate": "2026-08-30",
+  "scope": "Implemented explicit, auditable safe advisory overrides in the active Build 51 measurement workflow without unrelated redesign, data, or architecture work.",
+  "objectives": [
+    "Preserve abnormal entered measurements and explain advisory warnings and recommended rechecks.",
+    "Require deliberate Override & Continue action for safe advisory warnings across Beginner, Seasoned, Pro, and compatible Novice guidance.",
+    "Persist complete override evidence with the correct job/workflow and expose it in Tune Log/audit history.",
+    "Keep genuine hard stops non-overridable and regression-test all required behavior at browser level."
+  ],
+  "constraints": [
+    "Vehicle data and unrelated architecture/features remain unchanged.",
+    "Abnormal values, specifications, recommendations, and warning position remain distinct and unmodified.",
+    "Existing localStorage jobs and Novice compatibility are preserved.",
+    "AFR remains optional without an installed wideband sensor."
+  ],
+  "acceptanceTests": [
+    { "id": "CARB-004", "expected": "All 20 audited override acceptance requirements pass through actual browser behavior.", "status": "PASSED", "evidence": "tests/validate-workflow.cjs adds 34 browser assertions within a 126-assertion workflow run, covering warning/value/action/audit/context/persistence/history/in-range/hard-stop/guidance/Novice/AFR/phone UX behavior." },
+    { "id": "CT0054-VALIDATE", "expected": "Baseline and two final post-change npm run validate runs exit zero.", "status": "PASSED", "evidence": "Baseline passed 5 programs/92 assertions; two final post-change runs each passed 5 programs/126 assertions; GitHub Actions run 33353156503 succeeded." },
+    { "id": "CT0054-DATA", "expected": "Vehicle application data remains unchanged.", "status": "PASSED", "evidence": "git diff --exit-code confirmed data/vehicle-applications.js unchanged from baseline." }
+  ],
+  "implementationNotes": [
+    "Added backward-compatible workflow.overrideAudit normalization and structured WARNING_OVERRIDE records.",
+    "Classified plausible out-of-working-range readings as safe advisories and technically implausible readings as non-overridable hard stops.",
+    "Added deliberate Correct / Recheck and Override & Continue controls with guidance-specific copy and optional technician reason.",
+    "Mirrored override evidence into Tune Log history without altering the original measurement, specifications, or recommendations.",
+    "Resolved B-0052-03 and automated CARB-004 with actual browser behavior."
+  ],
+  "validation": {
+    "command": "npm run validate",
+    "status": "PASSED",
+    "exitCode": 0,
+    "date": "2026-08-30",
+    "summary": "Baseline passed all 5 programs/92 workflow assertions. Two required final local runs each passed all 5 programs/126 workflow assertions. GitHub Actions run 33353156503 passed for the implementation SHA."
+  },
+  "filesChanged": [
+    "index.html",
+    "project/ACCEPTANCE_TESTS.md",
+    "project/BUGS.md",
+    "project/DECISIONS.md",
+    "project/ROADMAP.md",
+    "tasks/current.json",
+    "tests/project-control.test.mjs",
+    "tests/validate-workflow.cjs",
+    "CARBTUNE_HANDOFF.md",
+    "tasks/completed/CT-0054.json"
+  ],
+  "commitSha": "5391b8201cb0a2f248fbcfb159b7d3268885924f",
+  "handoffCommitSha": null,
+  "deploymentStatus": "VERIFIED_SUCCESS_FOR_IMPLEMENTATION_SHA: GitHub Pages run 33353155507",
+  "blockers": [],
+  "reviewStatus": "PENDING_CHATGPT_REVIEW"
+}
