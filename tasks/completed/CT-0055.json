@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "CT-0055",
+  "title": "Product-owner field test repair and closed-loop diagnostics",
+  "status": "READY_FOR_CHATGPT_REVIEW",
+  "createdDate": "2026-08-31",
+  "completedDate": "2026-08-31",
+  "scope": "Repair live Build 51 iPhone workflow findings and implement migration-safe closed-loop diagnostics.",
+  "objectives": [
+    "Structured diagnostic states, results, prescribed corrections, retests, comparisons, and terminal outcomes",
+    "Mobile/touch, chassis, submodel, custom historical chassis, carb type-ahead, symptom, encoding, and guidance repairs",
+    "Browser-level regression evidence while preserving CT-0054 audits, AFR rules, data provenance, and prior safeguards"
+  ],
+  "constraints": [
+    "No fabricated historical applications or compatibility",
+    "No PostgreSQL, Knowledge Harvester, or general NLP backend",
+    "No test weakening, saved-job discard, audit loss, or secrets"
+  ],
+  "acceptanceTests": [
+    {"id":"CT55-001..015","expected":"Field-test vehicle/mobile/touch/carb/encoding repairs","status":"PASS","evidence":"tests/validate-workflow.cjs"},
+    {"id":"CT55-016..030","expected":"Closed-loop diagnostic evidence and terminal outcomes","status":"PASS","evidence":"tests/validate-workflow.cjs"},
+    {"id":"CT55-031..038","expected":"Guidance/backward compatibility and prior protections","status":"PASS","evidence":"npm run validate"}
+  ],
+  "implementationNotes": [
+    "Baseline 6afc4298cc619f32821ae50b16563b6b503754cc matched origin/main; baseline validation passed 126 assertions.",
+    "Implementation 5ca9207a8ae8620435d2695f867f41521a57569e passed two final runs with 152 assertions each.",
+    "GitHub Actions 33390665449 and Pages 33390663646 completed successfully for the implementation SHA.",
+    "data/vehicle-applications.js and data/knowledge-base.js were unchanged."
+  ],
+  "validation": {"command":"npm run validate","status":"PASS","exitCode":0,"date":"2026-08-31","summary":"5 of 5 programs and 152 workflow assertions passed twice consecutively."},
+  "filesChanged": ["index.html","project/ACCEPTANCE_TESTS.md","project/BUGS.md","project/DECISIONS.md","project/PRODUCT_SPEC.md","project/ROADMAP.md","tasks/current.json","tasks/completed/CT-0055.json","tests/validate-workflow.cjs","CARBTUNE_HANDOFF.md"],
+  "commitSha": "5ca9207a8ae8620435d2695f867f41521a57569e",
+  "handoffCommitSha": null,
+  "deploymentStatus": "VERIFIED_SUCCESS",
+  "blockers": [],
+  "reviewStatus": "READY_FOR_CHATGPT_REVIEW"
+}

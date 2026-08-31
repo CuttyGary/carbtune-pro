@@ -1,143 +1,74 @@
-Task: CT-0054
+Task: CT-0055
 Status: READY_FOR_CHATGPT_REVIEW
 
-# CarbTune Handoff — CT-0054 Audited Override & Continue
+# CarbTune Handoff — CT-0055 Product-Owner Field Test Repair
 
-## Commits
+## Commits and deployment
 
-- Baseline SHA: `f23d75595a7a27b13a0560f5f3e9ea69e4d6bcee`
-- Implementation SHA: `5391b8201cb0a2f248fbcfb159b7d3268885924f`
-- Final handoff SHA: not representable inside the commit that creates this report; verify with `git log -1 --format=%H -- CARBTUNE_HANDOFF.md`. It is reported externally after push.
+- Baseline SHA: `6afc4298cc619f32821ae50b16563b6b503754cc`
+- Implementation SHA: `5ca9207a8ae8620435d2695f867f41521a57569e`
+- Final handoff SHA: not representable inside its own commit; verify with `git log -1 --format=%H -- CARBTUNE_HANDOFF.md` after push.
+- GitHub Actions: run `33390665449`, success for the implementation SHA.
+- GitHub Pages: run `33390663646`, success for the implementation SHA.
 
-## Actual behavior implemented
+## Field-test defects resolved
 
-Active Build 51 now separates two measurement conditions:
+- New Job now carries chassis and installed-engine identity into Build without forcing chassis re-entry. A concise vehicle summary remains editable.
+- Sourced Year + Make + Model records can continue when the source supplies no useful trim. Unknown/custom trim remains non-evidentiary.
+- Custom / Not Listed chassis entry supports pre-1984 work while explicitly labeling the identity technician-entered/unverified and never creating compatibility.
+- The mobile modal uses a safe-area-aware sticky action footer; the iPhone-sized browser test proves Create New Job remains reachable with no horizontal overflow.
+- Operating Context now handles actual touch, renders `aria-pressed`/selected state, persists through reload, and remains structured verification evidence.
+- Carburetor New Job entry is case-insensitive and punctuation/spacing-normalized. `BR-67255`, `br67255`, and equivalent forms find the same record; selection preserves canonical `BR-67255`. Identification and compatibility remain separate messages. Unknown text stays unverified.
+- The visible engine-catalog bullet mojibake is repaired and the workflow source is regression-scanned for similar corruption.
+- An overridden CT-0054 advisory renders as an `OPEN CONCERN` with original evidence; hard stops and incomplete required actions remain blockers.
+- Current guidance vocabulary is Beginner / Seasoned / Pro. Legacy saved `Novice` deterministically loads as Beginner while historical override audit values remain `Novice`.
+- Other observation text persists. Common run-on/dieseling aliases suggest the structured `Engine run-on / dieseling after key-off` symptom and require technician confirmation.
 
-1. A technically plausible value outside CarbTune's current working expectation is an advisory warning. The entered value stays unchanged; the UI identifies what is abnormal, explains why it matters at the selected guidance level, shows expected/recommended context and a correction/recheck, and requires deliberate `Override & Continue` before workflow progress.
-2. A technically implausible value outside broad gauge/data plausibility bounds is a hard stop. The original entry remains visible, the UI explains that the gauge/test setup or entry must be checked, progress is disabled, and no fake advisory override is offered.
+## Diagnostic state and behavior
 
-Beginner and compatible Novice guidance include the fullest explanation of impact and override meaning. Seasoned is concise. Pro is compact and does not trap the technician behind safe advisory warnings. Grouped Seasoned/Pro/Novice baseline entry cannot silently interpret while any advisory lacks an explicit audit or any hard stop remains.
+The saved job now normalizes a durable `diagnostic.tests` collection and terminal outcome. Supported diagnostic states are:
 
-`Correct / Recheck` returns focus to the actual input. `Override & Continue` optionally accepts a technician note; typing is not mandatory. In-range values create neither warning nor audit. AFR remains absent unless the wideband checkbox is explicitly enabled.
+`NOT_TESTED`, `TEST_RECOMMENDED`, `TEST_PERFORMED`, `RESULT_RECORDED`, `INTERPRETED`, `RULED_OUT`, `SUSPECT`, `CORRECTION_RECOMMENDED`, `CORRECTION_PERFORMED`, `RETEST_REQUIRED`, `RETESTED`, `VERIFIED`, and `UNRESOLVED`.
 
-## Audit schema and integrity
+Tests and corrections are different evidence kinds. The accelerator-pump path asks for one of five structured discharge observations instead of asking what the technician did. Immediate/strong evidence rules out that branch where justified; delayed, weak/intermittent, or no discharge makes pump delivery suspect and recommends correcting linkage clearance/actuation without inventing an adjustment dimension. Confirming that prescribed correction requires the same specific pump-shot retest and stores the prior result with the retest for before/after comparison. A completed/rule-out branch is not immediately recommended again.
 
-New jobs include `workflow.overrideAudit: []`. `normalizeJob()` supplies an empty array when older saved jobs lack the field, preserving localStorage and Novice compatibility.
+The numeric fuel-delivery path explicitly requests idle PSI and 2500 RPM PSI, stores both values and their delta, and does not fabricate a manufacturer specification. Technician notes and Other / Custom action remain available but are supplemental.
 
-Each `WARNING_OVERRIDE` record retains:
+Terminal outcomes are `VERIFIED_REPAIR`, `NO_FAULT_FOUND`, `UNRESOLVED`, and `ADDITIONAL_REPAIR_REQUIRED`. Final results retain complaint, baseline, structured tests/results, corrections, retests, before/after evidence, open concerns, overrides, and notes.
 
-- `id`, `type`, and ISO `timestamp`;
-- `jobId` and optional shop `jobNo`;
-- `workflowPhase`, `workflowStep`, and `continuation` action/resulting phase/next measurement;
-- `measurementId`, `measurementName`, original `originalValue`, and `unit`;
-- `warningId`, warning text, `whyAbnormal`, `expectedRange`, and `recommendation`;
-- explicit `technicianIntent: OVERRIDE_AND_CONTINUE`;
-- optional `technicianReason`;
-- `guidanceLevel`.
+Beginner pump guidance explains engine-off visibility, air-cleaner removal as required, primary nozzle observation, manual linkage movement, immediate onset, strength, continuity, and delay. Seasoned is shorter; Pro is compact. The existing `ONE NEXT ACTION • confidence`, What we observed, What it means, and Why this vehicle card pattern is preserved.
 
-The same evidence is appended to `tuneLog` with outcome `WARNING_OVERRIDDEN` and rendered in the Tune Log/audit timeline with the original value, warning, expectation, recommendation, intent, reason, guidance, job, and workflow context. It does not change the measured value, manufacturer fact, CarbTune recommendation, or warning classification. Reload persistence is browser-tested.
+## Tests and exact results
 
-## Files changed
+`tests/validate-workflow.cjs` increased from 126 to 152 browser assertions. New coverage includes all CT55-001 through CT55-038 field-test IDs: chassis carry-forward, absent trim, custom historical chassis, sticky mobile action, real touch/context persistence, carb normalization/canonical identity, identification-vs-compatibility, mojibake, structured pump and fuel-pressure evidence, no immediate repeated test, correction/retest comparison, terminal state, open concern vs hard stop, symptoms/Other/run-on, guidance levels/migration, CT-0054 audit integrity, optional AFR, and existing relational safeguards.
 
-Implementation commit:
+Baseline:
 
-- `index.html`
-- `project/ACCEPTANCE_TESTS.md`
-- `project/BUGS.md`
-- `project/DECISIONS.md`
-- `project/ROADMAP.md`
-- `tasks/current.json`
-- `tests/project-control.test.mjs`
-- `tests/validate-workflow.cjs`
-
-Final handoff commit:
-
-- `CARBTUNE_HANDOFF.md`
-- `tasks/current.json`
-- `tasks/completed/CT-0054.json`
-
-`data/vehicle-applications.js` and `data/knowledge-base.js` are unchanged.
-
-## Tests added/changed
-
-`tests/validate-workflow.cjs` adds 34 browser-level assertions covering:
-
-- advisory warning creation and preserved original value;
-- Beginner explanation, correction/recheck, and override meaning;
-- visible explicit Override & Continue and no pre-click audit;
-- complete audit warning/value/intent/reason/timestamp/job/workflow/guidance/continuation fields;
-- Tune Log evidence and save/reload persistence;
-- in-range values producing no override;
-- technically implausible hard stop with no override;
-- Seasoned, Pro, and Novice explicit override gates and audit evidence;
-- phone horizontal-overflow and 44px touch-target behavior.
-
-`tests/project-control.test.mjs` now permits the task system to advance beyond CT-0053 while retaining completed CT-0053 evidence, and requires `CARB-004` automated browser evidence plus `B-0052-03` CT-0054 resolution.
-
-## Exact validation results
-
-Baseline at `f23d75595a7a27b13a0560f5f3e9ea69e4d6bcee`:
-
-```shell
-git fetch origin --prune
+```text
 npm run validate
+PASS — 5 of 5 programs; 126 workflow assertions.
 ```
 
-PASS — local `main` matched `origin/main`; 5 of 5 programs passed; workflow suite passed 92 assertions.
+Two consecutive final runs:
 
-During integration, one run exposed an ambiguous test locator because the same persisted audit correctly rendered in two history surfaces; the locator was scoped to active `#guidedCard`. A subsequent run exposed leftover test Tune Log state; test isolation was corrected. No product behavior or legitimate assertion was weakened.
-
-Two required final runs:
-
-```shell
+```text
 npm run validate
 npm run validate
+PASS / PASS — each run passed 5 of 5 programs and 152 workflow assertions.
 ```
 
-Both PASS — 5 of 5 programs and 126 workflow assertions each:
+Both runs passed JavaScript syntax (2 inline scripts), 26,366 relational vehicle records, project control/data policy, relational browser cascades, and workflow/persistence/provenance/responsive browser tests. Desktop and phone/tablet matrices had no horizontal overflow and preserved touch targets. Browser console errors: none. Credential scan: no matches. `git diff --check`: pass.
 
-1. JavaScript / syntax integrity — PASS; 2 inline scripts validated.
-2. Vehicle registry and provenance integrity — PASS; 26,366 relational records unchanged.
-3. Project control and data-policy integrity — PASS.
-4. Relational vehicle cascade browser regressions — PASS.
-5. Workflow, persistence, provenance, override, hard-stop, and UI smoke regressions — PASS; 126 assertions.
+## Data and backward compatibility
 
-Additional verified checks:
+`data/vehicle-applications.js` and `data/knowledge-base.js` are unchanged. No pre-1984 application, fabricated trim, fabricated component, or false compatibility was added. `VEHICLE-007` remains `BLOCKED_BY_DATA` pending an approved historical source.
 
-- `node tests/project-control.test.mjs` — PASS after final task/result updates.
-- `git diff --check` and staged diff check — PASS.
-- `git diff --exit-code -- data/vehicle-applications.js` — PASS.
-- `git diff --exit-code -- data/knowledge-base.js` — PASS.
-- Credential-like pattern scan — no matches.
-- Browser console errors — none.
-- Existing legacy active-job migration and legacy tune history — PASS.
-- Existing conditional AFR, vehicle cascade, duplicate handling, Delete Job, and responsive matrix — PASS.
+Older jobs without diagnostic tests receive migration-safe defaults. Existing localStorage, legacy change/verification history, chassis/build separation, duplicate prevention, confirmed deletion, CT-0054 override evidence, component provenance, conditional AFR, and relational cascades remain passing.
 
-## Project-control status
+## Known gaps and recommended CT-0056
 
-- `CARB-004`: `AUTOMATED` / PASS.
-- `B-0052-03`: `RESOLVED_IN_CT-0054`.
-- `B-0052-04` Novice vocabulary migration remains open; CT-0054 intentionally preserved Novice behavior.
-- Unrelated bugs and blocked vehicle-data cases remain unchanged.
+- CT-0055 provides deterministic structured diagnostic branches, not a general knowledge-learning service. PostgreSQL, Knowledge Harvester, general NLP, and expanded manufacturer rule sets remain out of scope.
+- Custom chassis identity enables work but provides no sourced compatibility. Historical source acquisition remains separate.
+- Additional component-specific structured test/correction definitions should be added incrementally only with verified rules and browser evidence.
 
-## Persistence and backward compatibility
-
-PASS. Older records without `workflow.overrideAudit` normalize to an empty array. Existing job/save/localStorage, Tune Log, legacy migration, duplicate prevention, deletion confirmation, chassis/build separation, and conditional wideband behavior remain green. Actual override evidence survives reload and remains visible in history.
-
-## GitHub sync, CI, and Pages
-
-- Implementation push/sync: VERIFIED. Local `main` and fetched `origin/main` both resolved to `5391b8201cb0a2f248fbcfb159b7d3268885924f` before this handoff commit.
-- GitHub Actions `Validate CarbTune` run `33353156503`: VERIFIED SUCCESS for the implementation SHA.
-- GitHub Pages run `33353155507`: VERIFIED SUCCESS for the implementation SHA.
-- Final handoff push and final local/remote equality are verified externally after this report is committed.
-
-## Known gaps
-
-- Override records preserve the information required to relate future corrective actions and retest/results, but CT-0054 does not build the future learning database or automatically infer causal linkage beyond stored IDs/context.
-- Advisory and hard-stop thresholds currently use the existing Build 51 baseline tests and broad plausibility bounds. Future verified component/manufacturer requirements may refine warning context without rewriting historical audits.
-- Full Novice-to-Beginner vocabulary migration remains `B-0052-04` and was deliberately not included.
-- No unrelated backend, vehicle-data, catalog, architecture, or visual redesign work was performed.
-
-## Recommended CT-0055
-
-After ChatGPT/product-owner accepts CT-0054, scope CT-0055 to the backward-compatible guidance vocabulary migration (`B-0052-04`): define how persisted Novice maps to Beginner without losing saved-job meaning, implement the migration, and regression-test all guidance-specific behavior including the new override audits. Do not combine it with vehicle-source or backend work.
+Recommended CT-0056: after ChatGPT/product-owner accepts CT-0055, expand the closed-loop definition catalog to the next highest-value verified diagnostic branches and add explicit reopen-reason UI for materially new evidence. Do not begin that work from this handoff.
