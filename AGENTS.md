@@ -34,6 +34,18 @@ These instructions apply to the entire repository.
 - Do not push a knowingly broken or partially validated change to `main`.
 - If validation cannot be completed, report the blocker instead of committing or pushing.
 
+## ChatGPT Assignment Pickup Protocol
+
+- GitHub is the communication bus between ChatGPT and Codex. Do not require the user to copy full assignments between them when the assignment already exists in the repository.
+- At the beginning of every Codex work session or whenever the user says to check for ChatGPT work, pull/fetch the latest `main` and inspect `tasks/` for ChatGPT-authored assignments with an actionable status.
+- Treat `Status: READY_FOR_CODEX` or `Status: CHANGES_REQUESTED` as authorization to execute that task, subject to the scope and safeguards written in the task.
+- Before changing application code, update the task to `Status: CODEX_WORKING`, record the starting HEAD SHA and UTC start timestamp, commit/push that acknowledgement when practical, then perform the work.
+- If the task conflicts with `AGENTS.md`, `CARBTUNE_HANDOFF.md`, an explicit product-owner decision, or another active task, stop and record `Status: BLOCKED` with the conflict rather than guessing.
+- When implementation and required validation are complete, update the task to `Status: READY_FOR_CHATGPT_REVIEW` and include implementation commit SHA(s), files changed, tests/results, known limitations, deployment state, and any decision ChatGPT must review.
+- Do not begin a different unassigned CarbTune task after completing an assignment. Stop at the review gate unless the active assignment explicitly authorizes continuation.
+- `Status: ACCEPTED` means ChatGPT has accepted the task. `Status: CHANGES_REQUESTED` means Codex should read the latest review notes and continue the same task rather than creating a new interpretation of it.
+- Never overwrite ChatGPT review notes or product-owner decisions. Append or update only the Codex-owned status/report portions unless the assignment explicitly instructs otherwise.
+
 ## Permanent ChatGPT <-> Codex Handoff
 
 - `CARBTUNE_HANDOFF.md` is the canonical handoff between ChatGPT, Codex, and the user. Read it before every assignment so prior implementation state, tests, limitations, deployment, and next action are not lost.
