@@ -9,7 +9,7 @@ Fixed and acceptance-tested only the Vehicle/Chassis relational selector. No Bui
 
 - Starting synchronized SHA: `2e0ed14a342dda2c9b29ba9d6a3a236fd1d2cfb2`
 - Implementation SHA: `c38120eab9082c4cb99c7225a4784db10c8df0e6`
-- Deployment: PENDING PUSH AND LIVE-ASSET VERIFICATION
+- Deployment: VERIFIED 2026-09-01 — `origin/main` reached `d168f413b1ca6c9cc864e042624f8c06655edc3f`; GitHub Pages returned HTTP 200 for the updated index, unified catalog query, and historical dataset, including the expected 1983 records.
 
 ## Root cause
 
@@ -67,4 +67,4 @@ NHTSA recall application data is legitimate relational evidence but is not a com
 
 ## Recommended next step
 
-Deploy these commits, verify the live GitHub Pages assets resolve to the implementation SHA, then stop for the product owner's manual Vehicle/Chassis acceptance test.
+Stop for the product owner's manual Vehicle/Chassis acceptance test. Do not begin another feature or expansion.
