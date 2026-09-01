@@ -1,6 +1,6 @@
 # CT-0056 — Codex Hook Supervision Prototype
 
-Status: CODEX_WORKING
+Status: READY_FOR_CHATGPT_REVIEW
 Owner: ChatGPT
 Priority: HIGH
 
@@ -98,3 +98,47 @@ When complete, set this task to `Status: READY_FOR_CHATGPT_REVIEW` and record:
 - confirmation that no CarbTune application code changed.
 
 Then update `CARBTUNE_HANDOFF.md` per `AGENTS.md`, push all required commits, and STOP for ChatGPT review. Do not begin the CarbTune redesign.
+
+## Codex Completion Report
+
+- Starting HEAD SHA: `5e5c54dc4ea1719025072c003aaf4155b724498a`
+- Acknowledgement commit: `45c6a6245f55e223d20221b7921ff9ec643fa76e`
+- Implementation commit: `b155ff26fd737d1a49cc81f742fe46dae9598985`
+- Deployment: not applicable; this task adds local Codex infrastructure and does not change the deployed application.
+
+### Files changed
+
+- `.codex/hooks.json`
+- `.codex/README.md`
+- `.codex/hooks/task-state.cjs`
+- `.codex/hooks/session-start.cjs`
+- `.codex/hooks/stop-guard.cjs`
+- `.codex/hooks/validate-hooks.cjs`
+- `tasks/CT-0056_CODEX_HOOK_SUPERVISION.md` (status/report only)
+- `CARBTUNE_HANDOFF.md` (canonical handoff only)
+
+No CarbTune application code, `index.html`, or vehicle/knowledge data file changed.
+
+### Implemented behavior
+
+`SessionStart` matches only `startup` and `resume`. It scans direct Markdown/JSON task files using bounded, dependency-free reads and reports at most five `READY_FOR_CODEX` or `CHANGES_REQUESTED` entries. Injected context contains task path, status, and title plus a safety reminder; task bodies are neither copied nor executed. Missing, malformed, oversized, or unreadable files produce no blocking output.
+
+`Stop` requests continuation only when exactly one task is `CODEX_WORKING`. Zero or multiple active tasks are treated as ambiguous and permit stopping. Review-ready, accepted, and blocked states permit stopping. When `stop_hook_active` is true, it always returns `{}`, so a continuation cannot recursively trap the user.
+
+### Exact validation
+
+- `node .codex/hooks/validate-hooks.cjs` — PASS, 28 hook assertions.
+- Direct installed-Windows command overrides for both scripts — PASS (exit 0; expected current-task Stop decision).
+- `codex doctor --json` — `config.load: ok`; Codex `0.151.0-alpha.7.2` and stable `hooks` feature detected. Overall doctor status remains fail because of pre-existing Windows sandbox-helper and non-interactive `TERM=dumb` diagnostics, unrelated to hook parsing.
+- `npm run validate` — PASS, 5 of 5 programs and 152 workflow assertions.
+- `git diff --exit-code -- index.html` — PASS.
+- `git diff --check` — PASS.
+- Credential-pattern scan of `.codex/` — PASS, no matches.
+
+### One-time trust action
+
+After pulling these commits, open this repository in Codex, type `/hooks`, select each hook sourced from `.codex/hooks.json`, review its command, and choose **Trust**. Do not use `--dangerously-bypass-hook-trust`. Codex records trust against the hook-definition hash, so changed definitions require review again.
+
+### Limitations
+
+Hooks react only to Codex lifecycle events. They cannot wake an idle or closed Codex session without a user/session event. The prototype intentionally does not fetch GitHub automatically, recurse into task archive directories, choose between multiple `CODEX_WORKING` tasks, mutate task state, or execute task contents.
