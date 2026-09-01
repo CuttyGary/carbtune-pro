@@ -1,50 +1,70 @@
-Task: CT-0056
+Task: Vehicle hierarchy acceptance correction
 Status: READY_FOR_CHATGPT_REVIEW
 
-# CarbTune Handoff — Codex Hook Supervision Prototype
+# CarbTune Handoff — Historical Relational Vehicle Cascade
 
 ## Assignment and result
 
-Implemented safe repository-local Codex lifecycle hooks for the GitHub task communication workflow. This was infrastructure-only work. No CarbTune application behavior, `index.html`, vehicle registry, or knowledge-base data changed.
+Fixed and acceptance-tested only the Vehicle/Chassis relational selector. No Build Selection component logic, Build Intelligence, Baseline, Diagnosis, Results, graphs, reports, or Knowledge Base component records were changed.
 
-- Starting SHA: `5e5c54dc4ea1719025072c003aaf4155b724498a`
-- Acknowledgement SHA: `45c6a6245f55e223d20221b7921ff9ec643fa76e`
-- Implementation SHA: `b155ff26fd737d1a49cc81f742fe46dae9598985`
-- Deployment: not applicable; no deployed application file changed.
+- Starting synchronized SHA: `2e0ed14a342dda2c9b29ba9d6a3a236fd1d2cfb2`
+- Implementation SHA: `c38120eab9082c4cb99c7225a4784db10c8df0e6`
+- Deployment: PENDING PUSH AND LIVE-ASSET VERIFICATION
 
-## Behavior
+## Root cause
 
-The `SessionStart` hook runs for `startup` and `resume`, safely scans bounded direct files in `tasks/`, and injects concise path/status/title context for `READY_FOR_CODEX` and `CHANGES_REQUESTED`. It never copies or executes task bodies. Missing, malformed, oversized, and unreadable inputs fail open without blocking startup.
+The strict cascade introduced earlier was behaving as written, but its only packaged application source was the U.S. DOE/EPA FuelEconomy.gov registry, whose normalized coverage begins in 1984. The UI still presented static earlier years before runtime initialization. Therefore 1983 was selectable without any underlying rows and correctly collapsed to only the two escape paths. This was a combined data-boundary and UI-source-of-truth defect, not a normalization mismatch at the 1983 query.
 
-The `Stop` hook requests continuation only when repository metadata contains exactly one `CODEX_WORKING` task. It permits stopping for zero or multiple active tasks and for review-ready, accepted, or blocked state. It always permits the second stop when `stop_hook_active` is true, preventing an infinite continuation loop.
+## Data and query architecture
+
+- Preserved `data/vehicle-applications.js` unchanged: 26,366 DOE/EPA records, 1984–2027, 145 source make strings, and 20,187 rows with source-provided submodel/trim data.
+- Added a generated NHTSA ODI layer: 8,672 unique `RCLTYPECD=V` vehicle-recall Year/Make/Model relationships, 1955–1983, 312 source make strings. It uses both official pre-2010 and post-2010 recall archives so later recalls involving older model years are retained.
+- Added seven exact attributed supplements for required 1982 Oldsmobile and 1982/2002 Pontiac Firebird classifications using NHTSA vPIC and period manufacturer brochures.
+- The unified query de-duplicates and normalizes case, spacing, punctuation, and display casing without using semantic aliases or widening a relationship.
+- Combined query coverage: 35,036 de-duplicated application rows, 73 record-backed years (1955–2027), 415 normalized make identities, 4,086 make/model identities, and 20,189 rows with submodel/trim evidence.
+- 1983 contains 114 recorded makes, including Chevrolet, Dodge, Ford, Honda, Oldsmobile, Pontiac, and Toyota.
+- The registry is explicitly broad, not comprehensive.
+
+## Missing submodel handling
+
+NHTSA recall applications do not provide dependable submodel/trim data. For an exact Year + Make + Model without sourced variant rows, the final selector exposes only `Unknown / Not Listed` and `Other / Custom`. It never borrows global or same-manufacturer trims. DOE/EPA submodel values remain preferred and unchanged for 1984+ applications.
 
 ## Files changed
 
-- `.codex/hooks.json`
-- `.codex/README.md`
-- `.codex/hooks/task-state.cjs`
-- `.codex/hooks/session-start.cjs`
-- `.codex/hooks/stop-guard.cjs`
-- `.codex/hooks/validate-hooks.cjs`
-- `tasks/CT-0056_CODEX_HOOK_SUPERVISION.md` (assignment acknowledgement and completion report)
-- `CARBTUNE_HANDOFF.md`
+- `data/vehicle-historical-applications.js`
+- `data/vehicle-catalog.js`
+- `scripts/generate-historical-vehicle-applications.ps1`
+- `index.html`
+- `tests/vehicle-applications.test.mjs`
+- `tests/vehicle-cascade.browser.cjs`
+- `tests/build51.test.mjs`
+- `docs/knowledge-ingestion.md`
+- `project/ACCEPTANCE_TESTS.md`
+- `project/BUGS.md`
+- `project/DECISIONS.md`
+- `project/ROADMAP.md`
+
+## Source and provenance
+
+- U.S. DOE/EPA FuelEconomy.gov `vehicles.csv.zip`; existing source snapshot retrieved 2026-08-29 and existing SHA-256 retained unchanged.
+- NHTSA ODI `FLAT_RCL_PRE_2010.zip` and `FLAT_RCL_POST_2010.zip`; source archive snapshot retrieved 2026-08-28. Only vehicle application rows where `RCLTYPECD=V` are admitted.
+- NHTSA vPIC exact 1982 Oldsmobile year/make/model results.
+- Period 1982 and 2002 Pontiac Firebird manufacturer brochures for the exact Firebird submodel overlays.
 
 ## Validation
 
-- `node .codex/hooks/validate-hooks.cjs`: PASS — 28 hook assertions.
-- Installed Windows command overrides: PASS — both exit 0 and produce the expected current repository behavior.
-- `codex doctor --json`: `config.load` PASS with installed Codex `0.151.0-alpha.7.2`; overall doctor remains failed only for pre-existing Windows sandbox-helper and non-interactive terminal diagnostics.
-- `npm run validate`: PASS — 5 of 5 programs, 152 workflow assertions.
-- `git diff --exit-code -- index.html`: PASS.
+- Historical generator PowerShell syntax: PASS.
+- JavaScript syntax and embedded `index.html` scripts: PASS.
+- `tests/vehicle-applications.test.mjs`: PASS — multi-decade positive and negative relationships, 1983 makes/models, source boundaries, normalization, exact Firebird/Trans Am variants, Honda Type R, Toyota truck/SUV, missing trims, and escape-path integrity.
+- `tests/vehicle-cascade.browser.cjs`: PASS — active workflow and New Job modal both prove the 1983 Oldsmobile cascade, downstream resets, exact missing-trim fallback, and no cross-record bleed.
+- `npm run validate` equivalent through the repository Node runtime: PASS — 5 of 5 programs and all 152 workflow assertions.
+- Full workflow regressions confirm localStorage migration, chassis/installed-engine separation, duplicate safeguards, Delete Job confirmation/removal, component provenance, and no browser console errors.
 - `git diff --check`: PASS.
-- `.codex/` credential-pattern scan: PASS — no matches.
 
-## Trust and limitations
+## Limitations and manual acceptance gate
 
-Project hooks are intentionally not trust-bypassed. After pulling, the user must open this repository in Codex, type `/hooks`, select each entry from `.codex/hooks.json`, review its command, and choose **Trust**. Changed hook definitions require a new review because trust is hash-bound.
-
-Lifecycle hooks cannot wake an idle or closed Codex task without a user/session event. This prototype also deliberately avoids automatic Git fetch, task mutation, recursive archive scanning, and arbitrary instruction execution. Ambiguity always permits stopping.
+NHTSA recall application data is legitimate relational evidence but is not a comprehensive production catalog, and its absence does not prove a vehicle was never produced. The source includes multiple vehicle types and does not provide historical trim completeness. No missing application is invented. Manual acceptance should retest 1983 Oldsmobile plus unrelated manufacturers and years before any further feature work begins.
 
 ## Recommended next step
 
-ChatGPT should review CT-0056 and the hook definitions. After the one-time trust action, verify pickup with a future `READY_FOR_CODEX` assignment on a fresh/resumed Codex session. Do not begin the CarbTune redesign until separately assigned.
+Deploy these commits, verify the live GitHub Pages assets resolve to the implementation SHA, then stop for the product owner's manual Vehicle/Chassis acceptance test.
