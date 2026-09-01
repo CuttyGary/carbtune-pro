@@ -1,8 +1,13 @@
 # CT-0056 — Codex Hook Supervision Prototype
 
-Status: READY_FOR_CODEX
+Status: CODEX_WORKING
 Owner: ChatGPT
 Priority: HIGH
+
+## Codex Work State
+
+- Starting HEAD SHA: `5e5c54dc4ea1719025072c003aaf4155b724498a`
+- UTC start timestamp: `2026-09-01T03:04:24Z`
 
 ## Goal
 
