@@ -34,9 +34,9 @@
 
 ## B-0052-06 — Classic-era registry gap
 
-**Status:** BLOCKED_BY_DATA
-**Impact:** The current registry begins in 1984. Required cases such as 1982 Oldsmobile Cutlass/Cutlass Supreme cannot be catalog-selected.
-**Constraint:** Do not fabricate records. Resolve only through approved, licensed/provenance-bearing source integration.
+**Status:** RESOLVED_IN_VEHICLE_HIERARCHY_CORRECTION
+**Impact:** The unchanged FuelEconomy.gov seed begins in 1984, but an official NHTSA ODI historical application layer now supplies record-backed 1955–1983 Year/Make/Model relationships. Exact attributed supplements cover the required 1982 Oldsmobile and Pontiac Firebird classifications.
+**Constraint:** The merged catalog remains explicitly non-comprehensive. Missing NHTSA trim data uses Unknown / Not Listed or Other / Custom and is never inferred.
 
 ## CT-0053 infrastructure review
 
@@ -52,4 +52,4 @@ No unrelated product regression was found. Existing saved-job normalization trea
 
 The live Build 51 iPhone findings were durable workflow defects: Operating Context lacked reliable selected-state behavior; New Job repeated chassis entry and trapped sourced records without trim; historical coverage looked complete despite the 1984 source boundary; the primary mobile action could fall below the modal viewport; carb identification required cumbersome exact entry; visible catalog copy contained mojibake; overridden advisories remained labeled blockers; and diagnosis depended on circular generic findings/free-text corrections. CT-0055 repairs these through migration-safe state, structured pump/fuel-pressure results, prescribed correction/retest evidence, terminal outcomes, touch tests, sticky mobile actions, honest custom chassis evidence, normalized catalog type-ahead, and open-concern rendering.
 
-`VEHICLE-007` remains `BLOCKED_BY_DATA`: CT-0055 did not fabricate pre-1984 catalog records.
+`VEHICLE-007` was later resolved by the provenance-bearing historical vehicle correction; CT-0055 itself did not fabricate pre-1984 catalog records.

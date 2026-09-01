@@ -49,7 +49,7 @@ Each edge separates physical compatibility (whether parts can connect and under 
 - Never fabricate missing fields or infer compatibility solely to make a record appear complete.
 - Retain source dates because application and lifecycle information changes.
 
-Current vehicle-source research candidates remain unevaluated unless a task records evidence otherwise: Auto Care VCdb/ACES as preferred backbone candidate; CLASSIC.COM as historical specialty candidate; NHTSA/vPIC for authoritative VIN/application verification primarily 1981+; FuelEconomy.gov as the current sourced seed; EPA historical sources for corroboration; and SEMA Data for future aftermarket/application relationships. Listing a candidate does not claim access, coverage, license, or reuse rights.
+The vehicle registry preserves FuelEconomy.gov as its unchanged 1984+ seed and uses a separate official NHTSA ODI vehicle-recall application layer for bounded pre-1984 Year/Make/Model coverage. NHTSA rows do not supply trim data and the merged registry is not comprehensive. Auto Care VCdb/ACES, CLASSIC.COM, other EPA historical sources, and SEMA Data remain research candidates unless a later task records approved evidence and reuse terms; listing a candidate does not claim access, coverage, license, or reuse rights.
 
 ## Quality gates
 

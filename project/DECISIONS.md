@@ -27,8 +27,8 @@
 
 ## D-006 — Vehicle source strategy
 
-**Status:** RESEARCH APPROVED; INTEGRATION NOT APPROVED
-**Decision:** Evaluate VCdb/ACES as primary backbone, CLASSIC.COM as historical supplement, and vPIC/FuelEconomy.gov/EPA as verification/enrichment. No commercial integration proceeds without coverage, provenance, license, persistent-registry, and software-provider reuse review.
+**Status:** PUBLIC HISTORICAL SUPPLEMENT APPROVED; COMMERCIAL INTEGRATION NOT APPROVED
+**Decision:** Preserve FuelEconomy.gov as the preferred 1984+ source and use official NHTSA ODI vehicle-recall applications as a provenance-bearing pre-1984 supplement. Exact vPIC or period-manufacturer supplements must retain attribution. Continue evaluating VCdb/ACES and CLASSIC.COM; no commercial integration proceeds without coverage, provenance, license, persistent-registry, and software-provider reuse review.
 
 ## D-007 — Conditional wideband
 
@@ -73,7 +73,7 @@
 ## D-015 — CT-0053 source candidates are research only
 
 **Status:** ACCEPTED WITH LIMITATION
-**Decision:** FuelEconomy.gov remains the unchanged sourced seed. Auto Care VCdb/ACES, CLASSIC.COM, NHTSA/vPIC, EPA historical sources, and SEMA Data are evaluation candidates only; no license, access, coverage, or integration right is implied.
+**Decision:** FuelEconomy.gov remains the unchanged sourced seed. Official NHTSA ODI vehicle-recall applications are approved only as the bounded pre-1984 supplement implemented by the vehicle-hierarchy correction, with source limitations disclosed. Auto Care VCdb/ACES, CLASSIC.COM, other EPA historical sources, and SEMA Data remain evaluation candidates; no commercial license, access, coverage, or integration right is implied.
 
 ## D-016 — Advisory overrides are first-class evidence
 

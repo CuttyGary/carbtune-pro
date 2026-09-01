@@ -49,7 +49,16 @@ function excludesForbidden(items) {
     const model = '[data-b51-vehicle="model"]';
     const trim = '[data-b51-vehicle="submodel"]';
     if (!await page.locator(year).count()) throw new Error(`Vehicle step unavailable; active screen=${await page.locator('.screen.active').getAttribute('data-screen')}; errors=${errors.join(' | ')}`);
-    if ((await options(page, year)).includes('1980')) throw new Error('Guided selector exposes unsupported 1980 catalog year');
+    const guidedYears = await options(page, year);
+    if (!guidedYears.includes('1983') || guidedYears.includes('1899')) throw new Error(`Guided selector year coverage is not record-backed: ${guidedYears.join(', ')}`);
+    await select(page, year, '1983');
+    const guided1983Makes = await options(page, make);
+    if (!['Chevrolet', 'Dodge', 'Ford', 'Honda', 'Oldsmobile', 'Pontiac', 'Toyota'].every(value => guided1983Makes.includes(value))) throw new Error(`Guided 1983 makes are incomplete: ${guided1983Makes.join(', ')}`);
+    await select(page, make, 'Oldsmobile');
+    const guided1983Oldsmobile = await options(page, model);
+    if (!guided1983Oldsmobile.includes('Cutlass') || ['Oldsmobile', 'Mustang', 'Firebird'].some(value => guided1983Oldsmobile.includes(value))) throw new Error(`Guided 1983 Oldsmobile models are not exact: ${guided1983Oldsmobile.join(', ')}`);
+    await select(page, model, 'Cutlass');
+    if ((await options(page, trim)).join('|') !== 'Unknown / Not Listed|Other / Custom') throw new Error('Guided 1983 Oldsmobile Cutlass manufactured trim evidence');
     await select(page, year, '1985');
     await select(page, make, 'Chevrolet');
     await select(page, model, 'Camaro');
@@ -76,7 +85,14 @@ function excludesForbidden(items) {
     if ((await options(page, model)).join('|') !== 'Select model|Unknown / Not Listed|Other / Custom') throw new Error('Guided Other make manufactured catalog Model evidence');
 
     await page.evaluate(() => openNewJob());
-    if ((await options(page, '#newVehicleYear')).includes('1980')) throw new Error('Modal selector exposes unsupported 1980 catalog year');
+    const modalYears = await options(page, '#newVehicleYear');
+    if (!modalYears.includes('1983') || modalYears.includes('1899')) throw new Error(`Modal selector year coverage is not record-backed: ${modalYears.join(', ')}`);
+    await select(page, '#newVehicleYear', '1983');
+    const modal1983Makes = await options(page, '#newVehicleMake');
+    if (!['Chevrolet', 'Dodge', 'Ford', 'Honda', 'Oldsmobile', 'Pontiac', 'Toyota'].every(value => modal1983Makes.includes(value))) throw new Error(`Modal 1983 makes are incomplete: ${modal1983Makes.join(', ')}`);
+    await select(page, '#newVehicleMake', 'Oldsmobile');
+    const modal1983Oldsmobile = await options(page, '#newVehicleModel');
+    if (!modal1983Oldsmobile.includes('Cutlass') || ['Oldsmobile', 'Mustang', 'Firebird'].some(value => modal1983Oldsmobile.includes(value))) throw new Error(`Modal 1983 Oldsmobile models are not exact: ${modal1983Oldsmobile.join(', ')}`);
     await select(page, '#newVehicleYear', '1985');
     if (!(await options(page, '#newVehicleMake')).includes('Chevrolet')) throw new Error(`Modal year change did not derive 1985 makes: ${(await options(page, '#newVehicleMake')).join(', ')}`);
     await select(page, '#newVehicleMake', 'Chevrolet');

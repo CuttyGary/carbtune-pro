@@ -12,7 +12,7 @@ This catalog is durable product evidence, not a release checklist that is reset 
 | VEHICLE-004 | Changing Make clears Model and Submodel. | AUTOMATED | `tests/vehicle-cascade.browser.cjs` |
 | VEHICLE-005 | Changing Model clears Submodel. | AUTOMATED | `tests/vehicle-cascade.browser.cjs` |
 | VEHICLE-006 | `Unknown / Not Listed` and `Other / Custom` do not establish component or vehicle compatibility. | AUTOMATED | Both vehicle tests and workflow custom-component checks |
-| VEHICLE-007 | 1982 Oldsmobile Cutlass/Cutlass Supreme remains unavailable until an approved provenance-bearing historical source provides coverage. | BLOCKED_BY_DATA | Current normalized FuelEconomy.gov data begins in 1984. `tests/project-control.test.mjs` proves 1982 remains absent. Never fabricate a record merely to satisfy this test. |
+| VEHICLE-007 | 1982 Oldsmobile Cutlass/Cutlass Supreme and ordinary 1983 manufacturers are available only through provenance-bearing relational records. | AUTOMATED | `tests/vehicle-applications.test.mjs`, `tests/vehicle-cascade.browser.cjs`; the unchanged 1984+ FuelEconomy.gov seed is augmented by official NHTSA historical applications and exact attributed supplements. |
 | VEHICLE-008 | Guided and New Job selectors use the same relational application source; no global fallback vehicle vocabularies are allowed. | AUTOMATED | `tests/vehicle-cascade.browser.cjs` |
 
 ## Workflow, carburetion, and persistence

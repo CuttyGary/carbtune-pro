@@ -15,7 +15,7 @@ Roadmap items are direction, not automatic authorization. Every implementation r
 
 - Closed-loop structured diagnostic test/result/correction/retest state, including accelerator-pump and numeric fuel-pressure evidence.
 - iPhone Operating Context touch persistence, mobile New Job action, chassis carry-forward, missing-trim handling, custom historical chassis disclosure, carburetor type-ahead, encoding repair, and Novice-to-Beginner migration.
-- `VEHICLE-007` remains blocked pending an approved historical source.
+- `VEHICLE-007` is resolved with an official NHTSA ODI pre-1984 relational supplement; manual acceptance remains required.
 
 ## Next stabilization candidates — assignment required
 
@@ -39,13 +39,13 @@ CarbTune is not permanently restricted to a single page or dependency-free archi
 
 ## Vehicle and source roadmap — evaluation only
 
-The committed U.S. DOE/EPA FuelEconomy.gov application registry is the current sourced seed. Its normalized coverage begins in 1984, so it cannot satisfy CarbTune's classic-vehicle requirement or `VEHICLE-007`.
+The committed U.S. DOE/EPA FuelEconomy.gov application registry remains the unchanged 1984+ sourced seed. A separate official NHTSA ODI vehicle-recall application layer supplies record-backed pre-1984 Year/Make/Model coverage without replacing the richer DOE/EPA submodel data. The merged registry is broad, not comprehensive.
 
 | Candidate | Intended evaluation | Current authorization |
 | --- | --- | --- |
 | Auto Care VCdb / ACES | Preferred normalized application backbone candidate | Coverage, provenance, license, persistent-registry, and software-provider reuse evaluation pending |
 | CLASSIC.COM | Historical specialty/taxonomy candidate | Evaluation and license pending |
-| NHTSA/vPIC | Authoritative VIN/application verification and enrichment, primarily 1981+ | Public API/data terms and field fitness must be reviewed per integration |
+| NHTSA/vPIC and ODI | Historical vehicle-recall applications plus exact application verification | Public ODI pre-1984 supplement implemented; broader enrichment remains review-bound |
 | FuelEconomy.gov | Current sourced relational application seed | Committed snapshot retained; known 1984+ limitation |
 | EPA historical sources | Corroboration and historical research | Discovery/normalization plan pending |
 | SEMA Data | Future aftermarket/application relationship candidate | Access, coverage, and license evaluation pending |
