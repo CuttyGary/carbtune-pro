@@ -1,0 +1,19 @@
+# CarbTune-only unattended development policy.
+# Loaded only when this repository's project layer is trusted.
+sandbox_mode = "workspace-write"
+approval_policy = "never"
+
+[sandbox_workspace_write]
+network_access = true
+
+[features.network_proxy]
+enabled = true
+
+[features.network_proxy.domains]
+"github.com" = "allow"
+"api.github.com" = "allow"
+"objects.githubusercontent.com" = "allow"
+"raw.githubusercontent.com" = "allow"
+"registry.npmjs.org" = "allow"
+"localhost" = "allow"
+"127.0.0.1" = "allow"

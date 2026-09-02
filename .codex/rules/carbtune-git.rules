@@ -1,0 +1,5 @@
+prefix_rule(
+    pattern = ["node", ".codex/tools/carbtune-git.cjs"],
+    decision = "allow",
+    justification = "Run the protected CarbTune-only Git wrapper outside the sandbox; it validates repository, remote, branch, paths, and non-destructive operations."
+)
