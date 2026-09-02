@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "id": "CT-0058",
+  "title": "Repository-scoped unattended Codex permissions",
+  "status": "READY_FOR_CHATGPT_REVIEW",
+  "createdDate": "2026-09-02",
+  "completedDate": "2026-09-02",
+  "scope": "Configure durable Codex permissions for unattended normal development only in the CarbTune Pro repository while retaining safeguards outside that repository.",
+  "objectives": [
+    "Use installed-version-supported project-local controls.",
+    "Allow normal repository development and safe Git/GitHub workflow without repeated manual approval.",
+    "Keep dangerous, unrelated, privilege, credential, and machine-wide operations outside the unattended boundary."
+  ],
+  "constraints": [
+    "No danger-full-access or approval/sandbox bypass.",
+    "No global machine grant.",
+    "Existing hook trust and supervision architecture remain unchanged.",
+    "No destructive security testing."
+  ],
+  "acceptanceTests": [
+    {
+      "id": "CT-0058-A1",
+      "expected": "Installed Codex strictly loads the project configuration.",
+      "status": "PASS",
+      "evidence": "Strict doctor reported config.load ok, approval Never, restricted filesystem sandbox, enabled network sandbox, and complete sandbox provisioning."
+    },
+    {
+      "id": "CT-0058-A2",
+      "expected": "Repository reads, edits, validation, Git staging/commit, and normal push path avoid unresolved user approval waits.",
+      "status": "PASS_WITH_PLATFORM_FALLBACK",
+      "evidence": "Execpolicy allows only the protected wrapper. It staged and created implementation commit b8618ea4f4f41f30c7e239d321051816eb087a61; push is pinned to origin/main."
+    },
+    {
+      "id": "CT-0058-A3",
+      "expected": "The policy remains repository-scoped and blocks dangerous variants.",
+      "status": "PASS",
+      "evidence": "Wrapper rejected ../outside.txt and push --force; direct git add had no allow match; network destinations are allowlisted."
+    }
+  ],
+  "implementationNotes": [
+    "Starting HEAD: aa95367e14a58a7193e143706f7767182c201208.",
+    "Normal commands use workspace-write with approval_policy never so unsupported actions fail instead of waiting.",
+    "The protected wrapper permits only status, diff, bounded log, repository-relative add, one-line commit, origin fetch, origin/main fast-forward pull, and origin/main push.",
+    "Native Windows Codex rejected .git writes despite exact beta profile rules; auto-review reproduced a stalled probe. The wrapper and project-local allow rule are the narrowest verified fallback.",
+    "Two nested codex exec probes were interrupted after stalling before spawning a shell child; direct config, sandbox, execpolicy, wrapper, Git, and project validations completed independently."
+  ],
+  "validation": {
+    "command": "hook validation; npm run validate; strict doctor; execpolicy and wrapper tests; git diff checks",
+    "status": "PASS",
+    "exitCode": 0,
+    "date": "2026-09-02",
+    "summary": "28 hook assertions and all five CarbTune programs/152 workflow assertions passed; config/rules/wrapper passed; index.html unchanged. Doctor overall remains nonzero only for non-interactive TERM=dumb."
+  },
+  "filesChanged": [
+    ".codex/config.toml",
+    ".codex/rules/carbtune-git.rules",
+    ".codex/tools/carbtune-git.cjs",
+    "docs/codex-permissions.md",
+    "tasks/current.json",
+    "tasks/completed/CT-0058.json",
+    "CARBTUNE_HANDOFF.md"
+  ],
+  "commitSha": "b8618ea4f4f41f30c7e239d321051816eb087a61",
+  "deploymentStatus": "NOT_APPLICABLE",
+  "blockers": [],
+  "reviewStatus": "READY_FOR_CHATGPT_REVIEW"
+}
