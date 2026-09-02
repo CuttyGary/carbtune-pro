@@ -1,45 +1,54 @@
-Task: CT-0059
+Task: CT-0060
 Status: READY_FOR_CHATGPT_REVIEW
 
-# CarbTune Handoff — Stabilization, validation truth, and service boundaries
+# CarbTune Handoff — Shop-grade vehicle, job history, and configuration foundation
 
 ## Result
 
-CT-0059 is implemented without a frontend rewrite or backend deployment. The existing technician workflow and localStorage keys remain operational. A versioned adapter now persists validation truth and defines future service boundaries while preventing old, changed, superseded, invalidated, missing, or unknown evidence from driving current verified state.
+CT-0060 is implemented on the latest post-CT-0059 `main` without PostgreSQL, a fake backend, authentication, or a frontend rewrite. CarbTune now persists versioned Vehicle Records separately from jobs, groups returning visits when identity evidence supports it, retains immutable per-job configuration snapshots, and offers a fast returning-vehicle/new-job workflow.
 
-- Starting SHA: `dd63b46e50d3e221ec10e6957140e5c4347aa46c`
-- In-progress acknowledgement: `769f926`
-- Implementation SHA: `aa35ce0256cb0085045851bb8d08ae858460186b`
-- Handoff SHA: `fa4a24d0e52e79d40043b8d27a557de1c098faf1`
-- CI: `Validate CarbTune` run `33669302540` completed successfully.
-- Deployment: Pages run `33669301648` completed successfully.
+- Starting SHA: `434223fff7a489d1f0e060cdc7ff8626de9a05e1`
+- In-progress acknowledgement: `1b11af0`
+- Implementation SHA: `2cb90855e5465acf37b19a2425fe3c5c80bd1764`
+- Handoff SHA: pending this documentation commit
+- CI/deployment: pending verification after final push
 
 ## What changed
 
-- Added `carbtune.validation-result` schema version 1 with explicit type, result, lifecycle, timestamp, source, related subject, deterministic subject fingerprint, evidence references, supersession, and invalidation fields.
-- Only a current `PASS` with known origin, valid timestamp, matching current subject, and no supersession/invalidation can render as current verified state.
-- Legacy verification outcomes remain preserved evidence with `UNKNOWN` lifecycle. New road-test/dyno sessions receive linked structured records. Related tune/component changes invalidate current records; changed chassis/engine identity fails the fingerprint check and normalizes to `STALE`.
-- Added `carbtune.service-boundary` v1 for Job, Vehicle/Chassis, Installed Engine, Components, Baseline measurements, Diagnostic findings, Recommended corrections, Performed corrections, Retest/verification results, and Technician evidence/media references.
-- Added a documented idempotent, audited, reversible localStorage-to-PostgreSQL migration sequence. No database, mock backend, or service deployment was created.
-- Expanded relational selector coverage for historical applications, downstream resets, missing trims, escape paths, and explicit 1983 Oldsmobile chassis vs Ford engine-swap separation.
+- Added `carbtune.vehicle-record`, `carbtune.vehicle-configuration-snapshot`, `carbtune.actor-reference`, and `carbtune.audit-event` schemas at v1 under contract envelope `2.0.0`; the CT-0059 job/validation schemas remain compatible.
+- Vehicle Records retain stable ID/revision, independent chassis and installed engine, optional VIN/customer reference/notes, provenance, timestamps, archive state, job relationships, snapshots, current-configuration pointer, and audit events.
+- Odometer values are appendable job observations with timestamp/source/actor, never a silently overwritten vehicle value.
+- Legacy localStorage jobs derive Vehicle Records idempotently. Existing links or supplied matching VIN can group visits; otherwise each no-VIN legacy job remains separate rather than guessing physical identity.
+- Starting a return visit deep-clones the current known configuration into a new job and snapshot. Historical jobs/snapshots remain unchanged. Vehicle archive preserves jobs; confirmed Delete Job remains job-scoped and repairs vehicle relationships.
+- Jobs/Home now shows returning vehicles, useful job history, current configuration, and `New Job for Vehicle` in technician language. New visits skip repeated vehicle/build entry where known.
+- Actor/audit foundations accept explicit local technician or `UNKNOWN`; no authenticated-user claim is made.
 
 ## Validation evidence
 
-- `npm run validate`: PASS, 6 programs.
-- Vehicle provenance: PASS, 35,036 combined relational records, 1955-2027.
-- Versioned contract suite: PASS for current proof, legacy unknown, supersession, staleness, invalidation, required domains, and chassis/engine separation.
-- Vehicle cascade browser suite: PASS for guided and modal selectors.
-- Workflow/persistence/browser suite: PASS, 158 assertions, including persisted validation evidence, legacy migration, no stale green, responsive layouts, and no browser-console errors.
-- `git diff --check`: PASS.
+- `npm run validate`: PASS, all 6 canonical programs.
+- Vehicle registry/provenance: PASS, 35,036 combined relational records, 1955–2027.
+- Service-contract tests: PASS for migration/idempotence, one vehicle/multiple jobs, immutable snapshots, chassis/engine separation, unknowns, job odometer observations, archive, stable IDs/relationships, and known/unknown attribution.
+- Vehicle/Chassis browser regressions: PASS for guided and modal selectors.
+- Workflow/persistence/browser suite: PASS, 165 assertions, including return-visit UX, unchanged old job, snapshot/relation reload, legacy compatibility, duplicate/delete safeguards, CT-0059 stale/current validation rules, responsive layouts, and zero browser-console errors.
+- `node --check data/service-contracts.js` and `git diff --check`: PASS.
 
-## Known limitations / future decisions
+## Known limitations
 
-- Human field acceptance of the relational selector remains required; no manual result was fabricated.
-- PostgreSQL deployment, API implementation, authentication/tenancy, retention/deletion policy, media storage, synchronization conflicts, backup/restore, and production operations remain future scoped work.
-- The v1 service snapshot is a transfer boundary, not a second persistence store. localStorage remains authoritative in this batch.
-- CT-0058 permission policy and protected Git wrapper are unchanged.
+- localStorage remains authoritative and single-device. PostgreSQL, APIs, synchronization/conflict handling, tenancy, authentication, permissions, backups, and production data operations are future work.
+- Migration links no-VIN jobs only when a relationship already exists. CarbTune intentionally does not guess that similar chassis descriptions identify the same physical vehicle.
+- Archive behavior is implemented and contract-tested but no additional archive administration UI was added; this keeps the technician workflow focused.
+- Customer/reference, vehicle notes, tires, and some component domains are contract-ready where current UI data exists; CT-0060 does not add administrative intake fields merely to populate them.
+- Human field acceptance of the relational selector remains outstanding from prior work; no manual result was fabricated.
 
-## Files changed
+## CT-0058 approval anomaly
+
+- Exact operation: `node .codex/tools/carbtune-git.cjs pull` in the repository root.
+- Request/failure: restricted sandbox denied `.git/FETCH_HEAD`; the same protected wrapper command required explicit narrow escalation.
+- Expected coverage: yes, CT-0058 and `docs/codex-permissions.md` explicitly describe protected wrapper pull as the unattended path.
+- Appropriate correction: investigate the project-local execpolicy/wrapper elevation match for fresh cloned workspaces. Any correction should remain repository-scoped; no machine-wide weakening is appropriate.
+- Fresh-clone identity gap: wrapper commit initially failed because the clone had no author identity. The established repository identity was passed only to the wrapper process; no global/local Git config or broader permission was added.
+
+## Exact files changed
 
 - `data/service-contracts.js`
 - `docs/architecture.md`
@@ -48,14 +57,12 @@ CT-0059 is implemented without a frontend rewrite or backend deployment. The exi
 - `project/ACCEPTANCE_TESTS.md`
 - `project/DECISIONS.md`
 - `project/ROADMAP.md`
-- `scripts/validate.cjs`
 - `tasks/current.json`
-- `tasks/completed/CT-0059.json`
+- `tasks/completed/CT-0060.json`
 - `tests/service-contracts.test.mjs`
 - `tests/validate-workflow.cjs`
-- `tests/vehicle-cascade.browser.cjs`
 - `CARBTUNE_HANDOFF.md`
 
 ## Review gate
 
-ChatGPT should review CT-0059 against the structured validation truth and incremental architecture requirements. Do not begin CT-0060 or another feature automatically.
+ChatGPT should review CT-0060 against the persistent Vehicle Record, immutable configuration history, migration, validation-lifecycle, and technician-workflow requirements. Do not begin CT-0061 automatically.

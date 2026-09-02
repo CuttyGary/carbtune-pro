@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "id": "CT-0060",
+  "title": "Shop-grade vehicle, job history, and configuration foundation",
+  "status": "READY_FOR_CHATGPT_REVIEW",
+  "createdDate": "2026-09-02",
+  "completedDate": "2026-09-02",
+  "scope": "Add a durable, versioned Vehicle Record and configuration-history foundation around the existing local-first CarbTune workflow, migrate legacy jobs idempotently, support returning vehicles, and prepare technician/audit attribution without authentication or a backend.",
+  "objectives": [
+    "Persist stable Vehicle Records separately from jobs while keeping chassis and installed-engine identity independent.",
+    "Support multiple jobs per vehicle and immutable per-job configuration snapshots.",
+    "Preserve CT-0059 validation lifecycle truth, unknown facts, archive history, attribution, and existing workflows."
+  ],
+  "constraints": [
+    "No PostgreSQL, fake backend, authentication, broad frontend rewrite, or fabricated identity/evidence.",
+    "Preserve localStorage compatibility, duplicate/delete safeguards, and protected CT-0058 Git workflow."
+  ],
+  "acceptanceTests": [
+    { "id": "CT60-001", "expected": "Legacy migration is safe and idempotent.", "status": "PASS", "evidence": "Contract and browser migration tests preserve legacy facts, use stable relationships, and never promote historical validation." },
+    { "id": "CT60-002", "expected": "One vehicle supports multiple immutable jobs/configurations.", "status": "PASS", "evidence": "Contract and browser tests prove two jobs on one vehicle, carry-forward, unchanged old job/snapshot, and reload persistence." },
+    { "id": "CT60-003", "expected": "Identity, archive, audit, unknown, and regression rules hold.", "status": "PASS", "evidence": "Engine-swap chassis separation, archive-preserved jobs, known/UNKNOWN actors, null unknowns, selector, duplicate, delete, responsive, and CT-0059 lifecycle tests all pass." }
+  ],
+  "implementationNotes": [
+    "Starting HEAD: 434223fff7a489d1f0e060cdc7ff8626de9a05e1; acknowledgement commit: 1b11af0.",
+    "The contract envelope is 2.0.0; existing job and validation schemas stay v1, with new independently versioned vehicle/configuration/actor/audit schemas.",
+    "Migration joins only an existing relationship or supplied matching VIN; no-VIN legacy jobs remain separate because physical identity is unknown.",
+    "Odometer readings are job observations. Return visits deep-clone known current configuration into a new snapshot; vehicle archive is non-destructive.",
+    "CT-0058 anomaly: protected wrapper pull was denied .git/FETCH_HEAD inside the restricted sandbox and required explicit narrow escalation although documentation says it should be covered. A repository-scoped policy correction may be appropriate; machine-wide security was not weakened.",
+    "Fresh-clone wrapper commit lacked author identity. The established repository identity was supplied only to the protected wrapper process; no Git configuration or permission scope was broadened."
+  ],
+  "validation": {
+    "command": "npm run validate; git diff --check; node --check data/service-contracts.js",
+    "status": "PASS",
+    "exitCode": 0,
+    "date": "2026-09-02",
+    "summary": "All 6 canonical programs passed; 35,036 vehicle records, Vehicle/Chassis browser regressions, and 165 workflow/persistence/responsive assertions passed. Static syntax and diff checks passed."
+  },
+  "filesChanged": [
+    "data/service-contracts.js", "docs/architecture.md", "docs/service-contracts.md", "index.html",
+    "project/ACCEPTANCE_TESTS.md", "project/DECISIONS.md", "project/ROADMAP.md",
+    "tasks/current.json", "tasks/completed/CT-0060.json", "tests/service-contracts.test.mjs",
+    "tests/validate-workflow.cjs", "CARBTUNE_HANDOFF.md"
+  ],
+  "commitSha": "2cb90855e5465acf37b19a2425fe3c5c80bd1764",
+  "deploymentStatus": "PENDING_VERIFICATION",
+  "blockers": [],
+  "reviewStatus": "READY_FOR_CHATGPT_REVIEW"
+}
