@@ -1,79 +1,59 @@
-Task: CT-0058
+Task: CT-0059
 Status: READY_FOR_CHATGPT_REVIEW
 
-# CarbTune Handoff — Repository-scoped unattended Codex permissions
+# CarbTune Handoff — Stabilization, validation truth, and service boundaries
 
 ## Result
 
-Normal CarbTune file development, scripts, tests, builds, and validation can run
-unattended inside the trusted repository. Normal Git writes use a narrowly
-validated protected wrapper because installed native-Windows Codex does not
-honor `.git` write overrides and its automatic reviewer reproduced the hidden
-approval stall CT-0058 was assigned to fix.
+CT-0059 is implemented without a frontend rewrite or backend deployment. The existing technician workflow and localStorage keys remain operational. A versioned adapter now persists validation truth and defines future service boundaries while preventing old, changed, superseded, invalidated, missing, or unknown evidence from driving current verified state.
 
-- Starting SHA: `aa95367e14a58a7193e143706f7767182c201208`
-- Implementation SHA: `b8618ea4f4f41f30c7e239d321051816eb087a61`
-- CI: GitHub `Validate CarbTune` run `33643887908` completed successfully.
-- Deployment: Pages run `33643886547` completed successfully for handoff SHA
-  `3d14da4691c8de38f5156d9bb62fa24ee51b7dd2`; no application files changed.
+- Starting SHA: `dd63b46e50d3e221ec10e6957140e5c4347aa46c`
+- In-progress acknowledgement: `769f926`
+- Implementation SHA: `aa35ce0256cb0085045851bb8d08ae858460186b`
+- CI/deployment: pending push and GitHub Actions observation at this handoff-writing stage.
 
-## Permission model
+## What changed
 
-Trusted project-local `.codex/config.toml` selects `workspace-write`, disables
-approval prompts, and enables a proxy-restricted command network allowlist for
-GitHub, npm, and loopback. Out-of-policy operations fail immediately rather
-than leaving Remote state at `Awaiting approval` while chat shows `Thinking`.
+- Added `carbtune.validation-result` schema version 1 with explicit type, result, lifecycle, timestamp, source, related subject, deterministic subject fingerprint, evidence references, supersession, and invalidation fields.
+- Only a current `PASS` with known origin, valid timestamp, matching current subject, and no supersession/invalidation can render as current verified state.
+- Legacy verification outcomes remain preserved evidence with `UNKNOWN` lifecycle. New road-test/dyno sessions receive linked structured records. Related tune/component changes invalidate current records; changed chassis/engine identity fails the fingerprint check and normalizes to `STALE`.
+- Added `carbtune.service-boundary` v1 for Job, Vehicle/Chassis, Installed Engine, Components, Baseline measurements, Diagnostic findings, Recommended corrections, Performed corrections, Retest/verification results, and Technician evidence/media references.
+- Added a documented idempotent, audited, reversible localStorage-to-PostgreSQL migration sequence. No database, mock backend, or service deployment was created.
+- Expanded relational selector coverage for historical applications, downstream resets, missing trims, escape paths, and explicit 1983 Oldsmobile chassis vs Ford engine-swap separation.
 
-Codex protects `.git`, `.codex`, and `.agents` under writable roots. A
-project-local execpolicy allows only
-`node .codex/tools/carbtune-git.cjs <operation>` outside the sandbox. The
-protected wrapper validates its own repository root and exact
-`https://github.com/CuttyGary/carbtune-pro.git` origin. It exposes only status,
-diff, bounded log, repository-relative add, one-line commit, origin fetch,
-origin/main fast-forward pull, and main-to-origin/main push.
+## Validation evidence
 
-## What remains blocked or manually authorized
+- `npm run validate`: PASS, 6 programs.
+- Vehicle provenance: PASS, 35,036 combined relational records, 1955-2027.
+- Versioned contract suite: PASS for current proof, legacy unknown, supersession, staleness, invalidation, required domains, and chassis/engine separation.
+- Vehicle cascade browser suite: PASS for guided and modal selectors.
+- Workflow/persistence/browser suite: PASS, 158 assertions, including persisted validation evidence, legacy migration, no stale green, responsive layouts, and no browser-console errors.
+- `git diff --check`: PASS.
 
-- Out-of-repository writes and unrelated repositories.
-- Privilege escalation, machine-wide configuration, broad grants, and bypasses.
-- Unrelated network/system administration or credential/security changes.
-- Force-push, reset/rewrite, deletes, arbitrary remotes/branches/options.
-- Changes to protected `.codex` policy/hook files.
-- Explicit broader launch flags remain user-controlled overrides outside this model.
+## Known limitations / future decisions
 
-## Installed-platform limitation
-
-Official OpenAI documentation supports project-local config, permission
-profiles, execpolicy rules, `workspace-write`, network policies, and
-non-interactive approvals. Installed Codex `0.151.0-alpha.7.2` on native Windows
-still denied `.git/index.lock` with relative and exact absolute profile grants.
-Automatic review loaded but two controlled nested probes stalled before spawning
-a shell child. Those approaches were rejected rather than broadening access.
-
-## Validation
-
-- Strict doctor: config load PASS; approval `Never`; restricted filesystem and
-  enabled network sandbox; provisioning complete. Overall nonzero only for
-  non-interactive `TERM=dumb`.
-- Execpolicy: wrapper prefix `allow`; direct `git add` unmatched.
-- Wrapper: status/log/staging/implementation commit PASS; path escape and
-  `push --force` blocked.
-- Hook validation: PASS, 28 assertions.
-- `npm run validate`: PASS, all 5 programs and 152 workflow assertions.
-- Diff checks: PASS; `index.html` unchanged.
+- Human field acceptance of the relational selector remains required; no manual result was fabricated.
+- PostgreSQL deployment, API implementation, authentication/tenancy, retention/deletion policy, media storage, synchronization conflicts, backup/restore, and production operations remain future scoped work.
+- The v1 service snapshot is a transfer boundary, not a second persistence store. localStorage remains authoritative in this batch.
+- CT-0058 permission policy and protected Git wrapper are unchanged.
 
 ## Files changed
 
-- `.codex/config.toml`
-- `.codex/rules/carbtune-git.rules`
-- `.codex/tools/carbtune-git.cjs`
-- `docs/codex-permissions.md`
+- `data/service-contracts.js`
+- `docs/architecture.md`
+- `docs/service-contracts.md`
+- `index.html`
+- `project/ACCEPTANCE_TESTS.md`
+- `project/DECISIONS.md`
+- `project/ROADMAP.md`
+- `scripts/validate.cjs`
 - `tasks/current.json`
-- `tasks/completed/CT-0058.json`
+- `tasks/completed/CT-0059.json`
+- `tests/service-contracts.test.mjs`
+- `tests/validate-workflow.cjs`
+- `tests/vehicle-cascade.browser.cjs`
 - `CARBTUNE_HANDOFF.md`
 
-## Recommended next step
+## Review gate
 
-ChatGPT should review CT-0058. Future assignments should use the documented
-wrapper for Git writes and direct Git for reads. Do not broaden this policy
-unless a future assignment explicitly requires it.
+ChatGPT should review CT-0059 against the structured validation truth and incremental architecture requirements. Do not begin CT-0060 or another feature automatically.

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "CT-0059",
+  "title": "Stabilization, validation state, and architecture preparation",
+  "status": "READY_FOR_CHATGPT_REVIEW",
+  "createdDate": "2026-09-02",
+  "completedDate": "2026-09-02",
+  "scope": "Complete safe Vehicle/Chassis stabilization, add structured persisted validation-result truth, define additive versioned service boundaries, and document the localStorage-to-PostgreSQL migration path without changing the current technician workflow.",
+  "objectives": [
+    "Strengthen relational Vehicle/Chassis and installed-engine separation regressions.",
+    "Persist versioned validation results with explicit status and lifecycle state so stale or missing evidence cannot appear verified.",
+    "Define versioned domain/service contracts and a backward-compatible migration adapter for existing saved jobs.",
+    "Document the safe future migration from localStorage to PostgreSQL."
+  ],
+  "constraints": [
+    "No broad frontend rewrite, backend deployment, or fake production service.",
+    "Existing saved jobs and technician workflow remain compatible.",
+    "Unknown, stale, superseded, invalidated, and unverified states remain explicit.",
+    "Chassis identity and installed-engine identity remain independent.",
+    "CT-0058 repository-scoped permissions and protected Git workflow are unchanged."
+  ],
+  "acceptanceTests": [
+    {"id":"CT-0059-A1","expected":"Historical and current relational Vehicle/Chassis selections retain exact downstream reset, missing-trim, and escape-path behavior.","status":"PASS","evidence":"Vehicle registry and browser cascade suites passed; 35,036 relational records spanning 1955-2027, exact 1983 checks, both selector surfaces, downstream resets, missing-trim and escape paths."},
+    {"id":"CT-0059-A2","expected":"Saved validation results capture the required provenance, relationship, evidence, timestamp, result, and lifecycle fields.","status":"PASS","evidence":"Contract and real-browser persistence assertions passed for schema/type/result/lifecycle/timestamp/source/subject/fingerprint/evidence."},
+    {"id":"CT-0059-A3","expected":"Missing, stale, superseded, invalidated, or unknown validation cannot be reported as current/verified.","status":"PASS","evidence":"Contract tests cover all lifecycle states; workflow test proves changed chassis makes an earlier pass stale and not verified; legacy outcomes import without current status."},
+    {"id":"CT-0059-A4","expected":"Legacy saved jobs load through the additive contract adapter without losing chassis or installed-engine identity.","status":"PASS","evidence":"v31 browser migration preserved vehicle, measurements, correction history, product boundary, and additive contract; engine-swap tests kept Ford installed-engine identity separate from 1983 Oldsmobile chassis."},
+    {"id":"CT-0059-A5","expected":"Canonical CarbTune validation and diff/static checks pass.","status":"PASS","evidence":"npm run validate passed all 6 programs and 158 workflow assertions; git diff --check passed."}
+  ],
+  "implementationNotes": [
+    "Starting HEAD: dd63b46e50d3e221ec10e6957140e5c4347aa46c; required in-progress acknowledgement: 769f926.",
+    "The carbtune.validation-result v1 schema separates result from CURRENT/SUPERSEDED/STALE/INVALIDATED/UNKNOWN lifecycle and requires matching subject identity for current proof.",
+    "Legacy verification is retained but never promoted to current green status; new technician retests persist linked structured results.",
+    "The carbtune.service-boundary v1 adapter defines Job, Vehicle/Chassis, Installed Engine, Components, Baseline, Findings, Recommendations, Corrections, Retests, and Evidence/Media boundaries.",
+    "PostgreSQL is not deployed. Authentication, tenancy, retention/deletion, media storage, conflict resolution, and production operations remain future decisions.",
+    "Human field acceptance of the relational selector remains pending; automated stabilization is complete."
+  ],
+  "validation": {"command":"npm run validate; git diff --check","status":"PASS","exitCode":0,"date":"2026-09-02","summary":"All 6 canonical programs passed, including 158 workflow/browser assertions; diff/static checks passed."},
+  "filesChanged": ["data/service-contracts.js","docs/architecture.md","docs/service-contracts.md","index.html","project/ACCEPTANCE_TESTS.md","project/DECISIONS.md","project/ROADMAP.md","scripts/validate.cjs","tasks/current.json","tasks/completed/CT-0059.json","tests/service-contracts.test.mjs","tests/validate-workflow.cjs","tests/vehicle-cascade.browser.cjs","CARBTUNE_HANDOFF.md"],
+  "commitSha": "aa35ce0256cb0085045851bb8d08ae858460186b",
+  "deploymentStatus": "PENDING: implementation and handoff commits have not yet been pushed/observed by GitHub Actions.",
+  "blockers": [],
+  "reviewStatus": "READY_FOR_CHATGPT_REVIEW"
+}
