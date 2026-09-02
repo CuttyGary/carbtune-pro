@@ -13,7 +13,9 @@ approval stall CT-0058 was assigned to fix.
 
 - Starting SHA: `aa95367e14a58a7193e143706f7767182c201208`
 - Implementation SHA: `b8618ea4f4f41f30c7e239d321051816eb087a61`
-- Deployment: not applicable; no application/runtime files changed.
+- CI: GitHub `Validate CarbTune` run `33643887908` completed successfully.
+- Deployment: Pages run `33643886547` completed successfully for handoff SHA
+  `3d14da4691c8de38f5156d9bb62fa24ee51b7dd2`; no application files changed.
 
 ## Permission model
 
