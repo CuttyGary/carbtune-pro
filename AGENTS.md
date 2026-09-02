@@ -34,6 +34,12 @@ These instructions apply to the entire repository.
 - Do not push a knowingly broken or partially validated change to `main`.
 - If validation cannot be completed, report the blocker instead of committing or pushing.
 
+### Protected unattended Git path
+
+- In Codex sessions, use direct Git commands for read-only operations. For Git metadata writes and network synchronization, run the protected repository wrapper from the repository root: `node .codex/tools/carbtune-git.cjs <operation>`.
+- Supported wrapper operations are `status`, `diff [--cached]`, `log [count]`, `add <repository-relative paths...>`, `commit "one-line message"`, `fetch`, `pull`, and `push`. The wrapper pins the CarbTune origin/main workflow and rejects destructive options, path escapes, unrelated remotes, and unsupported operations.
+- Do not bypass the wrapper with full-access flags or broaden its project-local execpolicy rule. See `docs/codex-permissions.md` for the exact boundary and installed-platform limitation.
+
 ## ChatGPT Assignment Pickup Protocol
 
 - GitHub is the communication bus between ChatGPT and Codex. Do not require the user to copy full assignments between them when the assignment already exists in the repository.
