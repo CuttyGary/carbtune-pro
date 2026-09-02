@@ -1,1 +1,38 @@
-null
+{
+  "schemaVersion": 1,
+  "id": "CT-0059",
+  "title": "Stabilization, validation state, and architecture preparation",
+  "status": "IN_PROGRESS",
+  "createdDate": "2026-09-02",
+  "scope": "Complete safe Vehicle/Chassis stabilization, add structured persisted validation-result truth, define additive versioned service boundaries, and document the localStorage-to-PostgreSQL migration path without changing the current technician workflow.",
+  "objectives": [
+    "Strengthen relational Vehicle/Chassis and installed-engine separation regressions.",
+    "Persist versioned validation results with explicit status and lifecycle state so stale or missing evidence cannot appear verified.",
+    "Define versioned domain/service contracts and a backward-compatible migration adapter for existing saved jobs.",
+    "Document the safe future migration from localStorage to PostgreSQL."
+  ],
+  "constraints": [
+    "No broad frontend rewrite, backend deployment, or fake production service.",
+    "Existing saved jobs and technician workflow remain compatible.",
+    "Unknown, stale, superseded, invalidated, and unverified states remain explicit.",
+    "Chassis identity and installed-engine identity remain independent.",
+    "Preserve CT-0058 repository-scoped permissions and protected Git workflow."
+  ],
+  "acceptanceTests": [
+    {"id":"CT-0059-A1","expected":"Historical and current relational Vehicle/Chassis selections retain exact downstream reset, missing-trim, and escape-path behavior.","status":"PENDING","evidence":null},
+    {"id":"CT-0059-A2","expected":"Saved validation results capture the required provenance, relationship, evidence, timestamp, result, and lifecycle fields.","status":"PENDING","evidence":null},
+    {"id":"CT-0059-A3","expected":"Missing, stale, superseded, invalidated, or unknown validation cannot be reported as current/verified.","status":"PENDING","evidence":null},
+    {"id":"CT-0059-A4","expected":"Legacy saved jobs load through the additive contract adapter without losing chassis or installed-engine identity.","status":"PENDING","evidence":null},
+    {"id":"CT-0059-A5","expected":"Canonical CarbTune validation and diff/static checks pass.","status":"PENDING","evidence":null}
+  ],
+  "implementationNotes": [
+    "Starting HEAD: dd63b46e50d3e221ec10e6957140e5c4347aa46c.",
+    "Assignment supplied directly by the product owner; no prior chat state assumed."
+  ],
+  "validation": {"command":"npm run validate; git diff --check","status":"NOT RUN","exitCode":null,"date":null,"summary":"Implementation in progress."},
+  "filesChanged": ["tasks/current.json"],
+  "commitSha": null,
+  "deploymentStatus": "NOT_VERIFIED",
+  "blockers": [],
+  "reviewStatus": "IN_PROGRESS"
+}
