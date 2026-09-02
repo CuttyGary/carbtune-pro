@@ -84,6 +84,17 @@ function excludesForbidden(items) {
     await select(page, make, 'Other / Custom');
     if ((await options(page, model)).join('|') !== 'Select model|Unknown / Not Listed|Other / Custom') throw new Error('Guided Other make manufactured catalog Model evidence');
 
+    await page.evaluate(() => {
+      Object.assign(state.vehicle, { engineManufacturer: 'Ford', engineSize: '4.9L / 302 CID', engineFamily: 'Windsor Small Block', engineVariant: '302 / 5.0', engineOrigin: 'Engine swap', engineSwap: true });
+      renderGuided();
+    });
+    await select(page, year, '1983');
+    await select(page, make, 'Oldsmobile');
+    await select(page, model, 'Cutlass');
+    const separated = await page.evaluate(() => ({ chassis: [state.vehicle.year, state.vehicle.make, state.vehicle.model], engine: [state.vehicle.engineManufacturer, state.vehicle.engineSize, state.vehicle.engineFamily, state.vehicle.engineVariant, state.vehicle.engineSwap] }));
+    if (separated.chassis.join('|') !== '1983|Oldsmobile|Cutlass') throw new Error(`Historical chassis identity changed unexpectedly: ${separated.chassis.join('|')}`);
+    if (separated.engine.join('|') !== 'Ford|4.9L / 302 CID|Windsor Small Block|302 / 5.0|true') throw new Error(`Chassis selection overwrote installed-engine identity: ${separated.engine.join('|')}`);
+
     await page.evaluate(() => openNewJob());
     const modalYears = await options(page, '#newVehicleYear');
     if (!modalYears.includes('1983') || modalYears.includes('1899')) throw new Error(`Modal selector year coverage is not record-backed: ${modalYears.join(', ')}`);

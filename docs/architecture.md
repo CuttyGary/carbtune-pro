@@ -17,8 +17,11 @@ Each persisted job contains independent domains:
 - `diagnostic`: ranked-cause history so an ineffective correction is not blindly repeated.
 - `requiredActions`: job-level repairs and supporting parts, without inventory or ordering behavior.
 - `workflow`: the exact guided phase/substep for autosave and resume.
+- `validationResults`: versioned result and lifecycle records that independently prove whether evidence is current.
 
 Older v31/v40 jobs are normalized into this shape. Unknown fields are added without deleting the original data.
+
+The executable v1 adapter and future service boundaries are documented in `docs/service-contracts.md`. They are additive to the current persistence model; Vehicle/Chassis and Installed Engine remain independent transfer objects.
 
 ## Knowledge and provenance
 

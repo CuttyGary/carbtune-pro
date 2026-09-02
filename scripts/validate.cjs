@@ -80,6 +80,7 @@ async function main() {
     ['JavaScript / syntax integrity', 'tests/build51.test.mjs'],
     ['Vehicle registry and provenance integrity', 'tests/vehicle-applications.test.mjs'],
     ['Project control and data-policy integrity', 'tests/project-control.test.mjs'],
+    ['Versioned service contracts and validation truth', 'tests/service-contracts.test.mjs'],
     ['Relational vehicle cascade browser regressions', 'tests/vehicle-cascade.browser.cjs'],
     ['Workflow, persistence, provenance, and UI smoke regressions', 'tests/validate-workflow.cjs']
   ];

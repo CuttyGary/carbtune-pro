@@ -20,7 +20,7 @@ Roadmap items are direction, not automatic authorization. Every implementation r
 ## Next stabilization candidates — assignment required
 
 - Complete human acceptance review of project controls and the relational selector without weakening automated tests.
-- Define structured validation-result persistence for the future Controller; do not display stale or invented green state.
+- Structured validation-result persistence and v1 service boundaries were implemented in CT-0059. Human field acceptance of the relational selector remains required.
 
 ## Incremental platform evolution
 

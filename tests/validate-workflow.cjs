@@ -325,6 +325,18 @@ async function run() {
     const verifiedState = await stored(page);
     assert(verifiedState.verificationSessions.at(-1).outcome === 'POSITIVE', 'before/after evidence classifies a positive outcome');
     assert(verifiedState.tuneLog.at(-1).outcome === 'POSITIVE', 'successful technician result is attached to the Tune Log without becoming a manufacturer claim');
+    const structuredValidation = verifiedState.validationResults.at(-1);
+    assert(structuredValidation.schema === 'carbtune.validation-result' && structuredValidation.schemaVersion === 1, 'verification persists the versioned validation-result contract');
+    assert(structuredValidation.validationType === 'TECHNICIAN_RETEST' && structuredValidation.result === 'PASS' && structuredValidation.lifecycle === 'CURRENT', 'current technician retest persists explicit result and lifecycle');
+    assert(structuredValidation.observedAt && structuredValidation.source.origin === 'CARBTUNE_TECHNICIAN_WORKFLOW' && structuredValidation.evidence[0].reference === verifiedState.verificationSessions.at(-1).id, 'validation result preserves timestamp, origin, and evidence reference');
+    const staleCannotPass = await page.evaluate(() => {
+      const changed = JSON.parse(JSON.stringify(state));
+      changed.vehicle.model = 'Different chassis';
+      window.CARB_TUNE_CONTRACTS.normalizeJob(changed);
+      const record = changed.validationResults.at(-1);
+      return { lifecycle: record.lifecycle, verified: window.CARB_TUNE_CONTRACTS.isCurrentVerified(record, window.CARB_TUNE_CONTRACTS.subjectForJob(changed)) };
+    });
+    assert(staleCannotPass.lifecycle === 'STALE' && staleCannotPass.verified === false, 'changed chassis makes prior validation stale and unable to masquerade as verified');
     const resultsText = await page.locator('#guidedCard').innerText();
     assert(resultsText.includes('Before vs final vs expected'), 'workflow ends with measured comparison results');
     assert(resultsText.includes('Fuel Pressure') && resultsText.includes('6.2'), 'final results use retested fuel-pressure evidence');
@@ -481,6 +493,8 @@ async function run() {
     assert(migration.vehicle.vehicleName === 'Legacy Vehicle' && migration.baseline.fp === 6.1, 'legacy active job migration preserves vehicle and measurements', JSON.stringify({ vehicle: migration.vehicle, baseline: migration.baseline }));
     assert(migration.productId === 'carbtune-pro' && migration.applicationType === 'carbureted', 'migration applies the CarbTune product boundary');
     assert(migration.tuneLog.length === 1 && migration.tuneLog[0].outcome === 'POSITIVE', 'legacy correction and verification migrate into Tune Log');
+    assert(migration.contract.schema === 'carbtune.job' && migration.contract.schemaVersion === 1 && Array.isArray(migration.validationResults), 'legacy saved job receives the additive versioned contract without losing old fields');
+    assert(!migration.validationResults.some(result => result.lifecycle === 'CURRENT' && result.result === 'PASS'), 'legacy data without structured validation never receives invented current green status');
 
     migration.screen = 'guided';
     migration.lastWork = 'guided';

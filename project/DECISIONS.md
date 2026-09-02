@@ -94,3 +94,13 @@
 
 **Status:** ACCEPTED / IMPLEMENTED_IN_CT-0055
 **Decision:** Technician-entered chassis/component identity is useful but remains unverified. Recognizing a cataloged carburetor is separate from proving compatibility. Missing sourced trim does not invalidate a sourced Year + Make + Model application.
+
+## D-020 — Structured validation truth
+
+**Status:** ACCEPTED / IMPLEMENTED_IN_CT-0059
+**Decision:** Validation result and lifecycle are separate persisted facts. Only an explicit current `PASS` with a timestamp, known origin, matching subject fingerprint, and no supersession/invalidation can drive verified state. Legacy, missing, changed-subject, stale, superseded, invalidated, and unknown records cannot produce current green status.
+
+## D-021 — Additive versioned service boundary
+
+**Status:** ACCEPTED / IMPLEMENTED_IN_CT-0059
+**Decision:** Versioned Job and domain transfer contracts wrap the existing local-first application. Vehicle/Chassis and Installed Engine are independent boundaries. PostgreSQL migration will use an idempotent, audited, reversible import path; CT-0059 does not deploy or simulate a backend.

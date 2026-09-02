@@ -71,6 +71,17 @@ All automated evidence below is exercised through the real page in `tests/valida
 | CT55-037 | Vehicle registry relational protections remain green. | AUTOMATED |
 | CT55-038 | Prior tests remain green except transparently replaced behavior. | AUTOMATED |
 
+## CT-0059 validation and architecture acceptance
+
+| ID | Acceptance requirement | Status | Automated evidence |
+| --- | --- | --- | --- |
+| CT59-001 | Historical/current selectors retain exact relational, reset, missing-trim, and unknown/custom behavior. | AUTOMATED | `tests/vehicle-applications.test.mjs`, `tests/vehicle-cascade.browser.cjs` |
+| CT59-002 | Chassis changes do not overwrite installed-engine identity, including an engine swap. | AUTOMATED | `tests/vehicle-cascade.browser.cjs`, `tests/service-contracts.test.mjs` |
+| CT59-003 | Validation results persist type, result, lifecycle, timestamp, origin, subject, fingerprint, and evidence references. | AUTOMATED | `tests/service-contracts.test.mjs`, `tests/validate-workflow.cjs` |
+| CT59-004 | Unknown, legacy, stale, superseded, and invalidated results cannot appear current/verified. | AUTOMATED | `tests/service-contracts.test.mjs`, `tests/validate-workflow.cjs` |
+| CT59-005 | Legacy jobs load through the additive v1 contract without losing existing fields. | AUTOMATED | `tests/validate-workflow.cjs` |
+| CT59-006 | The v1 service snapshot exposes all required domains while keeping chassis and installed engine separate. | AUTOMATED | `tests/service-contracts.test.mjs` |
+
 ## Data, provenance, and product boundaries
 
 | ID | Acceptance requirement | Status | Automated evidence |
