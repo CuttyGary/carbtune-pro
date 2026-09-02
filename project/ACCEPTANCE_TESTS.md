@@ -84,6 +84,20 @@ All automated evidence below is exercised through the real page in `tests/valida
 
 ## Data, provenance, and product boundaries
 
+## CT-0060 shop vehicle/history foundation
+
+| ID | Acceptance requirement | Status | Automated evidence |
+| --- | --- | --- | --- |
+| CT60-001 | Legacy jobs derive stable Vehicle Records idempotently without inventing unknown identity. | AUTOMATED | `tests/service-contracts.test.mjs`, `tests/validate-workflow.cjs` |
+| CT60-002 | One vehicle supports multiple jobs and return-visit creation does not mutate an older job. | AUTOMATED | Both CT-0060 suites |
+| CT60-003 | Historical configuration snapshots remain immutable after later component/configuration changes. | AUTOMATED | `tests/service-contracts.test.mjs`, browser persistence assertions |
+| CT60-004 | Chassis and installed-engine identities remain independent, including engine swaps. | AUTOMATED | Contract suite plus existing vehicle/browser suites |
+| CT60-005 | Historical validation evidence cannot become current merely through migration or history. | AUTOMATED | Contract suite plus CT-0059 lifecycle browser assertions |
+| CT60-006 | Vehicle/job/snapshot stable relationships survive localStorage reload. | AUTOMATED | `tests/validate-workflow.cjs` |
+| CT60-007 | Vehicle archive preserves historical jobs; Delete Job retains its existing confirmed job-scoped behavior. | AUTOMATED | Contract archive test and workflow delete regression |
+| CT60-008 | Important audit events retain known local or explicit `UNKNOWN` actor attribution. | AUTOMATED | `tests/service-contracts.test.mjs` |
+| CT60-009 | Returning-vehicle history/current-configuration UX remains fast, responsive, and free of schema terminology. | AUTOMATED | `tests/validate-workflow.cjs` responsive/browser suite |
+
 | ID | Acceptance requirement | Status | Automated evidence |
 | --- | --- | --- | --- |
 | DATA-001 | Missing source data remains missing rather than being invented. | AUTOMATED | Vehicle registry invariants, unknown/custom paths, and project-control checks |

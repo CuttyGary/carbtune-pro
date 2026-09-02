@@ -24,6 +24,13 @@ Roadmap items are direction, not automatic authorization. Every implementation r
 
 ## Incremental platform evolution
 
+## CT-0060 shop vehicle foundation completed
+
+- Versioned persistent Vehicle Records now group returning visits without replacing the job store.
+- Per-job configuration snapshots preserve the installed combination at each visit and carry current known configuration into a return job without historical mutation.
+- Idempotent legacy normalization, archive semantics, stable relationships, provenance, and known/unknown actor/audit foundations are executable and browser-tested.
+- PostgreSQL, synchronization, authentication, tenancy, shop/customer administration, and multi-device conflict handling remain later explicitly assigned work.
+
 The intended order is:
 
 `Dedicated development machine -> Automated validation -> Structured project control -> PostgreSQL -> CarbTune application services/API -> Knowledge Harvester -> Development/Staging environments -> Eventual secure production hosting`

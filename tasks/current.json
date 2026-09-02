@@ -19,21 +19,36 @@
     "Prefer archive and append-only history; never fabricate missing vehicle, component, actor, or verification facts.",
     "Use only the repository-scoped CT-0058 permission configuration and protected Git wrapper."
   ],
-  "acceptanceTests": [],
+  "acceptanceTests": [
+    { "id": "CT60-001", "expected": "Legacy jobs migrate idempotently into stable Vehicle Records without fabricated identity.", "status": "PASS", "evidence": "Contract tests prove repeat-safe migration, VIN-backed linkage, and per-job isolation when physical identity is unknown." },
+    { "id": "CT60-002", "expected": "One vehicle supports multiple immutable historical jobs and configuration snapshots.", "status": "PASS", "evidence": "Contract and real-browser tests prove return-visit creation, unchanged prior job/snapshot, and reload-stable relationships." },
+    { "id": "CT60-003", "expected": "Chassis/engine, validation lifecycle, unknown data, archive, and actor attribution rules remain correct.", "status": "PASS", "evidence": "Contract tests cover engine swaps, null unknowns, non-destructive archive, and known/UNKNOWN actors; canonical CT-0059 lifecycle browser checks remain green." },
+    { "id": "CT60-004", "expected": "Existing technician workflows and Vehicle/Chassis selectors remain operational.", "status": "PASS", "evidence": "Canonical validation passed all six programs and 165 workflow/browser assertions, including selector, duplicate, delete, persistence, and responsive regressions." }
+  ],
   "implementationNotes": [
     "Starting HEAD: 434223fff7a489d1f0e060cdc7ff8626de9a05e1.",
     "UTC start: 2026-09-02T19:39:30Z.",
     "CT-0058 anomaly observed before application changes: protected wrapper pull was denied access to .git/FETCH_HEAD inside the restricted sandbox; the same narrow wrapper command succeeded after explicit escalation. This operation should have been covered by CT-0058 and may warrant a repository-scoped policy correction, not a machine-wide grant."
+    ,"Fresh-clone wrapper commit also lacked author identity. No permission was broadened and no Git configuration was changed; the established repository identity was supplied only to the protected wrapper process."
   ],
   "validation": {
     "command": "npm run validate; git diff --check",
-    "status": "NOT_RUN",
-    "exitCode": null,
-    "date": null,
-    "summary": "Implementation in progress."
+    "status": "PASS",
+    "exitCode": 0,
+    "date": "2026-09-02",
+    "summary": "All six canonical programs passed, including 35,036 vehicle records and 165 workflow/browser assertions; node syntax, contract checks, and git diff --check passed."
   },
   "filesChanged": [
-    "tasks/current.json"
+    "data/service-contracts.js",
+    "docs/architecture.md",
+    "docs/service-contracts.md",
+    "index.html",
+    "project/ACCEPTANCE_TESTS.md",
+    "project/DECISIONS.md",
+    "project/ROADMAP.md",
+    "tasks/current.json",
+    "tests/service-contracts.test.mjs",
+    "tests/validate-workflow.cjs"
   ],
   "commitSha": null,
   "deploymentStatus": "NOT_VERIFIED",

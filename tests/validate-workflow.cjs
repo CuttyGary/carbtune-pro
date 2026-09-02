@@ -344,7 +344,7 @@ async function run() {
     assert(!resultsText.includes('weighted relevance'), 'results contain no fabricated relevance score');
 
     await page.locator('[data-save-exit]').click();
-    assert((await page.locator('#guidedCard').innerText()).includes('JOBS / HOME'), 'Save & Exit opens the current jobs home');
+    assert((await page.locator('#guidedCard').innerText()).includes('VEHICLES / JOBS'), 'Save & Exit opens the current shop vehicle and jobs home');
     const beforeJobs = await page.evaluate(() => JSON.parse(localStorage.getItem('carbtune.jobs.v40') || '[]').length);
     await page.locator('#guidedCard [data-action="new-job"]').click();
     assert(await page.locator('#jobModal').getAttribute('aria-hidden') === 'false', 'New Job opens structured intake');
@@ -376,8 +376,31 @@ async function run() {
     assert(jobRecords.some(job => job.vehicle.jobNo === 'CT0052-UNKNOWN-CARB' && job.vehicle.carb === 'Unknown carburetor'), 'unknown carburetor remains explicit in persisted history');
     const carried = await stored(page);
     assert(carried.workflow.phase === 'build' && carried.workflow.completed.includes('vehicle') && carried.vehicle.year === '1985', 'new-job chassis data carries forward without duplicate required entry');
+    let firstVisitSnapshot = JSON.stringify(jobRecords.find(job => job.id === carried.id));
+    let fleetRecords = await page.evaluate(() => JSON.parse(localStorage.getItem('carbtune.vehicles.v1') || '[]'));
+    const persistedVehicle = fleetRecords.find(vehicle => vehicle.id === carried.vehicleRecordId);
+    assert(persistedVehicle && persistedVehicle.jobIds.includes(carried.id) && persistedVehicle.configurationSnapshots.some(snapshot => snapshot.jobId === carried.id), 'new job persists a stable Vehicle Record relationship and configuration snapshot');
 
     await page.locator('[data-save-exit]').click();
+    firstVisitSnapshot = await page.evaluate(id => JSON.stringify(JSON.parse(localStorage.getItem('carbtune.jobs.v40') || '[]').find(job => job.id === id)), carried.id);
+    const returningCard = page.locator('#guidedCard .component-result').filter({ hasText: 'CT0052-UNKNOWN-CARB' }).first();
+    assert((await returningCard.innerText()).includes('Current configuration:'), 'Jobs home presents returning vehicles and current configuration in technician language');
+    await returningCard.locator('[data-new-job-vehicle]').click();
+    const returnVisit = await stored(page);
+    jobRecords = await page.evaluate(() => JSON.parse(localStorage.getItem('carbtune.jobs.v40') || '[]'));
+    assert(jobRecords.length === beforeJobs + 2 && returnVisit.vehicleRecordId === carried.vehicleRecordId, 'one persistent vehicle supports a second job without duplication');
+    assert(returnVisit.workflow.phase === 'review' && returnVisit.workflow.completed.includes('build') && returnVisit.vehicle.engineManufacturer === carried.vehicle.engineManufacturer, 'starting from a returning vehicle carries known configuration and skips duplicate identification');
+    assert(JSON.stringify(jobRecords.find(job => job.id === carried.id)) === firstVisitSnapshot, 'starting a return visit does not mutate the historical job');
+    fleetRecords = await page.evaluate(() => JSON.parse(localStorage.getItem('carbtune.vehicles.v1') || '[]'));
+    const reloadedVehicle = fleetRecords.find(vehicle => vehicle.id === carried.vehicleRecordId);
+    assert(reloadedVehicle.jobIds.length === 2 && reloadedVehicle.configurationSnapshots.length === 2 && reloadedVehicle.configurationSnapshots[0].jobId === carried.id, 'vehicle/job relationships and historical configuration snapshots survive persistence');
+    const returnVisitId = returnVisit.id;
+    await page.reload({ waitUntil: 'networkidle' });
+    assert((await stored(page)).vehicleRecordId === carried.vehicleRecordId, 'stable vehicle relationship survives reload');
+    await page.locator('[data-save-exit]').click();
+    await page.locator(`#guidedCard [data-delete-job="${returnVisitId}"]`).click();
+    await page.locator('[data-action="confirm-delete-job"]').click();
+
     await page.locator('#guidedCard [data-action="new-job"]').click();
     await fillStructuredVehicle(page, 'CT0052-UNKNOWN-CARB');
     await page.locator('[data-action="create-job"]').click();

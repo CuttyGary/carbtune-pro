@@ -104,3 +104,8 @@
 
 **Status:** ACCEPTED / IMPLEMENTED_IN_CT-0059
 **Decision:** Versioned Job and domain transfer contracts wrap the existing local-first application. Vehicle/Chassis and Installed Engine are independent boundaries. PostgreSQL migration will use an idempotent, audited, reversible import path; CT-0059 does not deploy or simulate a backend.
+
+## D-022 — Durable shop vehicle and immutable visit configuration
+
+**Status:** ACCEPTED / IMPLEMENTED_IN_CT-0060
+**Decision:** A persistent Vehicle Record is separate from its jobs. Each visit links to an immutable configuration snapshot; a return visit carries the latest known configuration into a new snapshot without rewriting prior jobs. Migration may join records by an existing relationship or supplied matching VIN, but it must not infer that no-VIN jobs describe the same physical vehicle. Vehicle archive is non-destructive. Technician attribution may be explicit local identity or `UNKNOWN`; authentication is future work.

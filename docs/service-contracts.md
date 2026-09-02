@@ -1,6 +1,17 @@
-# CarbTune service and validation contracts v1
+# CarbTune service and validation contracts
 
 CT-0059 adds an adapter boundary around the working local-first application. It does not add a backend or change the technician workflow. The executable contract is `data/service-contracts.js`; `contractVersion` is `1.0.0`, while each persisted schema has its own integer `schemaVersion`.
+
+CT-0060 advances the executable contract envelope to `2.0.0` while retaining the v1 job and validation schemas. The change is additive: new Vehicle Record, configuration snapshot, actor-reference, and audit-event schemas are independently versioned at schema version 1.
+
+## Vehicle Record and configuration contracts
+
+- `carbtune.vehicle-record` v1 retains a stable ID, revision, independent chassis and installed-engine identities, optional VIN/customer reference/notes, timestamps, archive state, provenance, job IDs, configuration snapshot IDs, current configuration pointer, and audit events.
+- `carbtune.vehicle-configuration-snapshot` v1 belongs to one vehicle and one job. It retains installed engine, heads, cam/valvetrain, intake, carburetor, fuel, ignition, exhaust, transmission, converter/clutch, differential, tires, relevant tune settings, source, actor, timestamps, revision, supersession, and invalidation fields. Missing values remain `null`.
+- `carbtune.actor-reference` v1 supports explicit local technician, future authenticated user, system, or `UNKNOWN`. CT-0060 implements no authentication.
+- `carbtune.audit-event` v1 relates an actor/action/timestamp/source to optional vehicle, job, component, and evidence identities.
+
+`migrateVehicleRecords(jobs, existing)` is safe to repeat. It reuses existing relationships, joins only supplied matching VINs, and otherwise derives a stable per-job vehicle ID. It never invents VIN, trim, component, technician, or current verification state. `startJobFromVehicle` deep-clones current known configuration into a new job snapshot; old jobs and snapshots remain unchanged. `archiveVehicle` is non-destructive.
 
 ## Validation-result contract
 

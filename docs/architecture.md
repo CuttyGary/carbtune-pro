@@ -21,6 +21,16 @@ Each persisted job contains independent domains:
 
 Older v31/v40 jobs are normalized into this shape. Unknown fields are added without deleting the original data.
 
+## Shop vehicle and configuration history
+
+CT-0060 adds `carbtune.vehicle-record` v1 as a separate local-first aggregate around the existing jobs. A Vehicle Record owns stable identity, chassis facts, VIN when supplied, current installed-engine summary, customer/reference placeholders within existing product boundaries, notes, archive state, provenance, revisions, job links, immutable configuration snapshots, and audit events. Jobs retain odometer observations and all diagnostic/tuning evidence so a later reading never overwrites an earlier visit.
+
+Legacy jobs are derived into `carbtune.vehicles.v1` idempotently. A supplied matching VIN or an existing vehicle relationship can link visits; without that evidence, migration creates a stable per-job vehicle rather than guessing that two similar chassis descriptions are the same physical vehicle. Chassis and installed-engine identities remain separate at every boundary.
+
+Each job links to the configuration snapshot that describes the installed combination for that visit. Starting a return visit clones the latest known configuration into a new snapshot and job; it never edits an older snapshot or job. Vehicle archive is non-destructive and retains jobs. Explicit Delete Job remains available and removes only that job plus its vehicle relationship/snapshot.
+
+Actor references and audit events accept an explicit local technician or `UNKNOWN`. They prepare for later authenticated identities but do not claim authentication exists.
+
 The executable v1 adapter and future service boundaries are documented in `docs/service-contracts.md`. They are additive to the current persistence model; Vehicle/Chassis and Installed Engine remain independent transfer objects.
 
 ## Knowledge and provenance
