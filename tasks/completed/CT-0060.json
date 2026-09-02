@@ -42,7 +42,8 @@
     "tests/validate-workflow.cjs", "CARBTUNE_HANDOFF.md"
   ],
   "commitSha": "2cb90855e5465acf37b19a2425fe3c5c80bd1764",
-  "deploymentStatus": "PENDING_VERIFICATION",
+  "deploymentStatus": "VERIFIED: Validate CarbTune run 33682568897 and Pages run 33682567918 completed successfully for handoff commit dd9c271e40a20fa29de373284b79255eb3dbafd4.",
+  "handoffCommitSha": "dd9c271e40a20fa29de373284b79255eb3dbafd4",
   "blockers": [],
   "reviewStatus": "READY_FOR_CHATGPT_REVIEW"
 }

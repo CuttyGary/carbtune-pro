@@ -10,8 +10,9 @@ CT-0060 is implemented on the latest post-CT-0059 `main` without PostgreSQL, a f
 - Starting SHA: `434223fff7a489d1f0e060cdc7ff8626de9a05e1`
 - In-progress acknowledgement: `1b11af0`
 - Implementation SHA: `2cb90855e5465acf37b19a2425fe3c5c80bd1764`
-- Handoff SHA: pending this documentation commit
-- CI/deployment: pending verification after final push
+- Handoff SHA: `dd9c271e40a20fa29de373284b79255eb3dbafd4`
+- CI: `Validate CarbTune` run `33682568897` completed successfully.
+- Deployment: Pages run `33682567918` completed successfully.
 
 ## What changed
 
