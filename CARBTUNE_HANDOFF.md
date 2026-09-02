@@ -10,7 +10,9 @@ CT-0059 is implemented without a frontend rewrite or backend deployment. The exi
 - Starting SHA: `dd63b46e50d3e221ec10e6957140e5c4347aa46c`
 - In-progress acknowledgement: `769f926`
 - Implementation SHA: `aa35ce0256cb0085045851bb8d08ae858460186b`
-- CI/deployment: pending push and GitHub Actions observation at this handoff-writing stage.
+- Handoff SHA: `fa4a24d0e52e79d40043b8d27a557de1c098faf1`
+- CI: `Validate CarbTune` run `33669302540` completed successfully.
+- Deployment: Pages run `33669301648` completed successfully.
 
 ## What changed
 
