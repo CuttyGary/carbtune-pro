@@ -88,6 +88,8 @@ The runner explicitly tests `?workflow=legacy` for the retained reference workfl
 
 ## Delivery and next action
 
+Latest assignment pickup check: 2026-09-11 20:23:32 UTC. A protected fetch found no new commits or review assignment: `origin/main` remained at `b15923a8fa37e39daaeba9e4eab2abf87d500e82`, and the design branch remained at review handoff `24c0fb6a641e20ed0dfe01ba09309d1207da6e97`. Both task inventories were inspected. Main's `READY_FOR_CODEX` record is the already-implemented request; it is not a new change request. CT-0061 remains `READY_FOR_CHATGPT_REVIEW`. This pickup changes only this handoff audit note; application code and deployment are unchanged. Existing implementation test evidence above is retained, not claimed as a new full test run. The prior local preview's availability was not rechecked during this pickup.
+
 Implementation commit `b9e3702ad6ea9b9f061ac23966eee4e19a156153` was pushed and verified on `origin/design/knowledge-graph-v1`. `origin/main` remains `b15923a8fa37e39daaeba9e4eab2abf87d500e82`. This handoff is a separate documentation commit following the implementation.
 
 Production deployment: NOT APPLICABLE for this branch-only review assignment. The existing validation workflow triggers pushes to main or pull requests; no design-branch CI execution is claimed. A local review preview is running at `http://127.0.0.1:4173`, bound only to this machine, and an app browser panel was requested. It is not a production deployment and uses its own browser-origin storage.
