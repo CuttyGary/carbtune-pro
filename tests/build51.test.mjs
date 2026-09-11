@@ -52,6 +52,8 @@ assert.match(html, /if\(key==='year'\)\{state\.vehicle\.make='';state\.vehicle\.
 for (const [index, script] of inlineScripts.entries()) {
   new vm.Script(script, { filename: `index-inline-${index + 1}.js` });
 }
+new vm.Script(fs.readFileSync(new URL('../ui/redesign.js', import.meta.url), 'utf8'), {filename:'ui/redesign.js'});
+assert.match(html, /ui\/redesign.js/);
 
 const knowledgeSource = fs.readFileSync(new URL('../data/knowledge-base.js', import.meta.url), 'utf8');
 const knowledgeContext = { window: {} };

@@ -1745,4 +1745,5 @@ document.addEventListener('click',e=>{const custom=e.target.closest('[data-custo
 document.addEventListener('input',e=>{if(e.target.id==='newCarb'){delete e.target.dataset.canonicalId;b51RenderCarbSuggestions();return}if(e.target.matches('[data-diagnostic-note]')){diagnosticRecord(b51Action().id,b51Action().action).note=e.target.value;save();return}if(e.target.matches('[data-other-observation]')){const value=e.target.value;state.diagnostic.otherObservation=value;state.diagnostic.symptomSuggestion=/\b(run\s*on|runs after|dieseling|won'?t stop immediately|key off)\b/i.test(value)?'run-on':null;save();renderGuided();const replacement=document.querySelector('[data-other-observation]');replacement?.focus();replacement?.setSelectionRange(value.length,value.length)}},true);
 b51();document.querySelector('header h1 .tiny').textContent='Build 51 • Guided Intelligence Workflow';render();go('guided',{remember:false});
 </script>
+<script src="ui/redesign.js"></script>
 </body></html>

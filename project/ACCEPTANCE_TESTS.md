@@ -84,6 +84,10 @@ All automated evidence below is exercised through the real page in `tests/valida
 
 ## Data, provenance, and product boundaries
 
+## CT-0061 redesign foundation
+
+The canonical runner exercises the redesigned default entry with `tests/redesign.browser.cjs` in addition to the preserved legacy reference workflow. The new suite covers eight distinct destinations; relational chassis selection and independent installed engine; conditional component questions; missing versus abnormal evidence; append-only corrections and dependency invalidation; return-visit snapshots; read-only completed jobs; sequential/duplicate RO controls; active-job deletion; and 1440/820/390px layouts. Full graph reasoning and successful finalization remain explicitly outside this review milestone.
+
 ## CT-0060 shop vehicle/history foundation
 
 | ID | Acceptance requirement | Status | Automated evidence |

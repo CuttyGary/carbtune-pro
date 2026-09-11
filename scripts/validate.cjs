@@ -82,13 +82,19 @@ async function main() {
     ['Project control and data-policy integrity', 'tests/project-control.test.mjs'],
     ['Versioned service contracts and validation truth', 'tests/service-contracts.test.mjs'],
     ['Relational vehicle cascade browser regressions', 'tests/vehicle-cascade.browser.cjs'],
-    ['Workflow, persistence, provenance, and UI smoke regressions', 'tests/validate-workflow.cjs']
+    ['Legacy workflow, persistence, provenance, and UI smoke regressions', 'tests/validate-workflow.cjs'],
+    ['CT-0061 redesigned workflow and evidence boundaries', 'tests/redesign.browser.cjs']
   ];
 
   try {
     console.log(`CarbTune validation server: ${environment.CARBTUNE_URL}`);
-    for (const [stage, test] of stages) await runTest(stage, test, environment);
-    console.log(`\nCarbTune validation passed (${stages.length} test programs).`);
+    const selected = process.env.CARBTUNE_TEST ? stages.filter(([,test])=>test===process.env.CARBTUNE_TEST) : stages;
+    if (!selected.length) throw new Error('CARBTUNE_TEST did not match a canonical test program');
+    for (const [stage, test] of selected) {
+      const legacy = ['tests/vehicle-cascade.browser.cjs', 'tests/validate-workflow.cjs'].includes(test);
+      await runTest(stage, test, legacy ? { ...environment, CARBTUNE_URL: environment.CARBTUNE_URL + '/?workflow=legacy' } : environment);
+    }
+    console.log(`\nCarbTune validation passed (${selected.length} test programs).`);
   } finally {
     await new Promise(resolve => server.close(resolve));
     fs.rmSync(temporary, { recursive: true, force: true });
