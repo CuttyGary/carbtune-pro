@@ -1,1 +1,53 @@
-null
+{
+  "schemaVersion": 1,
+  "id": "CT-0061",
+  "title": "CarbTune Pro redesign shell and workflow foundation",
+  "status": "READY_FOR_CODEX",
+  "createdDate": "2026-09-11",
+  "authoritativeDesignBranch": "design/knowledge-graph-v1",
+  "implementationBranch": "design/knowledge-graph-v1",
+  "scope": "Build the first reviewable implementation milestone of the approved CarbTune Pro redesign on the design/knowledge-graph-v1 branch. Do not merge redesign application code to main. Preserve CT-0059/CT-0060 infrastructure while replacing the visible Build 51 form-wizard shell with the approved professional shop-software chassis.",
+  "requiredReading": [
+    "AGENTS.md",
+    "CARBTUNE_HANDOFF.md",
+    "docs/CARBTUNE_BLUEPRINT.md on design/knowledge-graph-v1",
+    "docs/CARBTUNE_KNOWLEDGE_GRAPH.md on design/knowledge-graph-v1",
+    "docs/CARBTUNE_IMPLEMENTATION_CONTRACT.md on design/knowledge-graph-v1"
+  ],
+  "objectives": [
+    "Implement the dark charcoal/black application shell, dark left job navigation, warm white/light-gray central working sheet, restrained semantic colors, strong typography hierarchy, generous spacing, and subtle stacked-sheet depth from the approved design direction.",
+    "Implement a persistent vehicle/RO strip that can display vehicle, installed engine, carburetor, transmission, RO number, and current technician from real available job state; never fabricate missing values.",
+    "Create the reviewable workflow chassis for Static Pages 1-5, Dynamic Tuning Stack, Job Overview, and Customer Report/Finalize.",
+    "Build Pages 1-5 with the correct information architecture and progressive-disclosure homes defined by the blueprint. Reuse existing validated vehicle/job/history/configuration services wherever possible rather than duplicating them.",
+    "Create one representative Dynamic Stack sheet using OBJECTIVE -> EVIDENCE -> ACTION -> VERIFICATION -> OUTCOME, with data/state boundaries suitable for later knowledge-graph reasoning. Do not fake diagnostic conclusions.",
+    "Keep workflow progression state-ready: technician inputs facts; system owns status/progression. Do not implement click-through overrides as a shortcut.",
+    "Preserve saved-job compatibility, vehicle/chassis versus installed-engine independence, duplicate/delete safeguards, immutable historical job/configuration behavior, and CT-0059 validation-currentness semantics.",
+    "Make the milestone responsive and practical on desktop and iPhone-sized layouts."
+  ],
+  "visualContract": {
+    "shell": "dark charcoal/black",
+    "navigation": "dark persistent left job index on desktop; responsive equivalent on narrow screens",
+    "workSurface": "warm white/light gray central technician sheet",
+    "blue": "navigation, information, interaction",
+    "green": "verified/proceed",
+    "orange": "attention/priority",
+    "red": "actual fault or hard stop only",
+    "avoid": ["glowing AI motifs", "chat-first layout", "repetitive AI says labels", "excessive cards/borders", "literal paper gimmicks"]
+  },
+  "acceptanceCriteria": [
+    "A technician can click through the complete redesigned shell from Page 1 through Page 5, see the Dynamic Stack workspace, then Overview and Report without encountering the old Build 51 visual structure as the primary workflow.",
+    "Pages 1-5 have distinct purposes matching CARBTUNE_BLUEPRINT.md rather than generic repeated forms.",
+    "The persistent job context and navigation remain understandable at desktop and iPhone widths.",
+    "The representative Stack sheet clearly expresses Objective, Evidence, Action, Verification, and Outcome and does not invent vehicle facts or diagnostic results.",
+    "Existing persisted vehicle/job/history data remains readable and core CT-0059/CT-0060 safeguards remain intact.",
+    "Canonical validation passes, JavaScript syntax passes, diff check passes, and responsive/browser assertions are updated or added for the new shell.",
+    "No production merge to main occurs as part of this task. The deliverable is a reviewable design-branch implementation plus a complete handoff report."
+  ],
+  "implementationNotes": [
+    "This is intentionally a UI/workflow-chassis milestone, not the full automotive knowledge graph or final reasoning engine.",
+    "Do not solve the task by merely reskinning old page names. The new information architecture must be visible in the implementation.",
+    "Where deeper reasoning is not implemented yet, expose honest neutral states such as awaiting verification rather than fabricated recommendations.",
+    "Prefer extracting reusable design tokens/components/state boundaries over piling more ad hoc CSS onto the existing monolithic page, but do not destabilize validated infrastructure with an unnecessary framework rewrite."
+  ],
+  "reviewStatus": "PENDING_IMPLEMENTATION"
+}
