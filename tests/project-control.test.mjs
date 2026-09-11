@@ -61,7 +61,7 @@ for (const phrase of [
 
 const currentTask = JSON.parse(read('tasks/current.json'));
 const completedFoundation = JSON.parse(read('tasks/completed/CT-0053.json'));
-const allowedTaskStatuses = ['PLANNED', 'IN_PROGRESS', 'BLOCKED', 'READY_FOR_CHATGPT_REVIEW', 'ACCEPTED', 'FAILED'];
+const allowedTaskStatuses = ['PLANNED', 'IN_PROGRESS', 'READY_FOR_CODEX', 'CODEX_WORKING', 'CHANGES_REQUESTED', 'BLOCKED', 'READY_FOR_CHATGPT_REVIEW', 'ACCEPTED', 'FAILED'];
 assert.equal(completedFoundation.schemaVersion, 1);
 assert.equal(completedFoundation.id, 'CT-0053');
 assert.ok(allowedTaskStatuses.includes(completedFoundation.status));
