@@ -7,6 +7,7 @@ const path = require('node:path');
 
 const repoRoot = path.resolve(__dirname, '..', '..');
 const expectedRemote = 'https://github.com/CuttyGary/carbtune-pro.git';
+const allowedBranches = new Set(['main', 'design/knowledge-graph-v1']);
 
 function fail(message) {
   process.stderr.write(`CarbTune Git wrapper blocked: ${message}\n`);
@@ -53,6 +54,11 @@ function repositoryPath(input) {
   return relative || '.';
 }
 
+function requireAllowedBranch(branch) {
+  if (!allowedBranches.has(branch)) fail(`branch is not authorized (${branch})`);
+  return branch;
+}
+
 verifyRepository();
 
 const [operation, ...args] = process.argv.slice(2);
@@ -76,6 +82,17 @@ switch (operation) {
     git(['log', `-${count}`, '--oneline', '--decorate']);
     break;
   }
+  case 'switch': {
+    if (args.length !== 1) fail('switch requires exactly one authorized branch name');
+    const branch = requireAllowedBranch(args[0]);
+    const localBranches = captured(['branch', '--list', branch]);
+    if (localBranches) {
+      git(['switch', branch]);
+    } else {
+      git(['switch', '--track', '-c', branch, `origin/${branch}`]);
+    }
+    break;
+  }
   case 'add':
     if (!args.length) fail('add requires one or more repository-relative paths');
     git(['add', '--', ...args.map(repositoryPath)]);
@@ -93,17 +110,18 @@ switch (operation) {
     if (args.length) fail('fetch accepts no additional arguments');
     git(['fetch', 'origin']);
     break;
-  case 'pull':
+  case 'pull': {
     if (args.length) fail('pull accepts no additional arguments');
-    git(['pull', '--ff-only', 'origin', 'main']);
+    const branch = requireAllowedBranch(captured(['branch', '--show-current']));
+    git(['pull', '--ff-only', 'origin', branch]);
     break;
-  case 'push':
+  }
+  case 'push': {
     if (args.length) fail('push accepts no additional arguments');
-    if (captured(['branch', '--show-current']) !== 'main') {
-      fail('push is allowed only from the main branch');
-    }
-    git(['push', 'origin', 'main']);
+    const branch = requireAllowedBranch(captured(['branch', '--show-current']));
+    git(['push', 'origin', branch]);
     break;
+  }
   default:
-    fail('operation must be status, diff, log, add, commit, fetch, pull, or push');
+    fail('operation must be status, diff, log, switch, add, commit, fetch, pull, or push');
 }
