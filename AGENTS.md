@@ -37,7 +37,9 @@ These instructions apply to the entire repository.
 ### Protected unattended Git path
 
 - In Codex sessions, use direct Git commands for read-only operations. For Git metadata writes and network synchronization, run the protected repository wrapper from the repository root: `node .codex/tools/carbtune-git.cjs <operation>`.
-- Supported wrapper operations are `status`, `diff [--cached]`, `log [count]`, `add <repository-relative paths...>`, `commit "one-line message"`, `fetch`, `pull`, and `push`. The wrapper pins the CarbTune origin/main workflow and rejects destructive options, path escapes, unrelated remotes, and unsupported operations.
+- Supported wrapper operations are `status`, `diff [--cached]`, `log [count]`, `switch <authorized-branch>`, `add <repository-relative paths...>`, `commit "one-line message"`, `fetch`, `pull`, and `push`.
+- The only authorized branches for unattended write/sync operations are `main` and `design/knowledge-graph-v1`. The wrapper rejects destructive options, path escapes, unrelated remotes, arbitrary branch names, force operations, and unsupported operations.
+- CT-0061 redesign implementation is explicitly authorized on `design/knowledge-graph-v1`; do not merge redesign application code to `main` unless a later assignment explicitly authorizes that merge.
 - Do not bypass the wrapper with full-access flags or broaden its project-local execpolicy rule. See `docs/codex-permissions.md` for the exact boundary and installed-platform limitation.
 
 ## ChatGPT Assignment Pickup Protocol
