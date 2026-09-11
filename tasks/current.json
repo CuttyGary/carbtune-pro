@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "CT-0061",
   "title": "CarbTune Pro redesign shell and workflow foundation",
-  "status": "CODEX_WORKING",
+  "status": "READY_FOR_CHATGPT_REVIEW",
   "createdDate": "2026-09-11",
   "authoritativeDesignBranch": "design/knowledge-graph-v1",
   "implementationBranch": "design/knowledge-graph-v1",
@@ -59,20 +59,20 @@
     {
       "id": "CT-0061-A1",
       "expected": "The redesigned Pages 1-5, Dynamic Stack, Overview, and Report workflow is reviewable on design/knowledge-graph-v1.",
-      "status": "PENDING",
-      "evidence": "Git policy blocker resolved; implementation may proceed."
+      "status": "PASS",
+      "evidence": "Default entry renders all 8 distinct destinations with real job context, component-specific as-found fields and a representative evidence-driven Stack."
     },
     {
       "id": "CT-0061-A2",
       "expected": "Canonical validation, JavaScript syntax, diff checks, and responsive browser assertions pass.",
-      "status": "PENDING",
-      "evidence": "Awaiting implementation."
+      "status": "PASS",
+      "evidence": "All 7 canonical programs passed; final redesign browser suite 78 assertions, legacy workflow 165 assertions, JavaScript and diff checks passed; screenshots inspected at desktop and phone widths."
     },
     {
       "id": "CT-0061-A3",
       "expected": "No redesign application code is merged to main.",
-      "status": "PENDING",
-      "evidence": "Design-branch-only implementation remains required."
+      "status": "PASS",
+      "evidence": "Implementation b9e3702 is on design/knowledge-graph-v1 only; main remains at b15923a."
     }
   ],
   "implementationNotes": [
@@ -84,18 +84,35 @@
     "Previous pickup UTC: 2026-09-11T13:43:48.0781449Z.",
     "The prior blocker was resolved on 2026-09-11 by explicitly authorizing protected wrapper switch/pull/push operations for exactly main and design/knowledge-graph-v1.",
     "The protected wrapper remains restrictive: no arbitrary branches, unrelated remotes, force operations, destructive history edits, or policy bypasses are authorized.",
-    "Codex resumed on 2026-09-11T14:22:23.5871176Z from design branch HEAD 4c1c54fae254208cffaefcee39c1397b901f4f60; main assignment b15923a is authoritative."
+    "Codex resumed on 2026-09-11T14:22:23.5871176Z from design branch HEAD 4c1c54fae254208cffaefcee39c1397b901f4f60; main assignment b15923a is authoritative.",
+    "Implementation commit: b9e3702ad6ea9b9f061ac23966eee4e19a156153. See docs/CT-0061-implementation.md and CARBTUNE_HANDOFF.md for architecture, verification and milestone limitations.",
+    "The optional additive redesign object preserves legacy baseline evidence, new append-only observations, actor/time/reasons, drafts and dependency revisions. Restoring a prior configuration never revives stale evidence.",
+    "Full knowledge graph reasoning, calibration prescriptions and successful finalization remain intentionally pending; report printing is factual and finalization cannot claim a verified outcome.",
+    "The reference ?workflow=legacy entry remains for historical support/regression; the redesign is the default and has its own canonical browser suite."
   ],
   "validation": {
-    "command": "node scripts/validate.cjs; git diff --check",
-    "status": "PENDING",
-    "exitCode": null,
-    "date": null,
-    "summary": "Previous no-change blocker validation passed; implementation validation must be rerun after CT-0061 changes."
+    "command": "node scripts/validate.cjs; focused redesign browser suite after final safety copy change; node --check; git diff --check",
+    "status": "PASS",
+    "exitCode": 0,
+    "date": "2026-09-11",
+    "summary": "All 7 canonical programs passed. Final focused redesign suite passed 78 assertions; retained legacy suite passed 165 assertions. Both inline scripts and ui/redesign.js passed syntax checks; no browser-console errors. Desktop/tablet/iPhone screenshots inspected."
   },
-  "filesChanged": [],
-  "commitSha": null,
-  "deploymentStatus": "PENDING_IMPLEMENTATION",
+  "filesChanged": [
+    "index.html",
+    "ui/redesign.js",
+    "ui/redesign.css",
+    "scripts/validate.cjs",
+    "tests/build51.test.mjs",
+    "tests/project-control.test.mjs",
+    "tests/redesign.browser.cjs",
+    "docs/CT-0061-implementation.md",
+    "project/ACCEPTANCE_TESTS.md",
+    "tasks/current.json",
+    "CARBTUNE_HANDOFF.md"
+  ],
+  "commitSha": "b9e3702ad6ea9b9f061ac23966eee4e19a156153",
+  "deploymentStatus": "NOT_APPLICABLE: design-branch review deliverable only. Implementation b9e3702ad6ea9b9f061ac23966eee4e19a156153 pushed and verified on origin/design/knowledge-graph-v1; origin/main remains b15923a. Local review preview is available at http://127.0.0.1:4173. No production deployment performed.",
   "blockers": [],
-  "reviewStatus": "PENDING_IMPLEMENTATION"
+  "reviewStatus": "READY_FOR_CHATGPT_REVIEW",
+  "completedDate": "2026-09-11"
 }

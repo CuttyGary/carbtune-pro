@@ -1,69 +1,95 @@
-Task: CT-0060
+Task: CT-0061
 Status: READY_FOR_CHATGPT_REVIEW
 
-# CarbTune Handoff — Shop-grade vehicle, job history, and configuration foundation
+# CarbTune Handoff — Redesign shell and workflow foundation
 
-## Result
+## Result and review scope
 
-CT-0060 is implemented on the latest post-CT-0059 `main` without PostgreSQL, a fake backend, authentication, or a frontend rewrite. CarbTune now persists versioned Vehicle Records separately from jobs, groups returning visits when identity evidence supports it, retains immutable per-job configuration snapshots, and offers a fast returning-vehicle/new-job workflow.
+CT-0061 is implemented on `design/knowledge-graph-v1` as the first reviewable redesign milestone. The default entry opens the approved dark application shell, contextual vehicle/RO strip, left workspace navigation and warm light work sheet. The primary workflow now has distinct Customer/RO, Vehicle/Drivetrain, Modifications, As-Found Configuration, Baseline Verification, Dynamic Stack, Overview and Report destinations.
 
-- Starting SHA: `434223fff7a489d1f0e060cdc7ff8626de9a05e1`
-- In-progress acknowledgement: `1b11af0`
-- Implementation SHA: `2cb90855e5465acf37b19a2425fe3c5c80bd1764`
-- Handoff SHA: `dd9c271e40a20fa29de373284b79255eb3dbafd4`
-- CI: `Validate CarbTune` run `33682568897` completed successfully.
-- Deployment: Pages run `33682567918` completed successfully.
+- Starting design HEAD: `4c1c54fae254208cffaefcee39c1397b901f4f60`.
+- Authoritative resumed assignment: `origin/main` at `b15923a`.
+- Acknowledgement commit: `5b1df13`.
+- Implementation commit: `b9e3702ad6ea9b9f061ac23966eee4e19a156153`.
+- Required design inputs: `docs/CARBTUNE_BLUEPRINT.md`, `docs/CARBTUNE_KNOWLEDGE_GRAPH.md`, `docs/CARBTUNE_IMPLEMENTATION_CONTRACT.md`.
+- Main was not merged with application changes. No production deployment is authorized by this task.
 
-## What changed
+## What changed and why
 
-- Added `carbtune.vehicle-record`, `carbtune.vehicle-configuration-snapshot`, `carbtune.actor-reference`, and `carbtune.audit-event` schemas at v1 under contract envelope `2.0.0`; the CT-0059 job/validation schemas remain compatible.
-- Vehicle Records retain stable ID/revision, independent chassis and installed engine, optional VIN/customer reference/notes, provenance, timestamps, archive state, job relationships, snapshots, current-configuration pointer, and audit events.
-- Odometer values are appendable job observations with timestamp/source/actor, never a silently overwritten vehicle value.
-- Legacy localStorage jobs derive Vehicle Records idempotently. Existing links or supplied matching VIN can group visits; otherwise each no-VIN legacy job remains separate rather than guessing physical identity.
-- Starting a return visit deep-clones the current known configuration into a new job and snapshot. Historical jobs/snapshots remain unchanged. Vehicle archive preserves jobs; confirmed Delete Job remains job-scoped and repairs vehicle relationships.
-- Jobs/Home now shows returning vehicles, useful job history, current configuration, and `New Job for Vehicle` in technician language. New visits skip repeated vehicle/build entry where known.
-- Actor/audit foundations accept explicit local technician or `UNKNOWN`; no authenticated-user claim is made.
+The former primary UI coupled page navigation with completion and exposed manual warning overrides. The new workflow separates navigation from evidence completion: technicians can inspect any workspace without declaring a system passed or a job complete.
+
+- Added isolated visual tokens and responsive layout in `ui/redesign.css`.
+- Added a workflow adapter in `ui/redesign.js` that reuses existing job, vehicle, component, compatibility, deletion, numbering and storage services.
+- Page 1 records customer/visit/RO facts and document references. Document ingestion is explicitly unavailable.
+- Page 2 reuses the exact relational chassis selectors and independent installed-engine selectors, with drivetrain/load fields.
+- Page 3 provides eight progressive domains. Unreviewed sections are never silently treated as verified stock. Component categories retain independent compatibility filtering and repeated custom-entry open/close behavior.
+- Page 4 derives manual-choke and vacuum-secondary questions from the selected verified carburetor record. Missing manufacturer stock calibration remains unknown.
+- Page 5 records observations with actual conditions, technician, time, provenance and replacement reason. Valid abnormal readings satisfy factual completion without an override; missing and implausible readings do not. Invalid drafts remain visible for correction.
+- The representative Stack responds to missing evidence, observed fuel leaks and abnormal fuel pressure, and presents Objective → Evidence → Action → Verification → Outcome. Safety action takes precedence over other evidence collection.
+- Overview and Report use stored facts and disclose unresolved evidence. Printing is available. Finalization cannot declare success while verified terminal-outcome processing is not implemented.
+- Completed visits are read-only in the new factual forms. Active/history Delete Job retains the existing confirmation and cleanup service.
+- Existing sample data is explicitly labeled as a demonstration.
+
+## Storage and history preservation
+
+Existing localStorage keys and CT-0059/CT-0060 contract schemas are unchanged. An optional additive `redesign` object stores page location, visit fields, as-found settings, drafts, append-only observations and audit history. Initial legacy baseline readings are retained separately as historical evidence.
+
+Each new observation carries a configuration fingerprint and monotonic dependency revision. Changing configuration makes prior dependent evidence stale without deleting it. Returning to an earlier configuration cannot revive invalidated observations. Existing CT-0059 validation records are also invalidated when configuration or new evidence changes.
+
+Return visits use the CT-0060 Vehicle Record and immutable snapshot service. They receive a new sequential RO and fresh observation set. New freeform as-found settings remain job-scoped; automatic carry-forward of those additional notes is not implemented.
+
+## Sources and data integrity
+
+No vehicle/component catalog records or numerical specifications were added. Existing DOE/EPA and NHTSA relational data remains unchanged: 35,036 combined application records covering 1955–2027, as verified by the existing registry suite. No new claim of catalog completeness was made.
+
+Component architecture comes from the existing provenance-bearing component catalog. Baseline starting windows reuse existing CarbTune definitions and are labeled inference, not manufacturer specifications or verified installed-combination targets. Technician notes and measurements retain separate provenance. No source research was required for this UI/workflow milestone.
 
 ## Validation evidence
 
-- `npm run validate`: PASS, all 6 canonical programs.
-- Vehicle registry/provenance: PASS, 35,036 combined relational records, 1955–2027.
-- Service-contract tests: PASS for migration/idempotence, one vehicle/multiple jobs, immutable snapshots, chassis/engine separation, unknowns, job odometer observations, archive, stable IDs/relationships, and known/unknown attribution.
-- Vehicle/Chassis browser regressions: PASS for guided and modal selectors.
-- Workflow/persistence/browser suite: PASS, 165 assertions, including return-visit UX, unchanged old job, snapshot/relation reload, legacy compatibility, duplicate/delete safeguards, CT-0059 stale/current validation rules, responsive layouts, and zero browser-console errors.
-- `node --check data/service-contracts.js` and `git diff --check`: PASS.
+- `node scripts/validate.cjs`: PASS, all 7 canonical programs.
+- JavaScript integrity: PASS, 2 inline scripts and the new external redesign module checked.
+- Registry/provenance and project controls: PASS.
+- Versioned service contracts: PASS, including migration/idempotence, returning jobs, immutable snapshots, relationships and validation truth.
+- Legacy vehicle cascade browser suite: PASS.
+- Legacy workflow/browser suite: PASS, 165 assertions.
+- Redesigned default-entry browser suite: PASS, final 78 assertions. The final safety-action precedence correction was followed by a successful focused rerun and syntax checks.
+- New tests cover all eight destinations; actual vehicle/technician context; conditional component questions; per-category filters; repeated custom-entry toggling; no click-through evidence override; plausible abnormal completion; invalid-entry retention; append-only corrections; stale-evidence non-revival; persistence; completed-job read-only forms; return visits; snapshot preservation; sequential numbers across deletion; duplicate warning; confirmed deletion and Jobs/Home return.
+- Responsive assertions: every destination at 1440px, 820px and 390px has no horizontal page overflow.
+- Desktop and iPhone screenshots were directly inspected, including the Stack. Low-contrast deletion styling was corrected.
+- Browser errors: zero unexpected console/page errors in the tested flows.
+- `node --check` for the new module, browser test and runner, plus `git diff --check`: PASS.
+- The CLI named by the browser skill was unavailable; the repository's installed Playwright browser provided automated coverage and screenshot inspection.
 
-## Known limitations
+The runner explicitly tests `?workflow=legacy` for the retained reference workflow and separately tests the redesigned default URL. Old workflow assertions are not being presented as proof of redesigned behavior.
 
-- localStorage remains authoritative and single-device. PostgreSQL, APIs, synchronization/conflict handling, tenancy, authentication, permissions, backups, and production data operations are future work.
-- Migration links no-VIN jobs only when a relationship already exists. CarbTune intentionally does not guess that similar chassis descriptions identify the same physical vehicle.
-- Archive behavior is implemented and contract-tested but no additional archive administration UI was added; this keeps the technician workflow focused.
-- Customer/reference, vehicle notes, tires, and some component domains are contract-ready where current UI data exists; CT-0060 does not add administrative intake fields merely to populate them.
-- Human field acceptance of the relational selector remains outstanding from prior work; no manual result was fabricated.
+## Known limits
 
-## CT-0058 approval anomaly
+- Full graph traversal, anti-loop/freeze/learned-zone reasoning, automatic calibration prescriptions and successful terminal-outcome/finalization processing are not implemented in this milestone.
+- Configuration invalidation conservatively affects the baseline set; fine-grained node dependency selection remains future work.
+- Fuel-leak handling is one representative safety condition, not an exhaustive mechanical/safety rule engine.
+- Document upload/extraction is not connected; only explicit references/transcriptions are recorded.
+- The catalog lacks exact stock carburetor calibration for the supported records; the UI says so.
+- localStorage remains the single-device authority. No backend, PostgreSQL, authentication or synchronization was introduced.
+- Human technician acceptance is pending; automated checks do not establish manual product acceptance.
 
-- Exact operation: `node .codex/tools/carbtune-git.cjs pull` in the repository root.
-- Request/failure: restricted sandbox denied `.git/FETCH_HEAD`; the same protected wrapper command required explicit narrow escalation.
-- Expected coverage: yes, CT-0058 and `docs/codex-permissions.md` explicitly describe protected wrapper pull as the unattended path.
-- Appropriate correction: investigate the project-local execpolicy/wrapper elevation match for fresh cloned workspaces. Any correction should remain repository-scoped; no machine-wide weakening is appropriate.
-- Fresh-clone identity gap: wrapper commit initially failed because the clone had no author identity. The established repository identity was passed only to the wrapper process; no global/local Git config or broader permission was added.
+## Files changed
 
-## Exact files changed
-
-- `data/service-contracts.js`
-- `docs/architecture.md`
-- `docs/service-contracts.md`
 - `index.html`
+- `ui/redesign.js`
+- `ui/redesign.css`
+- `scripts/validate.cjs`
+- `tests/build51.test.mjs`
+- `tests/project-control.test.mjs` (recognizes task statuses required by the assignment protocol)
+- `tests/redesign.browser.cjs`
+- `docs/CT-0061-implementation.md`
 - `project/ACCEPTANCE_TESTS.md`
-- `project/DECISIONS.md`
-- `project/ROADMAP.md`
 - `tasks/current.json`
-- `tasks/completed/CT-0060.json`
-- `tests/service-contracts.test.mjs`
-- `tests/validate-workflow.cjs`
 - `CARBTUNE_HANDOFF.md`
 
-## Review gate
+## Delivery and next action
 
-ChatGPT should review CT-0060 against the persistent Vehicle Record, immutable configuration history, migration, validation-lifecycle, and technician-workflow requirements. Do not begin CT-0061 automatically.
+Implementation commit `b9e3702ad6ea9b9f061ac23966eee4e19a156153` was pushed and verified on `origin/design/knowledge-graph-v1`. `origin/main` remains `b15923a8fa37e39daaeba9e4eab2abf87d500e82`. This handoff is a separate documentation commit following the implementation.
+
+Production deployment: NOT APPLICABLE for this branch-only review assignment. The existing validation workflow triggers pushes to main or pull requests; no design-branch CI execution is claimed. A local review preview is running at `http://127.0.0.1:4173`, bound only to this machine, and an app browser panel was requested. It is not a production deployment and uses its own browser-origin storage.
+
+ChatGPT should review the design branch and the explicit milestone limits, then request manual desktop/iPhone acceptance. Do not merge to main or begin another feature without a subsequent assignment.
