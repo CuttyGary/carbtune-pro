@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "CT-0061",
   "title": "CarbTune Pro redesign shell and workflow foundation",
-  "status": "BLOCKED",
+  "status": "READY_FOR_CODEX",
   "createdDate": "2026-09-11",
   "authoritativeDesignBranch": "design/knowledge-graph-v1",
   "implementationBranch": "design/knowledge-graph-v1",
@@ -28,7 +28,7 @@
     "Implement and push redesign application work only on design/knowledge-graph-v1.",
     "Do not merge redesign application code to main as part of CT-0061.",
     "Preserve CT-0059/CT-0060 infrastructure, persisted-job compatibility, chassis/installed-engine independence, duplicate/delete safeguards, immutable history, and validation-currentness semantics.",
-    "Use the repository-mandated protected Git wrapper for Git metadata writes and network operations; do not bypass or broaden its project-local policy without authorization."
+    "Use the repository-mandated protected Git wrapper for Git metadata writes and network operations; do not bypass it."
   ],
   "visualContract": {
     "shell": "dark charcoal/black",
@@ -53,20 +53,20 @@
     {
       "id": "CT-0061-A1",
       "expected": "The redesigned Pages 1-5, Dynamic Stack, Overview, and Report workflow is reviewable on design/knowledge-graph-v1.",
-      "status": "BLOCKED",
-      "evidence": "Implementation could not begin because the mandatory protected Git wrapper cannot create, switch to, pull, or push the assigned design branch."
+      "status": "PENDING",
+      "evidence": "Git policy blocker resolved; implementation may proceed."
     },
     {
       "id": "CT-0061-A2",
       "expected": "Canonical validation, JavaScript syntax, diff checks, and responsive browser assertions pass.",
-      "status": "NOT_RUN",
-      "evidence": "No application files were changed."
+      "status": "PENDING",
+      "evidence": "Awaiting implementation."
     },
     {
       "id": "CT-0061-A3",
       "expected": "No redesign application code is merged to main.",
-      "status": "PASS",
-      "evidence": "The working tree remained on main and no application files were changed."
+      "status": "PENDING",
+      "evidence": "Design-branch-only implementation remains required."
     }
   ],
   "implementationNotes": [
@@ -74,27 +74,21 @@
     "Do not solve the task by merely reskinning old page names. The new information architecture must be visible in the implementation.",
     "Where deeper reasoning is not implemented yet, expose honest neutral states such as awaiting verification rather than fabricated recommendations.",
     "Prefer extracting reusable design tokens/components/state boundaries over piling more ad hoc CSS onto the existing monolithic page, but do not destabilize validated infrastructure with an unnecessary framework rewrite.",
-    "Codex pickup starting HEAD: 71a0445a5f27ce42cd559feef7145aa01cac428c.",
-    "Codex pickup UTC: 2026-09-11T13:43:48.0781449Z.",
-    "Required design documents were read from origin/design/knowledge-graph-v1 at 80c1c92; the authoritative READY_FOR_CODEX assignment was read from origin/main.",
-    "The repository wrapper supports only status, diff, bounded log, add, commit, fetch, origin/main pull, and origin/main push; it explicitly rejects push from any branch other than main and exposes no branch checkout/switch operation.",
-    "No application or design file was changed, and the wrapper/security policy was not modified or bypassed."
+    "Previous Codex pickup starting HEAD: 71a0445a5f27ce42cd559feef7145aa01cac428c.",
+    "Previous pickup UTC: 2026-09-11T13:43:48.0781449Z.",
+    "The prior blocker was resolved on 2026-09-11 by explicitly authorizing protected wrapper switch/pull/push operations for exactly main and design/knowledge-graph-v1.",
+    "The protected wrapper remains restrictive: no arbitrary branches, unrelated remotes, force operations, destructive history edits, or policy bypasses are authorized."
   ],
   "validation": {
     "command": "node scripts/validate.cjs; git diff --check",
-    "status": "PASS",
-    "exitCode": 0,
-    "date": "2026-09-11",
-    "summary": "All 6 canonical validation programs passed, including JavaScript syntax, data/service controls, both browser suites, and 165 workflow/persistence/UI assertions; git diff --check passed."
+    "status": "PENDING",
+    "exitCode": null,
+    "date": null,
+    "summary": "Previous no-change blocker validation passed; implementation validation must be rerun after CT-0061 changes."
   },
-  "filesChanged": [
-    "tasks/current.json",
-    "CARBTUNE_HANDOFF.md"
-  ],
+  "filesChanged": [],
   "commitSha": null,
-  "deploymentStatus": "NOT_APPLICABLE: no application or design-branch implementation was produced.",
-  "blockers": [
-    "CT-0061 requires implementation and push on design/knowledge-graph-v1, but AGENTS.md requires the protected Git wrapper for Git metadata writes/network operations and forbids bypassing it. The wrapper has no checkout/switch operation, pulls only origin/main, and explicitly permits push only from main. Main is forbidden for CT-0061 application code."
-  ],
-  "reviewStatus": "BLOCKED_PENDING_GIT_POLICY_DECISION"
+  "deploymentStatus": "PENDING_IMPLEMENTATION",
+  "blockers": [],
+  "reviewStatus": "PENDING_IMPLEMENTATION"
 }
