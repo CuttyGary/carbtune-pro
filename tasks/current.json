@@ -1,1 +1,67 @@
-null
+{
+  "schemaVersion": 1,
+  "id": "CT-0061",
+  "title": "CarbTune Pro redesign foundation and dynamic tuning architecture",
+  "status": "IN_DESIGN",
+  "createdDate": "2026-09-11",
+  "scope": "Translate the approved CarbTune redesign into an implementation-ready product architecture, preserve the proven CT-0060 data/history foundation, establish the new visual system, define the knowledge graph and dynamic tuning stack, and prepare the codebase for a controlled implementation without inheriting the Build 51 form-wizard workflow.",
+  "objectives": [
+    "Implement the approved professional dark-shell/light-work-surface visual direction as the canonical design system.",
+    "Replace page-click progression with evidence- and verification-driven workflow state.",
+    "Define static Pages 1-5, Dynamic Tuning Stack, Job Overview, and Customer Report as the product workflow.",
+    "Formalize the CarbTune knowledge graph, dependency/invalidation rules, provenance, freeze points, anti-loop behavior, and sweet-zone logic.",
+    "Preserve Vehicle Records, immutable job/configuration history, migration, audit foundations, and other validated CT-0060 infrastructure.",
+    "Create an internal Knowledge Graph Inspector specification for development and diagnostic QA."
+  ],
+  "constraints": [
+    "Do not merge redesign work to main until acceptance criteria pass and the redesigned workflow is reviewable.",
+    "Do not preserve Build 51 behavior merely for visual compatibility; the blueprint is authoritative for workflow behavior.",
+    "Do not invent vehicle facts, specifications, component identity, test results, or manufacturer data.",
+    "Technicians enter facts; CarbTune owns issue state, progression state, invalidation, prioritization, and stopping logic.",
+    "Unverified required evidence may block progression; verified abnormal evidence must generate diagnostic work rather than block Page 5 completion.",
+    "No generic universal carburetor checklist where component-specific logic is available.",
+    "Do not destroy or silently rewrite historical evidence. Corrections append provenance-aware history.",
+    "Retain local-first compatibility during this phase; no fake backend or premature production database migration."
+  ],
+  "visualContract": {
+    "shell": "dark charcoal/black top bar and left navigation",
+    "workspace": "warm white/light gray central technician work sheet with subtle stacked-sheet depth",
+    "semanticColors": {
+      "blue": "navigation, information, interaction",
+      "green": "verified, safe to proceed, completed",
+      "orange": "attention, priority, needs review",
+      "red": "actual fault, unsafe condition, hard stop"
+    },
+    "style": "professional shop diagnostic software; restrained, spacious, strong typography hierarchy, minimal decorative cards/borders, no glowing AI motifs or chat-first presentation",
+    "navigation": "persistent vehicle/RO strip plus left job index showing Pages 1-5, generated Stack sheets, Overview, and Report"
+  },
+  "acceptanceTests": [
+    {"id":"CT61-001","expected":"The canonical blueprint, knowledge graph, and implementation contract are present and internally consistent.","status":"PENDING"},
+    {"id":"CT61-002","expected":"A technician cannot manually force diagnostic/progression states; state changes derive from evidence and rules.","status":"PENDING"},
+    {"id":"CT61-003","expected":"Page 5 can complete with verified abnormal data but cannot complete with required unverified data.","status":"PENDING"},
+    {"id":"CT61-004","expected":"Dynamic Stack sheets follow OBJECTIVE -> EVIDENCE -> ACTION -> VERIFICATION -> OUTCOME and are generated from current dependencies/evidence rather than a fixed page list.","status":"PENDING"},
+    {"id":"CT61-005","expected":"Changing a dependency invalidates only affected conclusions and can generate new verification work without rewriting prior history.","status":"PENDING"},
+    {"id":"CT61-006","expected":"The redesigned shell and working pages match the approved dark-shell/light-sheet visual direction on phone, tablet, and desktop.","status":"PENDING"},
+    {"id":"CT61-007","expected":"Existing CT-0059/CT-0060 vehicle, job, migration, validation-lifecycle, snapshot, and history behavior remains intact unless explicitly superseded by the new contract.","status":"PENDING"},
+    {"id":"CT61-008","expected":"Automated QA detects orphan knowledge nodes, dead-end paths, circular diagnostic loops, missing verification, unsupported numeric recommendations, and unsafe test-path eligibility.","status":"PENDING"}
+  ],
+  "sourceDocuments": [
+    "docs/CARBTUNE_BLUEPRINT.md",
+    "docs/CARBTUNE_KNOWLEDGE_GRAPH.md",
+    "docs/CARBTUNE_IMPLEMENTATION_CONTRACT.md",
+    "docs/architecture.md",
+    "CARBTUNE_HANDOFF.md"
+  ],
+  "implementationNotes": [
+    "Design work is isolated on branch design/knowledge-graph-v1.",
+    "The user delegated product-design and implementation-detail decisions to ChatGPT/Astra, with the approved generated-screen visual direction treated as the reference aesthetic.",
+    "Major product decisions should be encoded in durable repository documents rather than left only in conversation history.",
+    "Implementation should proceed in large coherent batches once the architecture contract for that batch is sufficiently specified."
+  ],
+  "validation": {
+    "status": "NOT_RUN",
+    "summary": "CT-0061 has entered active design; implementation validation has not begun."
+  },
+  "blockers": [],
+  "reviewStatus": "ACTIVE_DESIGN"
+}
