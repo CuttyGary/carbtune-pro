@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "CT-0061",
   "title": "CarbTune Pro redesign shell and workflow foundation",
-  "status": "CODEX_WORKING",
+  "status": "READY_FOR_CHATGPT_REVIEW",
   "createdDate": "2026-09-11",
   "authoritativeDesignBranch": "design/knowledge-graph-v1",
   "implementationBranch": "design/knowledge-graph-v1",
@@ -66,7 +66,7 @@
       "id": "CT-0061-A2",
       "expected": "Canonical validation, JavaScript syntax, diff checks, and responsive browser assertions pass.",
       "status": "PASS",
-      "evidence": "All 7 canonical programs passed; final redesign browser suite 78 assertions, legacy workflow 165 assertions, JavaScript and diff checks passed; screenshots inspected at desktop and phone widths."
+      "evidence": "All 7 canonical programs passed. Redesign 108 assertions, legacy 165 assertions, registry/provenance, migration/history/service contracts and syntax passed. Zero unexpected browser errors. Every destination checked at 1440/820/390 px; desktop/phone Baseline screenshots inspected."
     },
     {
       "id": "CT-0061-A3",
@@ -77,14 +77,14 @@
     {
       "id": "CT-0061-R1",
       "expected": "An unresolved observed safety fault remains blocking after any configuration edit, reload or return to a previous configuration; missing/stale safety inspection cannot authorize live testing; only valid new safety evidence resolves it.",
-      "status": "FAIL",
-      "evidence": "Observed leak -> edit As-Found otherSettings -> gate.safety=null, gate.unsafe=false, RPM record enabled."
+      "status": "PASS",
+      "evidence": "Fresh browser regressions: hazards persist through unrelated/relevant config edits, reversal and reload; controls and handler block live tests; new inspection and repair facts append a linked resolution; reports retain unresolved concerns."
     },
     {
       "id": "CT-0061-R2",
       "expected": "Required operating-condition recipes are validated before readings count toward the baseline gate; incompatible evidence stays historical/unverified, while valid abnormal evidence still completes factual requirements.",
-      "status": "FAIL",
-      "evidence": "All five readings recorded with conditions Engine off, cold, no instrument identified (40 F, 0 RPM, 0 inHg, 6 PSI, 12 BTDC); gate.complete=true."
+      "status": "PASS",
+      "evidence": "Fresh browser regressions: cold/off, absent/unsuitable instruments, wrong location/advance/AFR facts cannot verify baseline. Invalid and legacy observations persist; latest invalid supersedes valid; valid abnormal readings complete gate with persistence."
     }
   ],
   "implementationNotes": [
@@ -103,30 +103,25 @@
     "The reference ?workflow=legacy entry remains for historical support/regression; the redesign is the default and has its own canonical browser suite."
   ],
   "validation": {
-    "command": "node scripts/validate.cjs; focused redesign browser suite after final safety copy change; node --check; git diff --check",
+    "command": "node scripts/validate.cjs; node --check ui/redesign.js; node --check tests/redesign.browser.cjs; git diff --check",
     "status": "PASS",
     "exitCode": 0,
-    "date": "2026-09-11",
-    "summary": "All 7 canonical programs passed. Final focused redesign suite passed 78 assertions; retained legacy suite passed 165 assertions. Both inline scripts and ui/redesign.js passed syntax checks; no browser-console errors. Desktop/tablet/iPhone screenshots inspected."
+    "date": "2026-10-27",
+    "summary": "All 7 canonical programs passed. Redesign 108 assertions, legacy 165 assertions, registry/provenance, migration/history/service contracts and syntax passed. Zero unexpected browser errors. Every destination checked at 1440/820/390 px; desktop/phone Baseline screenshots inspected."
   },
   "filesChanged": [
-    "index.html",
     "ui/redesign.js",
-    "ui/redesign.css",
-    "scripts/validate.cjs",
-    "tests/build51.test.mjs",
-    "tests/project-control.test.mjs",
     "tests/redesign.browser.cjs",
-    "docs/CT-0061-implementation.md",
+    "docs/CT-0061-corrections.md",
     "project/ACCEPTANCE_TESTS.md",
     "tasks/current.json",
     "CARBTUNE_HANDOFF.md"
   ],
-  "commitSha": "b9e3702ad6ea9b9f061ac23966eee4e19a156153",
-  "deploymentStatus": "NOT_APPLICABLE: design-branch review deliverable only. Implementation b9e3702ad6ea9b9f061ac23966eee4e19a156153 pushed and verified on origin/design/knowledge-graph-v1; origin/main remains b15923a. Local review preview is available at http://127.0.0.1:4173. No production deployment performed.",
+  "commitSha": "ae78d07ee682635362c3560aa01855ece01d88d1",
+  "deploymentStatus": "NOT_APPLICABLE: design-branch corrections only; no main merge or deployment. Local canonical validation passed. Design-branch remote verification follows the protected push.",
   "blockers": [],
-  "reviewStatus": "CHANGES_REQUESTED",
-  "completedDate": "2026-09-11",
+  "reviewStatus": "READY_FOR_CHATGPT_REVIEW",
+  "completedDate": "2026-10-27",
   "reviewerReview": {
     "date": "2026-10-27",
     "reviewedHead": "5148ef91a698c01b28c81b0669fc750f54c4d565",
@@ -151,6 +146,22 @@
   "codexRevision": {
     "startingHead": "c3c9547c95c0350a7ce15452efe1dd4c7a09b9bf",
     "startedAt": "2026-10-27T15:32:58.479Z",
-    "scope": "Resolve CT61-R1 and CT61-R2; preserve reviewer decision and return to review."
-  }
+    "scope": "Resolve CT61-R1 and CT61-R2; preserve reviewer decision and return to review.",
+    "completedAt": "2026-10-27T15:41:41.213Z",
+    "implementationSha": "ae78d07ee682635362c3560aa01855ece01d88d1",
+    "report": "docs/CT-0061-corrections.md",
+    "resolvedFindings": [
+      "CT61-R1",
+      "CT61-R2"
+    ],
+    "validation": {
+      "command": "node scripts/validate.cjs; node --check ui/redesign.js; node --check tests/redesign.browser.cjs; git diff --check",
+      "status": "PASS",
+      "exitCode": 0,
+      "date": "2026-10-27",
+      "summary": "All 7 canonical programs passed. Redesign 108 assertions, legacy 165 assertions, registry/provenance, migration/history/service contracts and syntax passed. Zero unexpected browser errors. Every destination checked at 1440/820/390 px; desktop/phone Baseline screenshots inspected."
+    },
+    "reviewDecision": "PENDING: original reviewer notes preserved; implementation is ready for review, not self-accepted."
+  },
+  "originalImplementationCommit": "b9e3702ad6ea9b9f061ac23966eee4e19a156153"
 }

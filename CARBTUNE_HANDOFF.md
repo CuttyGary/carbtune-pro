@@ -1,35 +1,47 @@
 Task: CT-0061
-Status: CHANGES_REQUESTED
+Status: READY_FOR_CHATGPT_REVIEW
 
-# CarbTune Handoff — independent implementation review
+# CarbTune Handoff — safety and baseline-evidence corrections
 
-Review date: 2026-10-27.
-Assignment: review CT-0061 on design/knowledge-graph-v1 against the Blueprint, Knowledge Graph and Implementation Contract, validate implementation/tests, record a decision, and issue CT-0062 only if accepted.
+Completed: 2026-10-27. Branch: design/knowledge-graph-v1.
+Scope: resolve CT61-R1 and CT61-R2 from docs/CT-0061-review.md. Original reviewer notes and decision are preserved in that file and tasks/current.json.reviewerReview. This delivery requests review and does not self-accept the milestone.
 
-## Decision and next action
+## Result
 
-CHANGES_REQUESTED. Full review, reproduction steps, contract mapping and executable correction requirements are in `docs/CT-0061-review.md`; the active task includes CT61-R1 and CT61-R2. CT-0061 remains active. CT-0062 is withheld pending acceptance.
+CT61-R1: unresolved observed fuel leaks persist independently of configuration freshness. Live measurement controls and the recording handler require a current clearance inspection. Clearing an earlier leak requires method/areas checked and repair or factual correction evidence, appended with a reference to the hazard ID. Configuration edits, reversal and reload cannot clear an unresolved concern. Stack and reports reflect the safety requirement.
 
-- CT61-R1 (P1): record an observed fuel leak, edit As-Found otherSettings, then return to Baseline. The safety observation becomes stale/null, unsafe becomes false, and live measurement controls re-enable without new inspection. Persist unresolved hazards and require valid clearance before live tests.
-- CT61-R2 (P1): enter 40 F / 0 RPM / 0 inHg / 6 PSI / 12 BTDC with all conditions explicitly Engine off, cold, no instrument identified. Baseline completes. Validate required factual test conditions before a reading satisfies the gate, while allowing valid abnormal evidence.
+CT61-R2: each measurement captures versioned factual test setup plus notes and its safety inspection ID. Missing/incompatible setup stays in append-only history with validity issues and does not count toward baseline completion. A later invalid result supersedes earlier valid evidence. Valid abnormal measurements still satisfy factual completion. Legacy evidence receives no invented recipe facts and must be remeasured to become current.
 
-Implement these corrections on the design branch, add regression tests, validate, and return CT-0061 to READY_FOR_CHATGPT_REVIEW. Preserve reviewer notes. Use protected Git wrapper. No merge/deploy authorization.
+Source/rationale: the existing BASELINE_TESTS procedures in index.html and the three approved design/contract documents. No manufacturer specifications, numerical targets, catalog entries or source claims added. See docs/CT-0061-corrections.md for architecture and limitations.
 
-## Reviewed state and evidence
+## Exact implementation
 
-Reviewed HEAD: 5148ef91a698c01b28c81b0669fc750f54c4d565.
-Original implementation commit: b9e3702ad6ea9b9f061ac23966eee4e19a156153.
-Application changes in this review: N/A (documentation/task decision only).
+Starting revision HEAD: c3c9547c95c0350a7ce15452efe1dd4c7a09b9bf.
+Acknowledgement: 7d05c5a (CODEX_WORKING, UTC start recorded in task).
+Original redesign implementation: b9e3702ad6ea9b9f061ac23966eee4e19a156153.
+Correction implementation: ae78d07ee682635362c3560aa01855ece01d88d1.
+This report is a separate handoff commit after the validated implementation commit.
 
-Fresh full validation on 2026-10-27: PASS, all seven canonical programs; legacy 165 assertions, redesign 78 assertions, registry 35,036 records, migration/history/service contracts and syntax checks passed. Focused independent browser probes reproduced both blockers. Desktop Customer/RO and phone Stack screenshots directly inspected; canonical no-overflow assertions passed for all eight destinations at 1440/820/390 px. No unexpected browser errors in canonical flows. Initial restricted browser run failed to reach localhost; successful rerun used local-server access. These results do not override the failed review probes.
+## Fresh validation
 
-The shell and Pages 1–5 information architecture meet the intended foundation direction. Representative Stack/Overview/Report are honest about pending reasoning and finalization. Full graph reasoning, learned zones, anti-loop/freeze behavior and terminal outcome calculation remain intentionally unimplemented. Exact manufacturer calibration is not fabricated. Human shop acceptance remains unperformed. See `docs/CT-0061-implementation.md` and prior Git history for the original implementation report.
+Full node scripts/validate.cjs: PASS, all seven canonical programs on 2026-10-27.
+- JavaScript integrity: PASS, two inline scripts and redesign module.
+- Vehicle registry/provenance: PASS, 35,036 combined records, unchanged.
+- Project controls and service-contract/migration/history/validation truth checks: PASS.
+- Vehicle cascade browser suite: PASS.
+- Legacy workflow browser suite: PASS, 165 assertions.
+- Default redesign browser suite: PASS, 108 assertions (30 added), zero unexpected console/page errors.
+- node --check ui/redesign.js, node --check tests/redesign.browser.cjs, git diff --check: PASS.
+- All eight destinations avoid horizontal overflow at 1440, 820 and 390 px. Desktop and phone Baseline screenshots directly inspected.
 
-## Delivery
+Regressions cover the original two reproductions, handler enforcement, hazard persistence/resolution audit links, invalid recipe variants, valid abnormal completion, supersession, legacy evidence preservation, reload, read-only history, return visits, duplicate RO checks and confirmed deletion. Bundled Playwright with installed Chrome used; no dependency or lockfile changes.
 
-Files changed: tasks/current.json, docs/CT-0061-review.md, CARBTUNE_HANDOFF.md.
-Implementation SHA for this no-code review: N/A.
-Deployment: NOT APPLICABLE. No main write, merge or production deployment performed.
-Review decision commit: 9768d579731e265e28f976fa31aac2229ed7b837.
-Repository delivery: protected design-branch push prepared; remote verification is performed after push and reported in the review chat.
-Production main verified before delivery: b15923a8fa37e39daaeba9e4eab2abf87d500e82.
+## Storage, limitations and review gate
+
+Additive observation metadata only; saved job/storage schemas and historical snapshots are unchanged. Prior evidence without recipe metadata remains historical and unverified. A new safety inspection conservatively requires fresh live readings. Technician facts are the evidence source; freeform notes are not parsed into verified setup. No independent physical instrument/vehicle verification is claimed.
+
+Fuel leaks remain the representative safety condition. Full graph traversal, fine-grained dependency selection, learned zones, freeze/anti-loop reasoning and successful terminal/finalization handling remain outside CT-0061. Human technician acceptance remains pending.
+
+Files changed: ui/redesign.js, tests/redesign.browser.cjs, docs/CT-0061-corrections.md, project/ACCEPTANCE_TESTS.md, tasks/current.json, CARBTUNE_HANDOFF.md.
+Deployment: NOT APPLICABLE. No main merge or deployment performed. Production main verified at b15923a8fa37e39daaeba9e4eab2abf87d500e82 before work. Protected design-branch push/remote verification follows this handoff commit.
+Next action: reviewer checks R1/R2 evidence and decides CT-0061 acceptance. Prepare executable CT-0062 diagnostic reasoning/dynamic tuning intelligence assignment only after acceptance. Do not start another unassigned feature or merge/deploy.
