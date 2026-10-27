@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "CT-0061",
   "title": "CarbTune Pro redesign shell and workflow foundation",
-  "status": "CHANGES_REQUESTED",
+  "status": "CODEX_WORKING",
   "createdDate": "2026-09-11",
   "authoritativeDesignBranch": "design/knowledge-graph-v1",
   "implementationBranch": "design/knowledge-graph-v1",
@@ -147,5 +147,10 @@
     ],
     "validation": "Fresh canonical run PASS: 7 programs; legacy 165 assertions; redesign 78 assertions. Focused browser probes reproduced both findings.",
     "nextAction": "Repair CT61-R1 and CT61-R2 on design/knowledge-graph-v1, add regression coverage, run complete validation, and return CT-0061 to READY_FOR_CHATGPT_REVIEW. Do not implement CT-0062 yet."
+  },
+  "codexRevision": {
+    "startingHead": "c3c9547c95c0350a7ce15452efe1dd4c7a09b9bf",
+    "startedAt": "2026-10-27T15:32:58.479Z",
+    "scope": "Resolve CT61-R1 and CT61-R2; preserve reviewer decision and return to review."
   }
 }
