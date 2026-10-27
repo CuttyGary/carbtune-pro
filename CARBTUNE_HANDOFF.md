@@ -30,4 +30,6 @@ The shell and Pages 1–5 information architecture meet the intended foundation 
 Files changed: tasks/current.json, docs/CT-0061-review.md, CARBTUNE_HANDOFF.md.
 Implementation SHA for this no-code review: N/A.
 Deployment: NOT APPLICABLE. No main write, merge or production deployment performed.
-Repository delivery: pending protected documentation commit/push and remote verification.
+Review decision commit: 9768d579731e265e28f976fa31aac2229ed7b837.
+Repository delivery: protected design-branch push prepared; remote verification is performed after push and reported in the review chat.
+Production main verified before delivery: b15923a8fa37e39daaeba9e4eab2abf87d500e82.
