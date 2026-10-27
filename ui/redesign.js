@@ -47,16 +47,61 @@
     fingerprints.set(state.id,next);
     originalSave();
   };
+  // Recipes describe factual test setup, never technician-controlled outcome state.
+  const commonRecipe = [
+    ['thermal','Thermal state',['Warm and stabilized','Cold / warming','Unknown']],
+    ['engine','Engine state',['Running at stable idle','Engine off','Unstable / above idle','Unknown']],
+    ['transmission','Transmission / movement',['Park or Neutral; stationary','In gear / moving','Unknown']],
+    ['load','Accessory load',['Stable throughout reading','Changing / unknown']],
+    ['choke','Choke / fast idle',['Fully open; fast idle disengaged','No choke installed','Choke / fast idle active','Unknown']],
+    ['instrument','Instrument check',['Suitable instrument; calibration / function checked','Not checked / unsuitable']]
+  ];
+  const measurementLocations = {
+    temp:'Intake crossover or trusted coolant sender', rpm:'Tachometer / engine-speed pickup',
+    vac:'Full-manifold source below throttle plates', fp:'Fuel-rated gauge near carburetor inlet',
+    initial:'Verified timing mark and pointer', afr:'Suitable wideband exhaust sampling location'
+  };
+  function recipe(key) {
+    return [...commonRecipe, ['location','Measurement location',[measurementLocations[key],'Other / unknown']],
+      ...(key==='initial'?[['advance','Vacuum advance',['Disconnected and source plugged','Not fitted / not applicable','Connected / unknown']]]:[]),
+      ...(key==='afr'?[['sensor','Wideband / exhaust',['Sensor warmed and calibrated; no upstream exhaust leaks','Not verified / unsuitable']]]:[])];
+  }
+  function conditionIssues(key, facts, value) {
+    facts ||= {};
+    const issues=recipe(key).filter(([id,,options])=>!options.slice(0,id==='choke'||id==='advance'?2:1).includes(facts[id])).map(([,label])=>label+' requires verification');
+    if (key==='rpm' && Number(value)===0) issues.push('Zero RPM cannot verify a running-idle test');
+    return issues;
+  }
+  function latest(key) { return [...model().observations].reverse().find(o=>o.key===key)||null; }
+  function matchesConfiguration(o) { return !!o && o.fingerprint===fingerprint() && (o.dependencyRevision||0)===model().dependencyRevision; }
+  function safetyState() {
+    const observations=model().observations, inspection=latest('leaks');
+    const hazard=[...observations].reverse().find(o=>o.key==='leaks'&&o.value==='Observed');
+    const resolution=inspection?.value==='None observed' && inspection.safetyRecipeVersion===1 && !!inspection.inspectionDetails?.trim() &&
+      (!hazard || inspection.resolves===hazard.id && !!inspection.resolutionDetails?.trim());
+    const unsafe=!!hazard && !resolution;
+    const cleared=!!resolution && matchesConfiguration(inspection);
+    return {inspection,hazard,unsafe,cleared,liveBlocked:unsafe||!cleared};
+  }
   function current(key) {
-    const fp=fingerprint();
-    return [...model().observations].reverse().find(o=>o.key===key && o.fingerprint===fp && (o.dependencyRevision||0)===model().dependencyRevision) || null;
+    // A later invalid result supersedes an earlier valid result; never search past it.
+    const o=latest(key);
+    if (!matchesConfiguration(o)) return null;
+    if (key==='leaks') return o;
+    const safety=safetyState();
+    return !safety.liveBlocked && o.safetyInspectionId===safety.inspection?.id && o.recipeVersion===1 &&
+      o.conditions?.trim() && conditionIssues(key,o.conditionFacts,o.value).length===0 ? o : null;
   }
   function required() { return BASELINE_TESTS.filter(t=>['temp','rpm','vac','fp','initial'].includes(t.key) || (t.key==='afr' && b51().hasWideband)); }
   function gate() {
-    const missing=required().filter(t=>!current(t.key));
-    const safety=current('leaks');
-    return { missing, safety, complete:missing.length===0 && !!safety,
-      unsafe:safety?.value==='Observed', abnormal:required().filter(t=>current(t.key)?.interpretation==='ABNORMAL') };
+    const missing=required().filter(t=>!current(t.key)),s=safetyState();
+    return {missing,safety:s.inspection,safetyCurrent:matchesConfiguration(s.inspection),complete:missing.length===0&&s.cleared,
+      unsafe:s.unsafe,liveBlocked:s.liveBlocked,abnormal:required().filter(t=>current(t.key)?.interpretation==='ABNORMAL')};
+  }
+  function recipeFields(key,draft) {
+    const facts=draft.facts||{};
+    return '<details class="ct-recipe" open><summary>Record test setup</summary><div class="ct-fields">'+recipe(key).map(([id,label,options])=>
+      '<div><label for="ct-setup-'+key+'-'+id+'">'+esc(label)+'</label><select id="ct-setup-'+key+'-'+id+'" data-ct-setup="'+key+'" data-ct-condition-fact="'+id+'"><option value="">Not recorded</option>'+options.map(v=>'<option '+(facts[id]===v?'selected':'')+'>'+esc(v)+'</option>').join('')+'</select></div>').join('')+'</div></details>';
   }
   function show(page) { model().page=page; b51().showJobs=false; workflow().showOverview=false; message=''; save(); renderGuided(); window.scrollTo(0,0); }
   setPhase=function(phase) {
@@ -121,31 +166,31 @@
   function baselinePage() {
     const g=gate();
     return notice(g.complete?(g.unsafe?'Evidence recorded; an observed fuel leak prevents live testing.':`Required evidence recorded. ${g.abnormal.length} result(s) outside the CarbTune starting window remain work to investigate.`):`${g.missing.length} measurement(s) ${g.safety?'':'and fuel-leak inspection '}await current verification. Opening later pages never marks this gate complete.`,g.unsafe?'fault':g.complete?'verified':'attention')+
-      `<h2>Test conditions</h2><p class="ct-intro">Use a safe stationary setup, warm stabilized operation and suitable instruments. Each reading retains its recorded conditions. Review the procedure before recording; do not perform live tests with an observed fuel leak.</p>
-      <div class="ct-measure"><label for="ct-leaks">Fuel-leak inspection — technician observation</label><select id="ct-leaks"><option value="">Not checked</option><option>None observed</option><option>Observed</option></select><button data-ct-record-safety style="margin-top:12px">Record inspection</button>${g.safety?notice(`${esc(g.safety.value)} · ${esc(g.safety.at)}`,g.unsafe?'fault':''):''}</div>`+
+      `<h2>Test conditions</h2><p class="ct-intro">Before live testing, record a current fuel-leak inspection. Use a safe stationary setup, warm stabilized operation and suitable instruments. Each reading retains its recorded conditions. Review the procedure before recording; do not perform live tests with an observed fuel leak.</p>
+      <div class="ct-measure"><label for="ct-leaks">Fuel-leak inspection — technician observation</label><select id="ct-leaks"><option value="">Not checked</option><option>None observed</option><option>Observed</option></select><label for="ct-safety-details">Inspection method / areas checked</label><input id="ct-safety-details" value="${esc(model().drafts.safety?.details||'')}"><label for="ct-safety-resolution">Repair performed / reason a previous leak observation was corrected</label><input id="ct-safety-resolution" value="${esc(model().drafts.safety?.resolution||'')}"><button data-ct-record-safety style="margin-top:12px">Record inspection</button>${g.safety?notice(`${esc(g.safety.value)} · ${esc(g.safety.at)}${g.safetyCurrent?'':' · Configuration changed: reinspection required'}${g.liveBlocked&&!g.unsafe?' · Current inspection method must be recorded before live testing':''}`,g.unsafe?'fault':''):notice('Record a fuel-leak inspection before live testing.','attention')}</div>`+
       required().map(t=>{
         const o=current(t.key),past=[...model().observations].reverse().find(o=>o.key===t.key),draft=model().drafts[t.key]||{};
         return `<section class="ct-measure" data-ct-measure="${t.key}"><h3>${esc(t.name)} <small>${esc(t.unit)}</small></h3>
           <p><strong>Projected starting envelope · CarbTune inference:</strong> ${esc(t.target)}. Exact manufacturer requirements take precedence; this is not a verified specification for the installed combination.</p>
           <details><summary>Procedure & required conditions</summary><p>${esc(t.how)} ${esc(t.more)}</p></details>
-          ${o?notice(`${esc(o.value)} ${esc(t.unit)} · ${o.interpretation==='ABNORMAL'?'Verified observation outside starting envelope':'Recorded observation'} · ${esc(o.conditions)}`):past?notice('A prior reading exists but its configuration dependency changed. Record a fresh observation.','attention'):''}
-          <div class="ct-fields"><div><label for="ct-value-${t.key}">Measured value (${esc(t.unit)})</label><input id="ct-value-${t.key}" type="number" step="${t.step||'any'}" value="${esc(draft.value??o?.value??'')}" ${g.unsafe?'disabled':''}></div><div><label for="ct-condition-${t.key}">Actual test conditions / instrument</label><input id="ct-condition-${t.key}" value="${esc(draft.condition||'')}" placeholder="Temperature, RPM, advance state, gauge…" ${g.unsafe?'disabled':''}></div><button data-ct-record="${t.key}" ${g.unsafe?'disabled':''}>Record reading</button></div>
+          ${o?notice(`${esc(o.value)} ${esc(t.unit)} · ${o.interpretation==='ABNORMAL'?'Verified observation outside starting envelope':'Recorded observation'} · ${esc(o.conditions)}`):past?notice('A prior reading exists but its setup, safety clearance or configuration is not current. Record a fresh observation.','attention'):''}
+          ${past?.conditionIssues?.length?notice(esc(past.conditionIssues.join('; ')),'attention'):''}${recipeFields(t.key,draft)}<div class="ct-fields"><div><label for="ct-value-${t.key}">Measured value (${esc(t.unit)})</label><input id="ct-value-${t.key}" type="number" step="${t.step||'any'}" value="${esc(draft.value??o?.value??'')}" ${g.liveBlocked?'disabled':''}></div><div><label for="ct-condition-${t.key}">Actual test conditions / instrument</label><input id="ct-condition-${t.key}" value="${esc(draft.condition||'')}" placeholder="Temperature, RPM, advance state, gauge…" ${g.liveBlocked?'disabled':''}></div><button data-ct-record="${t.key}" ${g.liveBlocked?'disabled':''}>Record reading</button></div>
           ${past?`<label for="ct-reason-${t.key}" style="margin-top:12px">Reason for replacement / repeat reading</label><input id="ct-reason-${t.key}" value="${esc(draft.reason||'')}" placeholder="Prior observations remain in the audit history">`:''}</section>`;
       }).join('');
   }
   function stackPage() {
     const g=gate(),m=model(),fp=current('fp');
     const pressureConcern=fp?.interpretation==='ABNORMAL';
-    const objective=g.unsafe?'Resolve fuel-leak safety concern':!g.complete?'Establish valid as-found evidence':pressureConcern?'Verify fuel delivery against the installed carburetor requirement':'Review verified observations and remaining complaint';
-    return `<span class="ct-state">${g.unsafe?'LIVE TESTING BLOCKED':g.complete?'AWAITING TECHNICAL VERIFICATION':'AWAITING BASELINE EVIDENCE'}</span><div class="ct-stack">
+    const objective=g.unsafe?'Resolve fuel-leak safety concern':g.liveBlocked?'Verify fuel-leak safety clearance':!g.complete?'Establish valid as-found evidence':pressureConcern?'Verify fuel delivery against the installed carburetor requirement':'Review verified observations and remaining complaint';
+    return `<span class="ct-state">${g.liveBlocked?'LIVE TESTING BLOCKED':g.complete?'AWAITING TECHNICAL VERIFICATION':'AWAITING BASELINE EVIDENCE'}</span><div class="ct-stack">
       <section><h2>Objective</h2><h3>${objective}</h3><p>${g.complete?'This worksheet is selected from this job’s current evidence. Further graph-driven diagnosis remains pending.':'Complete the required factual evidence before the system can choose a corrective objective.'}</p></section>
       <section><h2>Evidence</h2>${g.missing.length?`<p>Missing or stale: ${g.missing.map(t=>esc(t.name)).join(', ')}.</p>`:''}${!g.safety?'<p>Fuel-leak inspection is not recorded.</p>':`<p>Fuel-leak observation: ${esc(g.safety.value)}.</p>`}${fp?`<p>Fuel pressure: ${esc(fp.value)} PSI; ${esc(fp.conditions)}. ${pressureConcern?'Outside the CarbTune starting window; the exact manufacturer requirement is still needed.':'Recorded value alone does not establish loaded fuel-delivery capacity.'}</p>`:''}<p>Customer concern: ${esc(m.customer.complaint||'Not recorded')}.</p></section>
-      <section><h2>Action</h2>${g.unsafe?'<p>Stop engine operation. Investigate and repair the observed leak safely before recording a new inspection.</p>':!g.complete?'<button data-ct-page="baseline">Enter missing evidence</button>':'<p>Identify the component-specific source and gather evidence for the proposed diagnostic direction. No automatic calibration adjustment is prescribed by this milestone.</p>'}<div class="ct-fields">${field('stack','action','Technician action / new evidence','textarea')}${field('stack','source','Source / procedure reference')}</div></section>
+      <section><h2>Action</h2>${g.unsafe?'<p>Stop engine operation. Investigate and repair the observed leak safely before recording a new inspection.</p>':g.liveBlocked?'<p>Record a current stationary fuel-leak inspection before running the engine or collecting live measurements.</p><button data-ct-page="baseline">Record safety inspection</button>':!g.complete?'<button data-ct-page="baseline">Enter missing evidence</button>':'<p>Identify the component-specific source and gather evidence for the proposed diagnostic direction. No automatic calibration adjustment is prescribed by this milestone.</p>'}<div class="ct-fields">${field('stack','action','Technician action / new evidence','textarea')}${field('stack','source','Source / procedure reference')}</div></section>
       <section><h2>Verification</h2><p>Repeat affected measurements under comparable conditions after a change. Configuration changes invalidate prior dependent conclusions while preserving their history.</p><button class="secondary" data-ct-page="baseline">Review / record verification evidence</button><div class="ct-fields" style="margin-top:16px">${field('stack','verificationNotes','Verification observations — not a pass declaration','textarea')}</div></section>
       <section><h2>Outcome</h2>${notice('Awaiting verified outcome. Technician notes do not mark a correction successful or a system stable. A verified outcome requires component requirements and comparable retest evidence. No successful correction has been established.','attention')}</section></div>`;
   }
   function evidenceHistory() {
-    return `<details class="ct-domain"><summary>Observation & correction history <small>${model().observations.length} readings · ${model().audit.length} edits</small></summary><div class="ct-audit">${Object.entries(model().legacyBaseline||{}).filter(([,v])=>nonempty(v)).map(([key,value])=>`<article>Prior workflow measurement — ${esc(key)}: ${esc(value)}. Historical evidence; not verified for the current test conditions.</article>`).join('')}${[...model().observations].reverse().map(o=>`<article><strong>${esc(o.key)}: ${esc(o.value)}</strong><br>${esc(o.at)} · ${esc(o.actor)} · ${esc(o.conditions)}<br>${esc(o.reason||'Initial observation')} · Technician evidence</article>`).join('')}${[...model().audit].reverse().map(a=>`<article>${esc(a.field)} · ${esc(a.at)} · ${esc(a.actor)}<br>${esc(a.reason)}</article>`).join('')}</div></details>`;
+    return `<details class="ct-domain"><summary>Observation & correction history <small>${model().observations.length} readings · ${model().audit.length} edits</small></summary><div class="ct-audit">${Object.entries(model().legacyBaseline||{}).filter(([,v])=>nonempty(v)).map(([key,value])=>`<article>Prior workflow measurement — ${esc(key)}: ${esc(value)}. Historical evidence; not verified for the current test conditions.</article>`).join('')}${[...model().observations].reverse().map(o=>`<article><strong>${esc(o.key)}: ${esc(o.value)}</strong><br>${esc(o.at)} · ${esc(o.actor)} · ${esc(o.conditions)}<br>${esc(o.reason||'Initial observation')} · Technician evidence<br>${esc(o.inspectionDetails||'')}${o.resolutionDetails?' · '+esc(o.resolutionDetails):''}${o.conditionFacts?' · '+esc(Object.values(o.conditionFacts).join('; ')):''}${o.conditionIssues?.length?' · Not verified: '+esc(o.conditionIssues.join('; ')):''}</article>`).join('')}${[...model().audit].reverse().map(a=>`<article>${esc(a.field)} · ${esc(a.at)} · ${esc(a.actor)}<br>${esc(a.reason)}</article>`).join('')}</div></details>`;
   }
   function overviewPage(report=false) {
     const m=model(),g=gate(),legacy=currentVerificationResult();
@@ -155,7 +200,7 @@
       <h2>Corrections & verification</h2><p>${esc(m.stack.action||'No action recorded in the new worksheet.')}</p><p>${esc(m.stack.verificationNotes||'No verification notes recorded.')}</p>
       ${state.tuneLog.length?`<details class="ct-domain"><summary>Carried-forward job change history</summary>${state.tuneLog.map(t=>`<p>${esc(t.parameter)}: ${esc(t.before??'Unknown')} → ${esc(t.after??'Unknown')} · ${esc(t.outcome||'Unverified')}</p>`).join('')}</details>`:''}
       <h2>Final configuration / as leaving</h2><p>${esc(m.configuration.otherSettings||'No as-leaving configuration has been verified by this milestone.')}</p>
-      <h2>Remaining concerns & outcome</h2>${g.unsafe?notice('Observed fuel leak: live testing is blocked.','fault'):''}${notice('Tuning outcome awaiting verification. The report must not imply success because the technician opened this page.','attention')}
+      <h2>Remaining concerns & outcome</h2>${g.unsafe?notice('Observed fuel leak: live testing is blocked.','fault'):g.liveBlocked?notice('Current fuel-leak safety clearance is missing. Live testing is blocked.','attention'):''}${notice('Tuning outcome awaiting verification. The report must not imply success because the technician opened this page.','attention')}
       <p>${legacy?'A current legacy verification record exists and remains available in job history; no new repair conclusion is inferred.':'No current passing repair verification is available.'}</p>
       ${state.requiredActions.filter(a=>!['Completed','Not Needed'].includes(a.status)).map(a=>notice(esc(a.title),'attention')).join('')}
       ${report?`<button class="secondary" data-ct-print>Print factual report</button> <button disabled title="A verified terminal outcome is required">Finalize — awaiting verified outcome</button><p class="ct-intro" style="margin-top:14px">Finalization is reserved for a verified terminal outcome. This workflow foundation does not yet calculate one.</p>`:evidenceHistory()}`;
@@ -205,17 +250,36 @@
     const past=[...model().observations].reverse().find(o=>o.key===key);
     const value=key==='leaks'?raw:Number(raw);
     let error=!raw?'Enter an observation.':!conditions?'Record actual test conditions and instrument.':past&&key!=='leaks'&&!reason?'Give a reason for the repeat / corrected reading.':t?b51ValidateMeasurement(t,value):null;
-    if (key!=='leaks' && gate().unsafe) error='Resolve and re-inspect the observed fuel leak before live testing.';
+    const safety=safetyState();
+    const inspectionDetails=$id('ct-safety-details')?.value.trim()||'',resolutionDetails=$id('ct-safety-resolution')?.value.trim()||'';
+    if (key==='leaks' && !['Observed','None observed'].includes(value)) error='Record an inspection result.';
+    if (key==='leaks' && value==='None observed' && !inspectionDetails) error='Record the inspection method and areas checked.';
+    if (key==='leaks' && value==='None observed' && safety.hazard && !resolutionDetails) error='Describe the repair or factual correction before resolving the prior leak observation.';
+    if (key!=='leaks' && safety.liveBlocked) error='Record valid current fuel-leak safety clearance before live testing.';
+    const conditionFacts=key==='leaks'?null:Object.fromEntries([...document.querySelectorAll('[data-ct-setup="'+key+'"]')].map(el=>[el.dataset.ctConditionFact,el.value]));
+    const issues=t?conditionIssues(key,conditionFacts,value):[];
     if (error) {message=error;renderGuided();return;}
     const observation={id:crypto.randomUUID(),key,value,conditions,reason:reason||'Initial reading',actor:actor(),at:now(),fingerprint:fingerprint(),dependencyRevision:model().dependencyRevision,replaces:past?.id||null,provenance:key==='leaks'?'TECHNICIAN_OBSERVATION':'TECHNICIAN_MEASURED_RESULT',interpretation:t&&testResult(t,value).kind==='bad'?'ABNORMAL':'RECORDED'};
+    if (key==='leaks') Object.assign(observation,{safetyRecipeVersion:1,inspectionDetails,resolutionDetails,resolves:value==='None observed'?safety.hazard?.id||null:null});
+    else Object.assign(observation,{recipeVersion:1,conditionFacts,conditionIssues:issues,safetyInspectionId:safety.inspection.id});
     model().observations.push(observation);
     delete model().drafts[key];
     // Keep legacy measurements readable, without rewriting any historical snapshot.
-    if (t) state.baseline[key]=value;
+    if (t && !issues.length) state.baseline[key]=value;
+    if (key==='leaks') delete model().drafts.safety;
     invalidateValidationTruth('New technician evidence recorded; conclusions require reassessment.');
-    save(); message='Observation saved with conditions and provenance.'; renderGuided();
+    save(); message=issues.length?'Observation retained but not verified: '+issues.join('; '):'Observation saved with conditions and provenance.'; renderGuided();
   },true);
   window.addEventListener('input',e=>{
+    if (state.results.completed) return;
+    if (e.target.matches('[data-ct-condition-fact]')) {
+      const key=e.target.dataset.ctSetup;
+      model().drafts[key] ||= {};model().drafts[key].facts ||= {};
+      model().drafts[key].facts[e.target.dataset.ctConditionFact]=e.target.value;save();return;
+    }
+    if (['ct-safety-details','ct-safety-resolution'].includes(e.target.id)) {
+      model().drafts.safety ||= {};model().drafts.safety[e.target.id==='ct-safety-details'?'details':'resolution']=e.target.value;save();return;
+    }
     const match=e.target.id?.match(/^ct-(value|condition|reason)-(.+)$/);
     if (!match||state.results.completed) return;
     model().drafts[match[2]] ||= {};

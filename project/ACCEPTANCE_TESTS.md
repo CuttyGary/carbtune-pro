@@ -123,3 +123,10 @@ npm run validate
 ```
 
 It must exit `0` only when every configured stage succeeds and nonzero when syntax, registry, project-control, browser, persistence, provenance, or responsive checks fail. The runner reports each test program before executing it so the failing stage is visible. Manual, planned, and `BLOCKED_BY_DATA` items are reported honestly and are never converted into fake automated passes.
+
+## CT-0061 review correction regressions
+
+| ID | Acceptance behavior | Coverage | Evidence |
+| --- | --- | --- | --- |
+| CT61-R1 | Known fuel-leak hazards persist across configuration changes/reloads; live tests require current inspection and documented resolution of prior hazards. | AUTOMATED | `tests/redesign.browser.cjs`: controls, handler, audit links, Stack/report and persistence checks |
+| CT61-R2 | Explicit test recipes govern evidence validity; incompatible/legacy readings remain historical, while valid abnormal measurements can complete baseline. | AUTOMATED | `tests/redesign.browser.cjs`: cold/off reproduction, instrument/location/advance/AFR checks, supersession and migration |

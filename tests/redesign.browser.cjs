@@ -16,7 +16,24 @@ function check(value,description){assert.ok(value,description);count++;console.l
     await page.evaluate(()=>{localStorage.clear();});
     await page.reload({waitUntil:'networkidle'});
     const nav=id=>page.locator(`.ct-nav [data-ct-page="${id}"]`).click();
-    async function edit(group,key,value){const input=page.locator(`[data-ct-group="${group}"][data-ct-field="${key}"]`);await input.fill(value);await input.dispatchEvent('change');}
+    async function edit(group,key,value){const input=page.locator(`[data-ct-group="${group}"][data-ct-field="${key}"]`);const details=input.locator('xpath=ancestor::details[1]');if(await details.count()&&!await details.evaluate(e=>e.open))await details.locator(':scope > summary').click();await input.fill(value);await input.dispatchEvent('change');}
+    async function setup(key, overrides={}) {
+      const facts={thermal:'Warm and stabilized',engine:'Running at stable idle',transmission:'Park or Neutral; stationary',load:'Stable throughout reading',choke:'Fully open; fast idle disengaged',instrument:'Suitable instrument; calibration / function checked',location:{temp:'Intake crossover or trusted coolant sender',rpm:'Tachometer / engine-speed pickup',vac:'Full-manifold source below throttle plates',fp:'Fuel-rated gauge near carburetor inlet',initial:'Verified timing mark and pointer',afr:'Suitable wideband exhaust sampling location'}[key],advance:'Disconnected and source plugged',sensor:'Sensor warmed and calibrated; no upstream exhaust leaks',...overrides};
+      for(const el of await page.locator('[data-ct-setup="'+key+'"]').all()) await el.selectOption(facts[await el.getAttribute('data-ct-condition-fact')]);
+    }
+    async function inspection(value='None observed',resolution='') {
+      await page.locator('#ct-leaks').selectOption(value);
+      await page.locator('#ct-safety-details').fill('Stationary inspection of carb inlet, hoses, bowls and fittings');
+      if(resolution) await page.locator('#ct-safety-resolution').fill(resolution);
+      await page.locator('[data-ct-record-safety]').click();
+    }
+    async function reading(key,value,overrides={},reason='Repeat with documented test setup') {
+      await setup(key,overrides);
+      await page.locator('#ct-value-'+key).fill(String(value));
+      await page.locator('#ct-condition-'+key).fill('Instrument identified and function checked; setup facts recorded above');
+      if(await page.locator('#ct-reason-'+key).count()) await page.locator('#ct-reason-'+key).fill(reason);
+      await page.locator('[data-ct-record="'+key+'"]').click();
+    }
     check(await page.locator('body').evaluate(e=>e.classList.contains('ct61')),'redesign is default entry point');
     check(await page.locator('.ct-sheet h1').innerText()==='Customer & Repair Order','Page 1 opens as distinct customer/RO workspace');
     await edit('customer','name','Acceptance customer');
@@ -58,15 +75,32 @@ function check(value,description){assert.ok(value,description);count++;console.l
     check(!(await page.evaluate(()=>CarbTuneRedesign.gate())).complete,'opening Stack cannot override missing evidence');
     for(const label of ['Objective','Evidence','Action','Verification','Outcome'])check((await page.locator('.ct-stack').innerText()).toLowerCase().includes(label.toLowerCase()),'Stack includes '+label);
     await nav('baseline');
-    await page.locator('#ct-leaks').selectOption('None observed');await page.locator('[data-ct-record-safety]').click();
+    check(await page.locator('[data-ct-record="rpm"]').isDisabled(),'missing inspection blocks live readings');
+    await page.evaluate(()=>{const b=document.querySelector('[data-ct-record="rpm"]');b.disabled=false;b.click();});
+    check(await page.evaluate(()=>state.redesign.observations.length)===0,'recording handler also rejects missing safety clearance');
+    await inspection();
+    // The original cold/engine-off reproduction must retain facts without completing verification.
+    for(const [key,value] of Object.entries({temp:40,rpm:0,vac:0,fp:6,initial:12})) {
+      await setup(key,{thermal:'Cold / warming',engine:'Engine off'});
+      await page.locator('#ct-value-'+key).fill(String(value));
+      await page.locator('#ct-condition-'+key).fill('Engine off, cold, no instrument identified');
+      await page.locator('[data-ct-record="'+key+'"]').click();
+    }
+    check(!(await page.evaluate(()=>CarbTuneRedesign.gate())).complete,'cold engine-off readings cannot complete warm baseline');
+    check(await page.evaluate(()=>state.redesign.observations.filter(o=>o.conditionIssues?.length).length)===5,'invalid setup evidence is retained with reasons');
+    check(await page.evaluate(()=>state.redesign.observations.filter(o=>o.key==='rpm')[0].conditionFacts.engine)==='Engine off','recorded structured setup preserves the actual engine state');
+    await page.reload({waitUntil:'networkidle'});
+    check(!(await page.evaluate(()=>CarbTuneRedesign.current('rpm'))),'invalid setup remains unverified after reload');
+    // Invalid instrument/location/advance facts must independently prevent verification.
+    for(const [key,facts] of [['fp',{instrument:''}],['fp',{instrument:'Not checked / unsuitable'}],['vac',{location:'Other / unknown'}],['initial',{advance:'Connected / unknown'}]]) {
+      await reading(key,key==='fp'?6:key==='vac'?16:12,facts);
+      check(!(await page.evaluate(k=>CarbTuneRedesign.current(k),key)),key+' rejects incompatible measurement recipe');
+    }
+    await page.locator('#ct-reason-fp').fill('Gauge entry typo');
     await page.locator('#ct-value-fp').fill('999');await page.locator('#ct-condition-fp').fill('Warm idle, gauge at inlet');await page.locator('[data-ct-record="fp"]').click();
     check(!(await page.evaluate(()=>CarbTuneRedesign.current('fp'))),'implausible pressure is rejected');
     check(await page.locator('#ct-value-fp').inputValue()==='999','implausible entry remains visible for correction');
-    for(const [key,value] of Object.entries({temp:190,rpm:800,vac:16,fp:9,initial:12})){
-      await page.locator('#ct-value-'+key).fill(String(value));
-      await page.locator('#ct-condition-'+key).fill('Warm stable idle, Park, appropriate calibrated instrument; advance disconnected for timing');
-      await page.locator(`[data-ct-record="${key}"]`).click();
-    }
+    for(const [key,value] of Object.entries({temp:190,rpm:800,vac:16,fp:9,initial:12})) await reading(key,value);
     let gate=await page.evaluate(()=>CarbTuneRedesign.gate());
     check(gate.complete&&gate.abnormal.length===1,'valid abnormal pressure satisfies evidence completion without an override');
     await nav('stack');
@@ -85,22 +119,72 @@ function check(value,description){assert.ok(value,description);count++;console.l
     await edit('configuration','manualChoke','Cable connected, fully open when warm');
     check(!(await page.evaluate(()=>CarbTuneRedesign.gate())).complete,'reverting configuration cannot resurrect invalidated observations');
     await nav('baseline');
+    check(await page.locator('[data-ct-record="fp"]').isDisabled(),'configuration changes require renewed safety inspection');
+    await inspection();await setup('fp');
+    const fpCountBefore=await page.evaluate(()=>state.redesign.observations.filter(o=>o.key==='fp').length);
     await page.locator('#ct-value-fp').fill('6');await page.locator('#ct-condition-fp').fill('Warm stationary idle, same inlet gauge');
     await page.locator('[data-ct-record="fp"]').click();
     check(!(await page.evaluate(()=>CarbTuneRedesign.current('fp'))),'replacement evidence requires a reason');
     await page.locator('#ct-value-fp').fill('6');await page.locator('#ct-condition-fp').fill('Warm stationary idle, same inlet gauge');await page.locator('#ct-reason-fp').fill('Repeat after configuration review');await page.locator('[data-ct-record="fp"]').click();
-    check((await page.evaluate(()=>state.redesign.observations.filter(o=>o.key==='fp'))).length===2,'corrected observation appends instead of overwriting');
+    check((await page.evaluate(()=>state.redesign.observations.filter(o=>o.key==='fp'))).length===fpCountBefore+1,'corrected observation appends instead of overwriting');
     await page.locator('#ct-leaks').selectOption('Observed');await page.locator('[data-ct-record-safety]').click();
     check(await page.locator('[data-ct-record="rpm"]').isDisabled(),'observed fuel leak blocks live reading controls');
     await nav('stack');check((await page.locator('.ct-sheet').innerText()).includes('LIVE TESTING BLOCKED'),'Stack prioritizes observed safety evidence');
     check((await page.locator('.ct-stack').innerText()).includes('Stop engine operation'),'safety action takes precedence over missing measurement work');
+    const hazard=await page.evaluate(()=>state.redesign.observations.filter(o=>o.key==='leaks').at(-1));
+    await nav('configuration');await page.locator('.ct-domain summary').click();
+    await edit('configuration','otherSettings','Unrelated setting note');
+    await nav('baseline');
+    check((await page.evaluate(()=>CarbTuneRedesign.gate())).unsafe,'unrelated edit preserves unresolved fuel-leak hazard');
+    check(await page.locator('[data-ct-record="rpm"]').isDisabled(),'unrelated configuration edit cannot re-enable live tests');
+    await page.reload({waitUntil:'networkidle'});
+    check((await page.evaluate(()=>CarbTuneRedesign.gate())).unsafe,'known hazard persists through reload');
+    const countBefore=await page.evaluate(()=>state.redesign.observations.length);
+    await page.evaluate(()=>{document.querySelector('#ct-value-rpm').value='800';document.querySelector('#ct-condition-rpm').value='Warm idle';const b=document.querySelector('[data-ct-record="rpm"]');b.disabled=false;b.click();});
+    check(await page.evaluate(()=>state.redesign.observations.length)===countBefore,'handler cannot be bypassed by enabling a disabled live control');
+    await nav('configuration');await edit('configuration','otherSettings','');
+    await edit('configuration','manualChoke','Changed linkage');
+    await nav('baseline');
+    check((await page.evaluate(()=>CarbTuneRedesign.gate())).unsafe,'configuration reversal and hardware setting changes preserve hazard');
+    await page.locator('#ct-leaks').selectOption('None observed');await page.locator('[data-ct-record-safety]').click();
+    check((await page.evaluate(()=>CarbTuneRedesign.gate())).unsafe,'empty clearance cannot resolve hazard');
+    await inspection();
+    check((await page.evaluate(()=>CarbTuneRedesign.gate())).unsafe,'inspection alone cannot erase a known leak without repair/correction evidence');
+    await nav('report');check((await page.locator('.ct-sheet').innerText()).includes('Observed fuel leak'),'report retains unresolved hazard after configuration changes');
+    await nav('baseline');await inspection('None observed','Replaced leaking inlet hose; repeated stationary inspection found no leak');
+    check(!(await page.evaluate(()=>CarbTuneRedesign.gate())).liveBlocked,'documented new inspection and repair permit live tests');
+    const clearance=await page.evaluate(()=>state.redesign.observations.filter(o=>o.key==='leaks').at(-1));
+    check(clearance.resolves===hazard.id&&clearance.resolutionDetails.includes('Replaced'),'resolution links append-only repair facts to the original hazard');
+    check(await page.evaluate(id=>JSON.stringify(state.redesign.observations.find(o=>o.id===id)),hazard.id)===JSON.stringify(hazard),'hazard is preserved verbatim after resolution');
+    await page.reload({waitUntil:'networkidle'});
+    check(!(await page.evaluate(()=>CarbTuneRedesign.gate())).liveBlocked,'valid clearance survives reload');
+    await reading('rpm',800);
+    await reading('rpm',0,{engine:'Engine off'});
+    check(!(await page.evaluate(()=>CarbTuneRedesign.current('rpm'))),'new invalid observation supersedes an earlier valid measurement');
+    // Exercise timing not-applicable and AFR-specific setup, preserving valid abnormal completion.
+    await nav('build');await page.locator('[data-ct-domain="monitor"] summary').click();await page.locator('[data-wideband]').check();
+    await nav('baseline');await inspection('None observed','Hose repair remains intact after configuration review');
+    await reading('afr',14,{sensor:'Not verified / unsuitable'});
+    check(!(await page.evaluate(()=>CarbTuneRedesign.current('afr'))),'unverified wideband conditions do not count as evidence');
+    for(const [key,value] of Object.entries({temp:190,rpm:800,vac:16,fp:9,initial:12,afr:14})) await reading(key,value,key==='initial'?{advance:'Not fitted / not applicable',choke:'No choke installed'}:{});
+    check((await page.evaluate(()=>CarbTuneRedesign.gate())).complete,'valid recipes including architecture alternatives complete baseline with abnormal evidence');
+    await page.reload({waitUntil:'networkidle'});
+    check((await page.evaluate(()=>CarbTuneRedesign.gate())).complete,'verified recipe evidence and abnormal completion persist after reload');
+    // A legacy-format latest observation is not rewritten or implicitly verified.
+    const legacyBefore=await page.evaluate(()=>{const o=state.redesign.observations.filter(o=>o.key==='temp').at(-1);delete o.recipeVersion;delete o.conditionFacts;delete o.conditionIssues;save();return JSON.stringify(o);});
+    await page.reload({waitUntil:'networkidle'});
+    check(await page.evaluate(()=>JSON.stringify(state.redesign.observations.filter(o=>o.key==='temp').at(-1)))===legacyBefore,'legacy evidence migration does not rewrite stored observation facts');
+    check(!(await page.evaluate(()=>CarbTuneRedesign.current('temp')))&&!(await page.evaluate(()=>CarbTuneRedesign.gate())).complete,'legacy observation without a recipe cannot satisfy current verification');
+    await reading('temp',190);
+    check((await page.evaluate(()=>CarbTuneRedesign.gate())).complete,'new verified evidence restores completion without deleting legacy history');
+    await inspection('Observed');await nav('stack');
     for(const width of [1440,820,390]){
       await page.setViewportSize({width,height:1000});
       for(const id of ['customer','vehicle','build','configuration','baseline','stack','overview','report']){
         await nav(id);
         check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${id} has no horizontal overflow at ${width}px`);
       }
-      if(shots){fs.mkdirSync(shots,{recursive:true});await nav('customer');await page.screenshot({path:path.join(shots,`ct61-${width}.png`),fullPage:true});await nav('stack');await page.screenshot({path:path.join(shots,`ct61-stack-${width}.png`),fullPage:true});}
+      if(shots){fs.mkdirSync(shots,{recursive:true});await nav('customer');await page.screenshot({path:path.join(shots,`ct61-${width}.png`),fullPage:true});await nav('stack');await page.screenshot({path:path.join(shots,`ct61-stack-${width}.png`),fullPage:true});await nav('baseline');await page.screenshot({path:path.join(shots,`ct61-baseline-${width}.png`)});}
     }
     await page.setViewportSize({width:1440,height:1000});
     await page.evaluate(()=>{state.results.completed=true;save();renderGuided();});
