@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "CT-0061",
   "title": "CarbTune Pro redesign shell and workflow foundation",
-  "status": "READY_FOR_CHATGPT_REVIEW",
+  "status": "CHANGES_REQUESTED",
   "createdDate": "2026-09-11",
   "authoritativeDesignBranch": "design/knowledge-graph-v1",
   "implementationBranch": "design/knowledge-graph-v1",
@@ -73,6 +73,18 @@
       "expected": "No redesign application code is merged to main.",
       "status": "PASS",
       "evidence": "Implementation b9e3702 is on design/knowledge-graph-v1 only; main remains at b15923a."
+    },
+    {
+      "id": "CT-0061-R1",
+      "expected": "An unresolved observed safety fault remains blocking after any configuration edit, reload or return to a previous configuration; missing/stale safety inspection cannot authorize live testing; only valid new safety evidence resolves it.",
+      "status": "FAIL",
+      "evidence": "Observed leak -> edit As-Found otherSettings -> gate.safety=null, gate.unsafe=false, RPM record enabled."
+    },
+    {
+      "id": "CT-0061-R2",
+      "expected": "Required operating-condition recipes are validated before readings count toward the baseline gate; incompatible evidence stays historical/unverified, while valid abnormal evidence still completes factual requirements.",
+      "status": "FAIL",
+      "evidence": "All five readings recorded with conditions Engine off, cold, no instrument identified (40 F, 0 RPM, 0 inHg, 6 PSI, 12 BTDC); gate.complete=true."
     }
   ],
   "implementationNotes": [
@@ -113,6 +125,27 @@
   "commitSha": "b9e3702ad6ea9b9f061ac23966eee4e19a156153",
   "deploymentStatus": "NOT_APPLICABLE: design-branch review deliverable only. Implementation b9e3702ad6ea9b9f061ac23966eee4e19a156153 pushed and verified on origin/design/knowledge-graph-v1; origin/main remains b15923a. Local review preview is available at http://127.0.0.1:4173. No production deployment performed.",
   "blockers": [],
-  "reviewStatus": "READY_FOR_CHATGPT_REVIEW",
-  "completedDate": "2026-09-11"
+  "reviewStatus": "CHANGES_REQUESTED",
+  "completedDate": "2026-09-11",
+  "reviewerReview": {
+    "date": "2026-10-27",
+    "reviewedHead": "5148ef91a698c01b28c81b0669fc750f54c4d565",
+    "implementationSha": "b9e3702ad6ea9b9f061ac23966eee4e19a156153",
+    "decision": "CHANGES_REQUESTED",
+    "report": "docs/CT-0061-review.md",
+    "findings": [
+      {
+        "id": "CT61-R1",
+        "priority": "P1",
+        "summary": "Configuration invalidation removes an unresolved observed fuel-leak safety block and re-enables live tests."
+      },
+      {
+        "id": "CT61-R2",
+        "priority": "P1",
+        "summary": "Nonempty free-text conditions allow cold/engine-off readings to satisfy required warm-baseline verification."
+      }
+    ],
+    "validation": "Fresh canonical run PASS: 7 programs; legacy 165 assertions; redesign 78 assertions. Focused browser probes reproduced both findings.",
+    "nextAction": "Repair CT61-R1 and CT61-R2 on design/knowledge-graph-v1, add regression coverage, run complete validation, and return CT-0061 to READY_FOR_CHATGPT_REVIEW. Do not implement CT-0062 yet."
+  }
 }
